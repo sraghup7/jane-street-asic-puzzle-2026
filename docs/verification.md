@@ -82,6 +82,10 @@ one-line notes in a dict that prints `-` for anything unlisted.
 21 mutations × 11 gates, each cell an isolated measurement with a pristine restore between
 every probe. The "fired" column is the real output of `tools/checks/fault_inject.py`:
 
+> The matrix grows as steps land: after B1 it is **27 mutations × 12 gates**, still with 0
+> misses and 0 hermeticity violations (B1's six mutations all fire `stepB1`). The table below
+> is this audit's run; run the tool for the current one.
+
 | injected fault | gates that fired |
 |---|---|
 | `layers`: role table moved li1 → non_elec | stepA1 |

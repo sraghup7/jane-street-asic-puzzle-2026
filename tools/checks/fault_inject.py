@@ -7,6 +7,11 @@ suite:
 
     .venv/Scripts/python tools/checks/fault_inject.py
 
+**Run it alone.** It holds artifacts in a mutated state between two restores, so anything
+reading them concurrently can see a fault on purpose. Running `run_all.py` alongside it
+will report spurious failures (measured: `stepA1` failing with 2 checks while a
+fault-injection run was in flight).
+
 For every (artifact, mutation) pair it restores a pristine snapshot, injects one
 well-formed but wrong value, runs ONE gate, and records whether that gate noticed. Two
 properties are measured:
@@ -48,6 +53,7 @@ GATES = [
     ('stepA4', 'tools/checks/check_stepA4.py'),
     ('stepA5', 'tools/checks/check_stepA5.py'),
     ('recompute', 'tools/checks/check_recompute.py'),
+    ('stepB1', 'tools/checks/check_stepB1.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -55,8 +61,9 @@ VIA = 'recon/derived/via_pairs.json'
 NAMES = 'recon/derived/pin_names.json'
 GEOM = 'recon/derived/pinmodel.json'
 COV = 'recon/derived/pin_coverage.json'
+INST = 'recon/derived/instances.json'
 INV = 'recon/inventory.json'
-ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INV]
+ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, INV]
 
 NAND2 = 'sky130_fd_sc_hd__nand2_2'
 
@@ -149,6 +156,31 @@ def m_inv_sha(d):
     d['gds']['sha256'] = '0' * 64
 
 
+def m_inst_convention(d):
+    d['convention']['chosen_by_kind']['rot180_mirror'] = [-1, -1]
+
+
+def m_inst_origin(d):
+    d['instances'][0]['origin_dbu'][0] += 460
+
+
+def m_inst_bbox(d):
+    d['instances'][5]['bbox_dbu'][2] += 1000
+
+
+def m_inst_delete(d):
+    d['instances'].pop()
+    d['totals']['instances'] -= 1
+
+
+def m_inst_footprint(d):
+    d['instances'][3]['footprint_dbu'][1] -= 2720
+
+
+def m_inst_def_oracle(d):
+    d['def_oracle']['matched'] = 229
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -171,6 +203,12 @@ MUTATIONS = [
     ('inventory: structure count 81 -> 82', INV, m_inv_structures),
     ('inventory: warmup DEF site width 0.46 -> 0.47', INV, m_inv_defsite),
     ('inventory: GDS source hash blanked', INV, m_inv_sha),
+    ('instances: a kind\'s matrix flipped', INST, m_inst_convention),
+    ('instances: one anchor moved 1 site', INST, m_inst_origin),
+    ('instances: one bbox widened', INST, m_inst_bbox),
+    ('instances: a placement deleted', INST, m_inst_delete),
+    ('instances: a footprint shifted a row', INST, m_inst_footprint),
+    ('instances: DEF oracle match count faked', INST, m_inst_def_oracle),
 ]
 
 

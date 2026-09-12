@@ -306,6 +306,19 @@ transform convention.
 *If it fails:* the convention is wrong; try the other sign combinations for one known instance and
 report which one satisfies all 1618.
 
+***Verify, additionally (executed):*** the chosen matrix must be the **only** one that fits each kind
+(a convention that is one of several fits is not a convention); the **warm-up DEF** must corroborate
+it — 230 placements with explicit coordinates and orientation tokens, matched by cell and exact
+lower-left corner, with the token → kind map a bijection (the DEF states the cell's lower-left while a
+GDS anchor is corner-dependent, so the comparison is made on the *footprint* corner); and no two
+instances' cell footprints may overlap (the `236/0` marker A1 identified gives the cell boundary, so
+this is checkable rather than assumed). All four hold — see `docs/steps/B1.md`.
+
+***Recorded for B4:*** a GDS placement point is an **anchor, not a lower-left corner** — a kind with
+`sx = -1` anchors at the cell's right edge and one with `sy = -1` at its top edge. 1327 anchors carry
+the 1618 placements, 275 of them holding two cells that occupy adjacent space. **`bbox_dbu` /
+`footprint_dbu` is the unique position key; the anchor is not.** Downstream steps must not key on it.
+
 **B2 — Connectivity engine spike on the warm-up (SPIKE, may fail).**
 *Goal:* prove the engine works before pointing it at 1.4 MB of puzzle.
 *Method:* drive `db.LayoutToNetlist` with the warm-up's A2/A3/A4 outputs; extract a netlist.
