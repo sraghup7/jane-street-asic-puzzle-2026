@@ -633,13 +633,17 @@ def main(argv: list[str]) -> int:
     return 2
 
 
-def stage_layers(argv: list[str]) -> int:
-    lib = gdstk.read_gds(str(GDS))
-    top = lib.top_level()[0]
-    a = analyse(lib, top.name)
+def classify_all(lib, top_name: str) -> dict:
+    """Classify every (layer, datatype) pair in a library, and report the derived facts.
+
+    Factored out of `stage_layers` so that A4 can calibrate against
+    `warmup/04_final.gds` through *this same code path*. If the warm-up used a different
+    path, passing there would prove nothing about the puzzle.
+    """
+    a = analyse(lib, top_name)
     pairs, die, pitch = a['pairs'], a['die_bbox'], a['pitch']
 
-    pin_dt, pin_evidence = derive_pin_datatype(lib, top.name)
+    pin_dt, pin_evidence = derive_pin_datatype(lib, top_name)
     label_layers = sorted({k[0] for k, e in pairs.items()
                            if e['elements']['text']
                            and not (e['elements']['boundary'] + e['elements']['path'])})
@@ -684,6 +688,19 @@ def stage_layers(argv: list[str]) -> int:
             'needs_review': conf != 'high',
             'notes': notes,
         })
+
+    return {'records': records, 'analyse': a, 'pin_datatype': pin_dt,
+            'pin_evidence': pin_evidence, 'label_layers': label_layers}
+
+
+def stage_layers(argv: list[str]) -> int:
+    lib = gdstk.read_gds(str(GDS))
+    top = lib.top_level()[0]
+    res = classify_all(lib, top.name)
+    a, records = res['analyse'], res['records']
+    die, pitch = a['die_bbox'], a['pitch']
+    pin_dt, pin_evidence = res['pin_datatype'], res['pin_evidence']
+    label_layers = res['label_layers']
 
     roles = defaultdict(list)
     for r in records:

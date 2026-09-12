@@ -208,12 +208,401 @@ def consistency_checks(masters, top_ports, a1, label_counts, derived) -> list[di
     return checks
 
 
+# ===================================================================== A4: pin geometry
+GEOM_OUT = ROOT / 'recon' / 'derived' / 'pinmodel.json'
+VIA_OUT = ROOT / 'recon' / 'derived' / 'via_pairs.json'
+WARMUP_GDS = ROOT / 'asic-puzzle-2026' / 'warmup' / '04_final.gds'
+WARMUP_NETLIST = ROOT / 'asic-puzzle-2026' / 'warmup' / '02_netlist_with_power_rails.v'
+
+BBOX_TOL = 0.002          # um -- slack for the "inside the master" check
+TOUCH_EPS = 0.005         # um -- grow one operand so ABUTTING shapes count as touching
+PLANE_ROLES = ('routing', 'local_wire', 'pin')
+CUT_ROLES = ('via_cut', 'contact')
+
+
+def _rect(poly) -> list[float]:
+    (x0, y0), (x1, y1) = poly.bounding_box()
+    return [round(x0, 4), round(y0, 4), round(x1, 4), round(y1, 4)]
+
+
+def _rect_touch(a, b, tol: float = 0.0) -> bool:
+    """Bounding-box touch test. Used only as a cheap prefilter -- never as the verdict."""
+    return not (a[2] + tol < b[0] or b[2] + tol < a[0]
+                or a[3] + tol < b[1] or b[3] + tol < a[1])
+
+
+def _inflate(poly, eps: float = TOUCH_EPS):
+    """Grow a polygon slightly, so that shapes sharing an edge overlap after growth."""
+    try:
+        out = gdstk.offset(poly, eps, precision=0.001, use_union=True)
+    except Exception:
+        return None
+    return out[0] if out else None
+
+
+def _shapes_touch(a, b, a_infl, a_rect, b_rect) -> bool:
+    """Exact touch test: does `a` grown by ~5 nm intersect `b`?
+
+    Growing one operand is what lets *abutting* shapes count as connected -- a wire drawn
+    as abutting rectangles is one wire, and merging only overlapping polygons is the
+    published work's trap T5. But the test must stay exact for non-rectangular polygons:
+    inside a standard cell the li1 network is not rectilinear, and a bounding-box test
+    merges *every* pin of the cell into one component. That failure was observed here, and
+    it is precisely what the warm-up calibration exists to catch.
+    """
+    if not _rect_touch(a_rect, b_rect, TOUCH_EPS):
+        return False
+    if a_infl is None:
+        return True
+    try:
+        return bool(gdstk.boolean(a_infl, b, 'and', precision=0.001))
+    except Exception:
+        return False
+
+
+def local_rule_table(via_doc) -> list[dict]:
+    """The master-local connectivity rule set, from A2's proved via pairs.
+
+    A cut layer's *layer number* is shared with the layer it sits on (67/44 is the
+    li1->met1 cut, on layer number 67), so a cut cannot be treated as a plane shape just
+    because its number matches. Roles separate them: a shape is a *cut node* iff its pair
+    is `via_cut` or `contact`; plane shapes are grouped into one physical layer by
+    *layer number*, which correctly merges `67/16` with `67/20` but never with `67/44`.
+    """
+    rules = []
+    for r in via_doc['pairs']:
+        cut = tuple(int(x) for x in r['cut'].split('/'))
+        (la, lb) = (int(s.split('/')[0]) for s in r['connects'])
+        rules.append({'cut': cut, 'bridges_layers': [la, lb],
+                      'bridges_pairs': list(r['connects']), 'instances': r['instances']})
+    return rules
+
+
+def cell_graph(cell, roles) -> tuple[list[dict], list[set]]:
+    """Nodes = shapes on electrical pairs; edges = exact same-layer touch."""
+    nodes: list[dict] = []
+    for p in cell.polygons:
+        k = (p.layer, p.datatype)
+        role = roles.get(k)
+        if role not in PLANE_ROLES + CUT_ROLES:
+            continue
+        nodes.append({'pair': k, 'layer': k[0], 'role': role,
+                      'is_cut': role in CUT_ROLES, 'rect': _rect(p),
+                      'poly': p, 'infl': _inflate(p)})
+    adj: list[set] = [set() for _ in nodes]
+
+    planes = [i for i, n in enumerate(nodes) if not n['is_cut']]
+    by_layer: dict[int, list[int]] = {}
+    for i in planes:
+        by_layer.setdefault(nodes[i]['layer'], []).append(i)
+    for group in by_layer.values():
+        for a in range(len(group)):
+            for b in range(a + 1, len(group)):
+                ia, ib = group[a], group[b]
+                if _shapes_touch(nodes[ia]['poly'], nodes[ib]['poly'], nodes[ia]['infl'],
+                                 nodes[ia]['rect'], nodes[ib]['rect']):
+                    adj[ia].add(ib)
+                    adj[ib].add(ia)
+    return nodes, adj
+
+
+def add_cut_edges(nodes, adj, rules) -> int:
+    """Connect each cut node to the plane shapes it bridges, per the rule table."""
+    added = 0
+    cuts = [i for i, n in enumerate(nodes) if n['is_cut']]
+    planes = [i for i, n in enumerate(nodes) if not n['is_cut']]
+    for i in cuts:
+        for rule in rules:
+            if nodes[i]['pair'] != rule['cut']:
+                continue
+            lo, hi = rule['bridges_layers']
+
+            def touched(j) -> bool:
+                return _shapes_touch(nodes[i]['poly'], nodes[j]['poly'], nodes[i]['infl'],
+                                     nodes[i]['rect'], nodes[j]['rect'])
+
+            touch_lo = [j for j in planes if nodes[j]['layer'] == lo and touched(j)]
+            touch_hi = [j for j in planes if nodes[j]['layer'] == hi and touched(j)]
+            if touch_lo and touch_hi:
+                for j in touch_lo + touch_hi:
+                    if j not in adj[i]:
+                        adj[i].add(j)
+                        adj[j].add(i)
+                        added += 1
+    return added
+
+
+def connected(nodes, adj, seed: list[int]) -> list[int]:
+    """Breadth-first closure of the seed over the cell's local connectivity."""
+    seen = set(seed)
+    queue = list(seed)
+    while queue:
+        i = queue.pop()
+        for j in adj[i]:
+            if j not in seen:
+                seen.add(j)
+                queue.append(j)
+    return sorted(seen)
+
+
+def _contains_point(poly, pt, precision: float = 0.001) -> bool:
+    """Exact point-in-polygon test.
+
+    A bounding-box test is not good enough for seeding. Inside a standard cell many li1
+    shapes are non-rectangular combs, and a pin label that falls inside such a shape's
+    bounding box but outside its outline would seed the wrong net -- observed here, where
+    a 14-point li1 shape from the output net had a bounding box covering both input pins.
+    """
+    try:
+        return bool(gdstk.inside([pt], [poly], precision=precision)[0])
+    except Exception:
+        (x0, y0), (x1, y1) = poly.bounding_box()
+        return x0 <= pt[0] <= x1 and y0 <= pt[1] <= y1
+
+
+def pin_components(cell, roles, rules, label_pairs) -> list[dict]:
+    """Every pin of one master: its label anchors and the geometry they reach.
+
+    Only labels on the master's *pin*-label layers count. The cell-name layer (`83/44`)
+    is excluded here for the same structural reason A3 excludes it: its labels annotate
+    nothing electrical, and treating one as a pin would invent a pin that does not exist.
+    """
+    nodes, adj = cell_graph(cell, roles)
+    add_cut_edges(nodes, adj, rules)
+    if not nodes:
+        return []
+    planes = [i for i, n in enumerate(nodes) if not n['is_cut']]
+    out = []
+    for lb in cell.labels:
+        if (lb.layer, lb.texttype) not in label_pairs:
+            continue
+        pose = lb.origin
+        containing = [i for i in planes if _contains_point(nodes[i]['poly'], pose)]
+        if not containing:
+            out.append({'pin': lb.text, 'position_um': [round(pose[0], 4),
+                                                        round(pose[1], 4)],
+                        'seed_method': 'none', 'shapes': []})
+            continue
+        # Prefer a shape on the label's own layer number; fall back to the smallest on any
+        # plane layer. The fallback matters for exactly one pin: VNB's label sits on layer
+        # 64/59 while its own contact lives on 122/16, so the label lands on the supply
+        # pin geometry drawn at the same coordinates. Recorded, not hidden.
+        own = [i for i in containing if nodes[i]['layer'] == lb.layer]
+        pick = own or containing
+        seed = [min(pick, key=lambda i: (nodes[i]['rect'][2] - nodes[i]['rect'][0])
+                    * (nodes[i]['rect'][3] - nodes[i]['rect'][1]))]
+        method = 'same_layer_number' if own else 'other_layer'
+        comp = connected(nodes, adj, seed)
+        out.append({
+            'pin': lb.text, 'position_um': [round(pose[0], 4), round(pose[1], 4)],
+            'seed_method': method,
+            'shapes': [{'pair': f"{nodes[i]['pair'][0]}/{nodes[i]['pair'][1]}",
+                        'role': nodes[i]['role'], 'rect': nodes[i]['rect']}
+                       for i in comp],
+        })
+    return out
+
+
+def parse_netlist_ports(text: str) -> dict[str, set[str]]:
+    """cell type -> the set of port names the netlist connects by name."""
+    out: dict[str, set[str]] = {}
+    for m in re.finditer(r'sky130_fd_sc_hd__([a-z0-9_]+)\s+(\S+)\s*\(', text):
+        typ, start = m.group(1), m.end()
+        end = text.find(');', start)
+        if end < 0:
+            continue
+        for pm in re.finditer(r'\.([A-Za-z0-9_\[\]]+)\s*\(', text[start:end]):
+            out.setdefault(typ, set()).add(pm.group(1))
+    return out
+
+
+def warmup_calibration(roles) -> dict:
+    """Run *this same pipeline* on warmup/04_final.gds and compare against its netlist.
+
+    The netlist was produced by the vendor flow; our names come from the layout. They
+    share no input, so agreement checks the extraction rather than restating it.
+    """
+    from tools.puzzle import layers as L
+    lib_w = gdstk.read_gds(str(WARMUP_GDS))
+    top_w = lib_w.top_level()[0]
+    res = L.classify_all(lib_w, top_w.name)
+    derived_w = derive_pin_label_layers({'pairs': res['records']})
+    pairs_w = {tuple(int(x) for x in s.split('/')) for s in derived_w['master']}
+
+    ours: dict[str, set[str]] = {}
+    for cell in lib_w.cells:
+        if cell_kind(cell.name, top_w.name) != 'STD':
+            continue
+        pins = {lb.text for lb in cell.labels if (lb.layer, lb.texttype) in pairs_w}
+        # keyed by the full library tail (`nand2_2`), the same key the netlist uses --
+        # `cell_type()` strips the drive suffix and would not line up.
+        ours.setdefault(cell.name.split('__')[-1], set()).update(pins)
+
+    netlist = parse_netlist_ports(WARMUP_NETLIST.read_text(encoding='utf-8'))
+    types = sorted(set(ours) | set(netlist))
+    detail = {}
+    for t in types:
+        a, b = sorted(ours.get(t, set())), sorted(netlist.get(t, set()))
+        detail[t] = {'from_layout': a, 'from_netlist': b, 'match': a == b}
+    return {
+        'warmup_top_cell': top_w.name,
+        'netlist': WARMUP_NETLIST.name,
+        'cell_types': len(types),
+        'all_match': all(v['match'] for v in detail.values()),
+        'detail': detail,
+        'label_layers_derived_on_warmup': derived_w['master'],
+        'warmup_layer_roles_excluded': derived_w['excluded'],
+    }
+
+
+def stage_pin_geom(argv: list[str]) -> int:
+    lib = gdstk.read_gds(str(GDS))
+    top = lib.top_level()[0]
+    a1 = json.loads(A1_OUT.read_text(encoding='utf-8'))
+    names = json.loads(NAMES_OUT.read_text(encoding='utf-8'))
+    via = json.loads(VIA_OUT.read_text(encoding='utf-8'))
+    roles = {(r['layer'], r['datatype']): r['role'] for r in a1['pairs']}
+    rules = local_rule_table(via)
+    label_pairs = {tuple(int(x) for x in s.split('/'))
+                   for s in names['pin_label_layers']['master']}
+
+    masters = {}
+    for cell in sorted(lib.cells, key=lambda c: c.name):
+        if cell_kind(cell.name, top.name) != 'STD':
+            continue
+        bb = cell.bounding_box()
+        pins: dict[str, dict] = {}
+        for comp in pin_components(cell, roles, rules, label_pairs):
+            p = pins.setdefault(comp['pin'], {'labels': 0, 'seed_methods': set(),
+                                              'shapes': [], 'positions_um': []})
+            p['labels'] += 1
+            p['seed_methods'].add(comp['seed_method'])
+            p['positions_um'].append(comp['position_um'])
+            for s in comp['shapes']:
+                if s not in p['shapes']:
+                    p['shapes'].append(s)
+        # keep only pins that this master actually labels, and summarise
+        for name in list(pins):
+            p = pins[name]
+            pairs_used = sorted({s['pair'] for s in p['shapes']})
+            p['seed_methods'] = sorted(p['seed_methods'])
+            p['by_pair'] = {k: sum(1 for s in p['shapes'] if s['pair'] == k)
+                            for k in pairs_used}
+            p['routing_rects'] = [s['rect'] for s in p['shapes']
+                                  if s['role'] in ('routing', 'local_wire')]
+            p['area_um2'] = round(sum((s['rect'][2] - s['rect'][0])
+                                      * (s['rect'][3] - s['rect'][1])
+                                      for s in p['shapes']), 4)
+            p['n_shapes'] = len(p['shapes'])
+        for name in sorted(set(names['masters'][cell.name]['pins']) - set(pins)):
+            pins[name] = {'labels': 0, 'seed_methods': ['none'], 'shapes': [],
+                          'by_pair': {}, 'routing_rects': [], 'area_um2': 0.0,
+                          'n_shapes': 0, 'positions_um': []}
+        masters[cell.name] = {'type': cell_type(cell.name),
+                              'bbox_um': [round(v, 4) for v in bb[0] + bb[1]],
+                              'pins': {k: pins[k] for k in sorted(pins)},
+                              'n_pins': len(pins)}
+
+    # ---- structural checks
+    checks = []
+    outside, nonint, empty = [], [], []
+    for mn, m in masters.items():
+        x0, y0, x1, y1 = m['bbox_um']
+        for pn, p in m['pins'].items():
+            if p['n_shapes'] == 0:
+                empty.append(f'{mn}:{pn}')
+            for s in p['shapes']:
+                r = s['rect']
+                if (r[0] < x0 - BBOX_TOL or r[1] < y0 - BBOX_TOL
+                        or r[2] > x1 + BBOX_TOL or r[3] > y1 + BBOX_TOL):
+                    outside.append(f'{mn}:{pn}:{s["pair"]}{r}')
+                if any(abs(v * 1000 - round(v * 1000)) > 1e-6 for v in r):
+                    nonint.append(f'{mn}:{pn}:{r}')
+    checks.append({'check': 'every pin rect lies inside its master bbox', 'failures': outside})
+    checks.append({'check': 'every coordinate is an integer number of DBU', 'failures': nonint})
+    checks.append({'check': 'no named pin is left without geometry', 'failures': empty})
+    for c in checks:
+        c['passed'] = not c['failures']
+
+    calib = warmup_calibration(roles)
+
+    out = {
+        'generated_by': 'tools/puzzle/pins.py::pin-geom',
+        'source': {'path': 'asic-puzzle-2026/puzzle.gds', 'sha256': sha256(GDS)},
+        'inputs': ['recon/derived/layers.json', 'recon/derived/pin_names.json',
+                   'recon/derived/via_pairs.json'],
+        'local_rule_table': rules,
+        'plane_roles': list(PLANE_ROLES),
+        'cut_roles': list(CUT_ROLES),
+        'touch_rule': 'bounding boxes touching or overlapping (abutting counts)',
+        'scope_note': ('traced over routing/local_wire/pin/contact pairs only; device '
+                       'layers (well, diffusion, poly) are deliberately not traversed'),
+        'masters': masters,
+        'checks': checks,
+        'warmup_calibration': calib,
+        'totals': {
+            'masters': len(masters),
+            'pins': sum(m['n_pins'] for m in masters.values()),
+            'pins_with_geometry': sum(1 for m in masters.values()
+                                      for p in m['pins'].values() if p['n_shapes']),
+            'pin_shapes': sum(p['n_shapes'] for m in masters.values()
+                              for p in m['pins'].values()),
+            'seed_methods': dict(Counter(p['seed_methods'][0] for m in masters.values()
+                                         for p in m['pins'].values())),
+            'warmup_cell_types_all_match': calib['all_match'],
+            'warmup_cell_types': calib['cell_types'],
+        },
+    }
+    GEOM_OUT.parent.mkdir(parents=True, exist_ok=True)
+    GEOM_OUT.write_text(json.dumps(out, indent=2, sort_keys=False) + '\n',
+                        encoding='utf-8', newline='\n')
+
+    # ---- report
+    print('local rule table:')
+    for r in rules:
+        print(f"  {r['cut'][0]}/{r['cut'][1]:<3} bridges layers {r['bridges_layers']} "
+              f"({r['bridges_pairs']}), {r['instances']} instances")
+    print()
+    print(f'{"master":<38}{"pins":>5}{"shapes":>7}  seed methods')
+    print('-' * 88)
+    for mn, m in masters.items():
+        nsh = sum(p['n_shapes'] for p in m['pins'].values())
+        sm = sorted({s for p in m['pins'].values() for s in p['seed_methods']})
+        print(f"{mn:<38}{m['n_pins']:>5}{nsh:>7}  {', '.join(sm)}")
+    print()
+    print('structural checks:')
+    for c in checks:
+        print(f"  {'PASS' if c['passed'] else 'FAIL'}  {c['check']}"
+              + ('' if c['passed'] else f"  -> {c['failures'][:4]}"))
+    print()
+    print(f"warm-up calibration ({calib['netlist']} vs warmup/04_final.gds):")
+    print(f"  top cell {calib['warmup_top_cell']!r}, {calib['cell_types']} cell types, "
+          f"all match: {calib['all_match']}")
+    for t, v in sorted(calib['detail'].items()):
+        if not v['match']:
+            print(f"    MISMATCH {t}: layout={v['from_layout']}")
+            print(f"                 netlist={v['from_netlist']}")
+    print()
+    missing = [f'{mn}:{pn}' for mn, m in masters.items()
+               for pn, p in m['pins'].items() if p['n_shapes'] == 0]
+    print(f'pins with no geometry ({len(missing)}): {missing}')
+    print('totals:', json.dumps(out['totals']))
+    print(f'written: {GEOM_OUT.relative_to(ROOT)}')
+    bad = (not calib['all_match']) or any(not c['passed'] for c in checks)
+    return 1 if bad else 0
+
+
 def main(argv: list[str]) -> int:
     stage = argv[0] if argv else 'pin-names'
-    if stage != 'pin-names':
-        print(f'pins.py does not provide stage {stage!r} yet', file=sys.stderr)
-        return 2
+    if stage == 'pin-names':
+        return stage_pin_names(argv[1:])
+    if stage == 'pin-geom':
+        return stage_pin_geom(argv[1:])
+    print(f'pins.py does not provide stage {stage!r} yet', file=sys.stderr)
+    return 2
 
+
+def stage_pin_names(argv: list[str]) -> int:
     lib = gdstk.read_gds(str(GDS))
     top = lib.top_level()[0]
     a1 = json.loads(A1_OUT.read_text(encoding='utf-8'))
