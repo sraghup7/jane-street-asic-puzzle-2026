@@ -25,6 +25,8 @@ from collections import Counter, OrderedDict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:      # so sibling modules import as `tools.*` from any cwd
+    sys.path.insert(0, str(ROOT))
 UPSTREAM = ROOT / 'asic-puzzle-2026'
 
 PHYSICAL_ONLY = (
@@ -284,8 +286,7 @@ def _row_pitch(rows: Counter) -> float | None:
 
 # ------------------------------------------------------------------- vcd inventory
 def vcd_inventory(path: Path) -> dict:
-    sys.path.insert(0, str(ROOT / 'tools'))
-    from vcd_probe import parse_vcd, value_at, decode
+    from tools.vcd_probe import parse_vcd, value_at, decode
 
     ts, var_defs, changes, maxtime = parse_vcd(str(path))
     by_name = {v['name']: i for i, v in var_defs.items()}

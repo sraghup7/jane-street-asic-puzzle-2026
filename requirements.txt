@@ -1,0 +1,16 @@
+# Direct dependencies of shipped code in this repository.
+#
+# Scope: the pipeline (tools/puzzle/**) plus the recon and verification tools
+# (tools/*.py, tools/checks/*.py). Pinned to the versions verified in .venv
+# (Python 3.11.15). Every entry here is imported by shipped code -- and every
+# third-party module imported by shipped code must be listed here. Both
+# directions are enforced:
+#
+#     .venv/Scripts/python tools/checks/check_hygiene.py
+#
+# Per-package rationale, the non-Python dependencies, and the list of packages we
+# deliberately do NOT depend on: see docs/deps.md.
+
+gdstk==1.0.1        # GDSII read: layer census (A1), pin names/geometry (A3/A4), instances (B1)
+klayout==0.30.12    # connectivity extraction engine (B2/B3) -- differentiator D3
+matplotlib==3.11.2  # layer rasterisation in tools/render.py (Step 1 recon only)
