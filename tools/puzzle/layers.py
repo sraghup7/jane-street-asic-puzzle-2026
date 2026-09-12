@@ -446,7 +446,10 @@ def main(argv: list[str]) -> int:
     }
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, indent=2, sort_keys=False) + '\n', encoding='utf-8')
+    # newline='\n' on purpose: the default text mode writes CRLF on Windows while git
+    # normalises to LF, so a fresh clone would show the regenerated file as modified.
+    OUT.write_text(json.dumps(out, indent=2, sort_keys=False) + '\n',
+                   encoding='utf-8', newline='\n')
 
     # ---- console report
     print(f'source            : {out["source"]["path"]}')
