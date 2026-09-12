@@ -9,4 +9,6 @@ __pycache__/
 # --- generated outputs: all regenerable from tools/, so not tracked ---
 recon/renders/
 recon/hints/
+# third-party source snapshots: cited for verification, not redistributed
+recon/sources/
 *.log
