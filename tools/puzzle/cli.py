@@ -96,7 +96,9 @@ def cmd_run(stage: str, argv: list[str]) -> int:
     if not hasattr(mod, 'main'):
         print(f'tools/puzzle/{module}.py has no main(argv) entry point', file=sys.stderr)
         return 4
-    return mod.main(argv)
+    # The stage name is passed as argv[0] so that two stages can share one module
+    # (e.g. `layers` and `via-pairs` both live in tools/puzzle/layers.py).
+    return mod.main([stage] + argv)
 
 
 def main(argv: list[str] | None = None) -> int:

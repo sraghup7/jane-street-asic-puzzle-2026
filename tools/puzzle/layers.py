@@ -32,6 +32,7 @@ import gdstk
 ROOT = Path(__file__).resolve().parents[2]
 GDS = ROOT / 'asic-puzzle-2026' / 'puzzle.gds'
 OUT = ROOT / 'recon' / 'derived' / 'layers.json'
+A1_OUT = OUT          # A1's artifact; A2 reads it as its input
 
 # Thresholds. Each is a stated round number, not a fitted parameter.
 CUT_MAX_DIM = 1.0        # um -- a contact/via cut is at most this across
@@ -360,8 +361,279 @@ def classify(k, e, ctx) -> tuple[str, str, str, list[str]]:
     return 'non_electrical', 'R9', 'high' if sub != 'unclassified' else 'low', notes
 
 
+# ===================================================================== A2: via pairs
+VIA_OUT = ROOT / 'recon' / 'derived' / 'via_pairs.json'
+BOOLEAN_PRECISION = 1e-3    # um; GDS DBU is 1 nm so this is safe and fast
+
+
+def _overlap_area(a, b) -> float:
+    """Area shared by two polygons, or 0.0 if they do not overlap.
+
+    Bbox rejection first, then an exact boolean intersection, so "the cut touches the
+    metal" is proved by shared area rather than assumed from layer membership.
+    """
+    (ax0, ay0), (ax1, ay1) = a.bounding_box()
+    (bx0, by0), (bx1, by1) = b.bounding_box()
+    if ax1 <= bx0 or bx1 <= ax0 or ay1 <= by0 or by1 <= ay0:
+        return 0.0
+    try:
+        out = gdstk.boolean(a, b, 'and', precision=BOOLEAN_PRECISION)
+    except Exception:
+        return 0.0
+    return float(sum(p.area() for p in out))
+
+
+def _contained(cut, metal, tol: float = 1e-3) -> bool:
+    """True when the cut's bbox lies inside the metal's bbox -- the via enclosure."""
+    (cx0, cy0), (cx1, cy1) = cut.bounding_box()
+    (mx0, my0), (mx1, my1) = metal.bounding_box()
+    return (mx0 - tol <= cx0 and my0 - tol <= cy0
+            and cx1 <= mx1 + tol and cy1 <= my1 + tol)
+
+
+def prove_master_connectivity(cell, role_of, cut_layers, cond_layers) -> dict:
+    """Prove, from geometry, which conductors a via master's cut layer bridges.
+
+    Returns a record with the shared-area evidence for each candidate conductor. A cut
+    must share area with at least two distinct conductors to be a via; that is the test,
+    not layer-name arithmetic.
+    """
+    by_layer: dict[tuple[int, int], list] = defaultdict(list)
+    for p in cell.polygons:
+        by_layer[(p.layer, p.datatype)].append(p)
+
+    cuts = [k for k in by_layer if k in cut_layers]
+    conds = [k for k in by_layer if k in cond_layers]
+    record = {'name': cell.name, 'cuts': {}, 'conductors': sorted(key_str(c) for c in conds)}
+
+    for cut in cuts:
+        detail = {}
+        for cond in conds:
+            shared = 0.0
+            enclosed = False
+            for a in by_layer[cut]:
+                for b in by_layer[cond]:
+                    shared += _overlap_area(a, b)
+                    enclosed = enclosed or _contained(a, b)
+            detail[key_str(cond)] = {'shared_area_um2': round(shared, 6),
+                                     'cut_enclosed_by_metal': enclosed}
+        record['cuts'][key_str(cut)] = {
+            'connected_to': sorted(k for k, v in detail.items()
+                                   if v['shared_area_um2'] > 0.0),
+            'cut_area_um2': round(sum(p.area() for p in by_layer[cut]), 6),
+            'n_cut_shapes': len(by_layer[cut]),
+            'detail': detail,
+        }
+    return record
+
+
+def derive_via_pairs(lib, top_name: str, roles: dict) -> dict:
+    """A2: the connectivity rule set, derived from the via masters' own geometry."""
+    top = next(c for c in lib.cells if c.name == top_name)
+    cut_layers = {k for k, r in roles.items() if r == 'via_cut'}
+    cond_layers = {k for k, r in roles.items() if r in ('routing', 'local_wire')}
+    geometry_layers = {k for k, r in roles.items()
+                       if r in ('routing', 'local_wire', 'cell_geometry')}
+
+    placements: Counter = Counter()
+    for ref in top.references:
+        cols = getattr(ref, 'columns', 1) or 1
+        rows = getattr(ref, 'rows', 1) or 1
+        placements[ref.cell.name] += cols * rows
+
+    # A via master is a cell whose geometry is *only* conductors and cuts. This is the
+    # principled test -- it uses no cell names. Standard cells contain device layers
+    # (64/20, 65/20, 66/20), so they are excluded even though they also contain 67/44
+    # as a cell-internal contact. Those cells are recorded separately below.
+    conductor_or_cut = {k for k, r in roles.items()
+                        if r in ('routing', 'local_wire', 'via_cut')}
+
+    via_master_cells, other_cut_cells = [], []
+    for cell in lib.cells:
+        layers = {(p.layer, p.datatype) for p in cell.polygons}
+        if not (layers & cut_layers):
+            continue
+        (via_master_cells if layers <= conductor_or_cut else other_cut_cells).append(cell)
+
+    masters = []
+    for cell in sorted(via_master_cells, key=lambda c: c.name):
+        rec = prove_master_connectivity(cell, roles, cut_layers, cond_layers)
+        rec['instances'] = placements.get(cell.name, 0)
+        for cut_key, d in rec['cuts'].items():
+            d['is_well_formed'] = (len(d['connected_to']) == 2
+                                   and all(v['shared_area_um2'] > 0.0
+                                           for v in d['detail'].values()))
+        masters.append(rec)
+
+    # cells that use a cut layer internally without being via masters
+    internal: dict[str, dict] = {}
+    for cell in other_cut_cells:
+        used = sorted(key_str(k) for k in
+                      {(p.layer, p.datatype) for p in cell.polygons} & cut_layers)
+        e = internal.setdefault('+'.join(used),
+                                {'cuts_used': used, 'cells': 0, 'instances': 0})
+        e['cells'] += 1
+        e['instances'] += placements.get(cell.name, 0)
+
+    # group masters by (cut, frozenset(conductors)) -> the rule table
+    rules: dict[tuple, dict] = {}
+    for rec in masters:
+        for cut_key, d in rec['cuts'].items():
+            conds = tuple(d['connected_to'])
+            if len(conds) != 2:
+                continue
+            key = (cut_key, conds)
+            r = rules.setdefault(key, {'cut': cut_key, 'connects': list(conds),
+                                       'masters': [], 'instances': 0})
+            r['masters'].append(rec['name'])
+            r['instances'] += rec['instances']
+
+    # conductor graph from the rules
+    edges = []
+    for key, r in rules.items():
+        a, b = (int(s.split('/')[0]) for s in r['connects'])
+        edges.append((a, b, r['cut']))
+    adj: dict[int, set[int]] = defaultdict(set)
+    for a, b, _ in edges:
+        adj[a].add(b)
+        adj[b].add(a)
+
+    # non-via contact layers: who do they bridge, geometrically?
+    non_via_contacts = []
+    for k, role in sorted(roles.items()):
+        if role != 'contact' or k in cut_layers:
+            continue
+        partners: Counter = Counter()
+        for cell in lib.cells:
+            shapes = [p for p in cell.polygons
+                      if (p.layer, p.datatype) == k]
+            if not shapes:
+                continue
+            others = [p for p in cell.polygons
+                      if (p.layer, p.datatype) != k
+                      and (p.layer, p.datatype) in geometry_layers]
+            for a in shapes:
+                for b in others:
+                    if _overlap_area(a, b) > 0.0:
+                        partners[key_str((b.layer, b.datatype))] += 1
+        non_via_contacts.append({
+            'layer': key_str(k),
+            'shapes_in_masters': sum(1 for c in lib.cells for p in c.polygons
+                                     if (p.layer, p.datatype) == k),
+            'partners': {p: n for p, n in sorted(partners.items())},
+            'overlap_events': sum(partners.values()),
+        })
+
+    return {
+        'cut_layers': sorted(key_str(k) for k in cut_layers),
+        'conductor_layers': sorted(key_str(k) for k in cond_layers),
+        'masters': masters,
+        'pairs': [rules[k] for k in sorted(rules)],
+        'conductor_graph': {
+            'nodes': sorted(key_str(k) for k in cond_layers),
+            'adjacency': {str(n): sorted(adj[n]) for n in sorted(adj)},
+            'edges': [[a, b, key_str(cut)] for a, b, cut in sorted(edges)],
+        },
+        'cells_using_cuts_internally': sorted(internal.values(),
+                                              key=lambda e: -e['instances']),
+        'contact_layers_without_via': non_via_contacts,
+        'totals': {
+            'via_masters': len(masters),
+            'via_instances': sum(m['instances'] for m in masters),
+            'internal_cut_cells': sum(e['cells'] for e in internal.values()),
+            'internal_cut_instances': sum(e['instances'] for e in internal.values()),
+            'by_pair': {f"{r['cut']}::{'+'.join(r['connects'])}": r['instances']
+                        for r in rules.values()},
+        },
+    }
+
+
+def stage_via_pairs(argv: list[str]) -> int:
+    """A2 entry point: write recon/derived/via_pairs.json and report it."""
+    lib = gdstk.read_gds(str(GDS))
+    top = lib.top_level()[0]
+    if not A1_OUT.exists():
+        print('missing recon/derived/layers.json -- run `python -m tools.puzzle layers` first',
+              file=sys.stderr)
+        return 1
+    roles = {(r['layer'], r['datatype']): r['role']
+             for r in json.loads(A1_OUT.read_text(encoding='utf-8'))['pairs']}
+    d = derive_via_pairs(lib, top.name, roles)
+    out = {
+        'generated_by': 'tools/puzzle/layers.py::stage_via_pairs',
+        'source': {'path': 'asic-puzzle-2026/puzzle.gds', 'sha256': sha256(GDS)},
+        'input': 'recon/derived/layers.json',
+        **d,
+    }
+    VIA_OUT.parent.mkdir(parents=True, exist_ok=True)
+    VIA_OUT.write_text(json.dumps(out, indent=2, sort_keys=False) + '\n',
+                       encoding='utf-8', newline='\n')
+
+    print('via masters -- proved from shared polygon area, not layer names:')
+    print(f"  {'master':<42}{'cut':<7}{'bridges':<22}{'inst':>6}  shared area (um^2)")
+    print('  ' + '-' * 100)
+    bad = []
+    for m in d['masters']:
+        for cut_key, det in sorted(m['cuts'].items()):
+            shared = '  '.join(f"{k}={v['shared_area_um2']:.4f}"
+                               for k, v in sorted(det['detail'].items()))
+            flag = '' if det.get('is_well_formed') else '  <-- NOT WELL FORMED'
+            if flag:
+                bad.append(m['name'])
+            print(f"  {m['name']:<42}{cut_key:<7}"
+                  f"{'<->'.join(det['connected_to']):<22}{m['instances']:>6}  {shared}{flag}")
+    print(f"  {len(d['masters'])} via masters, all well formed: {not bad}")
+    print()
+    print('connectivity rules (the rule set B2/B3 will use):')
+    for r in d['pairs']:
+        print(f"  {r['cut']:<7} bridges {r['connects'][0]:<7} <-> {r['connects'][1]:<7}"
+              f"  {len(r['masters']):>2} master(s), {r['instances']:>5} instances")
+    print()
+    g = d['conductor_graph']
+    chain = []
+    cur, seen = 67, {67}
+    chain.append('67/20')
+    while True:
+        nxt = [n for n in g['adjacency'].get(str(cur), []) if n not in seen]
+        if not nxt:
+            break
+        cur = nxt[0]
+        seen.add(cur)
+        chain.append(f'{cur}/20')
+    print(f"conductor graph  : {' -- '.join(chain)}  (single path: {len(seen)} nodes)")
+    print(f"                   nodes={g['nodes']}")
+    print()
+    print('cells that use a cut layer internally but are not via masters:')
+    for e in d['cells_using_cuts_internally'][:4]:
+        print(f"  cuts {e['cuts_used']} in {e['cells']} cells, "
+              f"{e['instances']} instances")
+    print()
+    print('contact layers no via master uses:')
+    for c in d['contact_layers_without_via']:
+        print(f"  {c['layer']:<8} {c['shapes_in_masters']:>5} shapes; "
+              f"overlaps {c['partners']}")
+    print()
+    t = d['totals']
+    print(f"totals: {t['via_masters']} via masters, {t['via_instances']} via instances; "
+          f"{t['internal_cut_cells']} cells use a cut internally "
+          f"({t['internal_cut_instances']} instances)")
+    print(f"written: {VIA_OUT.relative_to(ROOT)}")
+    return 0
+
+
 # --------------------------------------------------------------------- report
 def main(argv: list[str]) -> int:
+    stage = argv[0] if argv else 'layers'
+    rest = argv[1:]
+    if stage == 'via-pairs':
+        return stage_via_pairs(rest)
+    if stage == 'layers':
+        return stage_layers(rest)
+    print(f'layers.py does not provide stage {stage!r}', file=sys.stderr)
+    return 2
+
+
+def stage_layers(argv: list[str]) -> int:
     lib = gdstk.read_gds(str(GDS))
     top = lib.top_level()[0]
     a = analyse(lib, top.name)
