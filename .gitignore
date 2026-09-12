@@ -1,0 +1,12 @@
+# --- upstream puzzle input: read-only, never modified, re-clonable from GitHub ---
+asic-puzzle-2026/
+
+# --- local Python environment (recreate with the documented pip install) ---
+.venv/
+__pycache__/
+*.pyc
+
+# --- generated outputs: all regenerable from tools/, so not tracked ---
+recon/renders/
+recon/hints/
+*.log

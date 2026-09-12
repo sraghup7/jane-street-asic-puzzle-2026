@@ -1,0 +1,6 @@
+# Keep line endings deterministic across platforms; this repo is edited on Windows
+# and analysed on any platform.
+* text=auto eol=lf
+*.png binary
+*.gds binary
+*.vcd binary
