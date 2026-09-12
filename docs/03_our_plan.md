@@ -169,8 +169,17 @@ correct one. Any residual mismatch is a hard failure of the step.
 
 ### 6.5 Connectivity (B2/B3)
 Primary engine: KLayout `db.LayoutToNetlist`, configured with the A2 layer pairs as connections
-and the A1 label layers for pin/net naming. Terminals come from the A4 pin model, matched to net
-geometry by exact overlap on the pin's own layers.
+and the A1 label layers for pin/net naming. Terminals come from the A4 pin model.
+
+**Amendment (from A5 + the verification audit).** Terminals may **not** be matched by exact
+overlap on the pin's own layers. A5 established that no pin in any master carries geometry on
+met2–met5; that li1 carries all 489 routed pins and met1 only 20; and A1 established that li1
+carries no top-level routing at all while the interconnect is met1–met5. A cell pin and the wire
+it belongs to are therefore **not on the same layer** — they are joined by a *via instance*
+(2696 `VIA_L1M1_PR_MR`s). The via instances are **part of the net**, not decoration between
+layers, and an extractor that looked for a same-layer pin-to-wire overlap would find almost
+nothing. This is why the A2 rule set is applied globally rather than per layer.
+
 **Kill criterion / fallback (B2′):** if the engine cannot reproduce the warm-up netlist
 (§7 B7), we fall back to a shape-graph extractor of our own: nodes are individual shapes,
 same-layer touching is resolved with a uniform-grid bucket index, cross-layer by via overlap.
@@ -318,8 +327,9 @@ from A3), and that identification is consistent — this is a different, stronge
 *If it fails:* bisect by region of the die; report the count of unassigned shapes.
 
 **B4 — Net ↔ (instance, pin) mapping.**
-*Method:* transform A4 pin rectangles by B1 transforms; intersect with B3 net geometry on matching
-layers; assign each pin to a net.
+*Method:* transform A4 pin rectangles by B1 transforms; assign each pin to a net by following its
+geometry into the routing stack through the via instance that lifts it there (§6.5 amendment) —
+not by same-layer overlap, which A5 ruled out.
 *Artifact:* `recon/derived/pin_net.json`.
 ***Verify:*** every functional pin of every instance is assigned exactly one net; count of
 unassigned pins is reported (and must be 0 for functional pins; a non-zero count with an
