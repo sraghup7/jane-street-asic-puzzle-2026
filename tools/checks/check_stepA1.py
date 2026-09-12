@@ -25,6 +25,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from tools.checks._regen import regenerate             # noqa: E402
+
 A1 = ROOT / 'recon' / 'derived' / 'layers.json'
 INV = ROOT / 'recon' / 'inventory.json'
 GDS = ROOT / 'asic-puzzle-2026' / 'puzzle.gds'
@@ -65,6 +67,14 @@ def main() -> int:
     g = inv['gds']
     P = pairs_of(d)
 
+    # ---- 0. regenerability -----------------------------------------------------
+    # Hermetic: the stage writes to scratch, so a stale layers.json is detected *without*
+    # the gate overwriting the committed artifact it is judging.
+    rc, produced, _ = regenerate('tools.puzzle.layers', ('OUT', 'A1_OUT'), 'layers')
+    check('the layers stage exits 0', rc, 0)
+    check('the artifact regenerates byte-identically',
+          produced == A1.read_bytes(), True)
+
     # ---- 1. completeness -------------------------------------------------------
     check('pair count', len(P), 41)
     check('role names are all known', sorted({r['role'] for r in d['pairs']} - ROLE_SET), [])
@@ -73,6 +83,17 @@ def main() -> int:
     dupes = [k for k in (tuple(x) for v in d['roles'].values() for x in v)
              if sum(1 for v in d['roles'].values() if list(k) in v) > 1]
     check('no pair appears in two roles', dupes, [])
+    # `roles` (the role -> pair-list table a consumer reads) is built from the same
+    # classification as `pairs[].role`, but nothing asserted the two agree -- so a
+    # hand-edited or drifted role table passed silently. Assert the bijection both ways.
+    role_drift = []
+    for (l, dt), r in sorted(P.items()):
+        in_table = [role for role, lst in d['roles'].items() if [l, dt] in lst]
+        if in_table != [r['role']]:
+            role_drift.append(f'{l}/{dt}: pairs[].role={r["role"]!r} roles[]={in_table}')
+    check('the role table agrees with each pair\'s own role field', role_drift, [])
+    check('the role table uses exactly the roles the pairs use',
+          sorted(d['roles']), sorted({r['role'] for r in d['pairs']}))
     check('every pair names the rule that assigned it',
           [f'{l}/{dt}' for (l, dt), r in P.items() if not r.get('rule')], [])
     check('every non-high-confidence role carries a note',
@@ -222,6 +243,23 @@ def main() -> int:
     check('pairs flagged for review all carry a subkind or explanation',
           [f'{l}/{dt}' for l, dt in review
            if not any(re.match(r'subkind=', n) or len(n) > 20 for n in P[(l, dt)]['notes'])], [])
+
+    # ---- 7. the summary block is derived data too, so it must equal its derivation ---
+    # Injected faults that only corrupt `summary` (or only `roles`) previously fired no
+    # gate at all: the block was written but never checked against the pairs it summarises.
+    by_role: dict[str, int] = {}
+    for r in d['pairs']:
+        by_role[r['role']] = by_role.get(r['role'], 0) + 1
+    check('the summary pair count is the real pair count',
+          d['summary']['pairs'], len(d['pairs']))
+    check('the summary role histogram is the real histogram',
+          d['summary']['by_role'], dict(sorted(by_role.items())))
+    check('the summary review list is exactly the pairs flagged for review',
+          sorted(tuple(k) for k in d['summary']['needs_review']),
+          sorted((r['layer'], r['datatype']) for r in d['pairs'] if r['needs_review']))
+    check('the per-pair review flag agrees with the confidence level',
+          sorted(f"{r['layer']}/{r['datatype']}" for r in d['pairs']
+                 if r['needs_review'] != (r['confidence'] != 'high')), [])
 
     # ---- report ---------------------------------------------------------------
     w = max(len(r[1]) for r in results)

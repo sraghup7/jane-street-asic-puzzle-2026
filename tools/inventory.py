@@ -440,7 +440,10 @@ def main():
         print(text)
     else:
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)
-        Path(a.out).write_text(text + '\n', encoding='utf-8')
+        # newline='\n' on purpose: the default text mode writes CRLF on Windows while
+        # .gitattributes pins the repo to LF, so the on-disk artifact would differ by
+        # platform. Same convention as tools/puzzle/*.
+        Path(a.out).write_text(text + '\n', encoding='utf-8', newline='\n')
         print(f'wrote {a.out}  ({len(text)} bytes)')
 
 

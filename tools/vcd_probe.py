@@ -196,7 +196,9 @@ def main():
     if args.csv:
         import csv
         with open(args.csv, 'w', newline='') as fh:
-            w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+            # lineterminator='\n': csv defaults to \r\n, which would make this artifact
+            # differ by platform while .gitattributes pins the repo to LF.
+            w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()), lineterminator='\n')
             w.writeheader()
             w.writerows(rows)
         print(f'\nper-cycle table written to {args.csv}')

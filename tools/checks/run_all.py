@@ -28,13 +28,23 @@ def summary_line(out: str) -> str:
     return ''
 
 
-def main() -> int:
+def gate_paths() -> list[tuple[str, Path]]:
+    """Every gate in dependency order: the acceptance contract first, then the checks.
+
+    The list is *discovered* from the filesystem, never declared, so adding a gate file
+    is all it takes to have it run -- and `python -m tools.puzzle --gates` cannot drift
+    out of date. `check_*.py` sorts alphabetically, which orders step1, step2, step3,
+    stepA1 .. stepA5 as required.
+    """
     gates: list[tuple[str, Path]] = [('target', ROOT / 'tools' / 'target.py')]
     gates += [(p.stem.replace('check_', ''), p) for p in sorted(CHECKS.glob('check_*.py'))]
+    return gates
 
+
+def main() -> int:
     rows = []
     failed = 0
-    for name, path in gates:
+    for name, path in gate_paths():
         if not path.exists():
             rows.append((name, '-', 'MISSING', ''))
             failed += 1

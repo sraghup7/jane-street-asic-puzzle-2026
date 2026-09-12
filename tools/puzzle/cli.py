@@ -50,12 +50,28 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('reproduce',         'accept',     'E4', 'full pipeline from clean in one command'),
 ]
 
-GATES: list[tuple[str, str, str]] = [
-    ('step1', 'tools/checks/check_step1.py', '54 checks: problem dossier vs raw artifacts'),
-    ('step2', 'tools/checks/check_step2.py', '36 checks: known-solution study + target consistency'),
-    ('step3', 'tools/checks/check_step3.py', '42 checks: the plan is internally sound'),
-    ('target', 'tools/target.py', 'the acceptance contract is self-consistent'),
-]
+# Optional one-liners for known gates. The gate *list* is discovered from the filesystem
+# by tools/checks/run_all.py -- that is the single source of truth, so a newly added gate
+# shows up here automatically and this table cannot drift out of date. A gate with no
+# entry prints a visible '-' rather than silently going missing.
+GATE_NOTES: dict[str, str] = {
+    'target': 'the acceptance contract is self-consistent',
+    'hygiene': 'dependency policy: no PDK, no external solver, no bare imports',
+    'step1': 'problem dossier vs the raw artifacts',
+    'step2': 'known-solution study + target consistency',
+    'step3': 'the plan is internally sound',
+    'stepA1': 'layer roles, derived from the chip itself',
+    'stepA2': 'the connectivity rule set, re-derived from the GDS',
+    'stepA3': 'pin names, read from the cell masters',
+    'stepA4': 'pin geometry, calibrated on the warm-up',
+    'stepA5': 'pin model coverage',
+}
+
+
+def discovered_gates() -> list[tuple[str, str]]:
+    """(name, repo-relative path) for every gate, via run_all's own discovery."""
+    from tools.checks.run_all import gate_paths
+    return [(name, str(path.relative_to(ROOT))) for name, path in gate_paths()]
 
 
 def _module_status(module: str) -> str:
@@ -72,10 +88,11 @@ def cmd_list() -> int:
     for stage, module, step, purpose in STAGES:
         print(f'  {stage:<20} {module:<12} {step:<6} {_module_status(module):<8} {purpose}')
     print()
-    print('GATES  (run from the repository root)')
-    for name, path, purpose in GATES:
-        cmd = f'python {path}'
-        print(f'  {name:<8} {cmd:<36} {purpose}')
+    print('GATES  (the list is discovered, not declared; run them from the repository root)')
+    gates = discovered_gates()
+    for name, path in gates:
+        print(f'  {name:<10} {("python " + path):<40} {GATE_NOTES.get(name, "-")}')
+    print(f'  ({len(gates)} gates; `python tools/checks/run_all.py` runs them all)')
     return 0
 
 

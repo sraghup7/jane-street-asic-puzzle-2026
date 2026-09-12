@@ -22,13 +22,13 @@ import io
 import json
 import sys
 from collections import defaultdict
-from contextlib import redirect_stdout
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from tools.puzzle import pins as P                      # noqa: E402
+from tools.checks._regen import regenerate             # noqa: E402
 
 from collections import Counter, defaultdict          # noqa: E402
 
@@ -69,12 +69,12 @@ def main() -> int:
     a2 = json.loads(A2.read_text(encoding='utf-8'))
 
     # ---- 1. regenerability -----------------------------------------------------
-    buf = io.StringIO()
-    with redirect_stdout(buf):
-        rc = P.main(['pin-geom'])
+    rc, produced, _ = regenerate('tools.puzzle.pins', ('GEOM_OUT',), 'pin-geom')
     check('the pin-geom stage exits 0', rc, 0)
     check('the artifact regenerates byte-identically',
-          A4.read_text(encoding='utf-8') == before, True)
+          produced == before.encode('utf-8'), True)
+    check('regeneration did not touch the working tree',
+          A4.read_bytes() == before.encode('utf-8'), True)
 
     # ---- 2. totals -------------------------------------------------------------
     check('totals', d['totals'], EXPECTED_TOTALS)
