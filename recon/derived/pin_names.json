@@ -1,0 +1,8593 @@
+{
+  "generated_by": "tools/puzzle/pins.py::pin-names",
+  "source": {
+    "path": "asic-puzzle-2026/puzzle.gds",
+    "sha256": "8913ea4be5367b484d5886c3c5f7608942b67544a0dbe364b17223503b8d851a"
+  },
+  "input": "recon/derived/layers.json",
+  "pin_label_layers": {
+    "master": [
+      "64/5",
+      "64/59",
+      "67/5",
+      "68/5"
+    ],
+    "top": [
+      "68/5",
+      "70/5",
+      "71/5",
+      "72/5"
+    ],
+    "excluded": {
+      "83/44": "layer 83 carries no geometry in any scope -> carries names, not pins"
+    },
+    "geometry_layers": {
+      "master": [
+        64,
+        65,
+        66,
+        67,
+        68,
+        78,
+        81,
+        93,
+        94,
+        95,
+        122,
+        236
+      ],
+      "top": [
+        68,
+        69,
+        70,
+        71,
+        72,
+        235
+      ]
+    }
+  },
+  "body_tie_pins": [
+    "VNB",
+    "VPB"
+  ],
+  "masters": {
+    "sky130_fd_sc_hd__a2111oi_2": {
+      "type": "a2111oi",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.91,
+              1.53
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.37,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.53,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.61,
+              1.53
+            ]
+          ]
+        },
+        "D1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.15,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.99,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__a211o_2": {
+      "type": "a211o",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.065,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.605,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.985,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.45,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__a211oi_2": {
+      "type": "a211oi",
+      "pins": {
+        "A1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.53,
+              1.19
+            ],
+            [
+              2.99,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.91,
+              1.19
+            ],
+            [
+              4.37,
+              1.53
+            ],
+            [
+              4.37,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.59,
+              1.19
+            ],
+            [
+              1.13,
+              1.19
+            ],
+            [
+              1.13,
+              1.53
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.21,
+              1.19
+            ],
+            [
+              0.21,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.67,
+              1.53
+            ],
+            [
+              0.67,
+              1.87
+            ],
+            [
+              0.67,
+              1.19
+            ],
+            [
+              0.67,
+              0.85
+            ],
+            [
+              0.67,
+              0.51
+            ],
+            [
+              1.59,
+              0.51
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__a21bo_2": {
+      "type": "a21bo",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.015,
+              1.53
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.47,
+              1.19
+            ]
+          ]
+        },
+        "B1_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__a21boi_2": {
+      "type": "a21boi",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.015,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.475,
+              1.53
+            ]
+          ]
+        },
+        "B1_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.85
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.635,
+              0.51
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__a21o_2": {
+      "type": "a21o",
+      "pins": {
+        "A1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              0.85
+            ],
+            [
+              2.535,
+              0.51
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.99,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__a21oi_2": {
+      "type": "a21oi",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.15,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.53
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.99,
+              1.19
+            ],
+            [
+              2.99,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.53,
+              0.51
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__a221o_2": {
+      "type": "a221o",
+      "pins": {
+        "A1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.095,
+              0.85
+            ],
+            [
+              2.095,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.555,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              0.85
+            ],
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 2,
+          "on_layers": [
+            "67/5",
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              0.0
+            ],
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 2,
+          "on_layers": [
+            "67/5",
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              2.72
+            ],
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.475,
+              0.51
+            ],
+            [
+              3.475,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__a221oi_2": {
+      "type": "a221oi",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.395,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              5.29,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.555,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.635,
+              1.53
+            ],
+            [
+              1.635,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ],
+            [
+              0.23,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__a22o_2": {
+      "type": "a22o",
+      "pins": {
+        "A1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.635,
+              1.19
+            ],
+            [
+              1.635,
+              0.85
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.095,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ],
+            [
+              1.155,
+              0.85
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.015,
+              2.21
+            ],
+            [
+              3.015,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__a22oi_2": {
+      "type": "a22oi",
+      "pins": {
+        "A1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.555,
+              1.19
+            ],
+            [
+              3.015,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.475,
+              1.19
+            ],
+            [
+              3.935,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ],
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 2,
+          "on_layers": [
+            "67/5",
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              0.0
+            ],
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 2,
+          "on_layers": [
+            "67/5",
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              2.72
+            ],
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              0.85
+            ],
+            [
+              2.075,
+              1.19
+            ],
+            [
+              2.075,
+              1.87
+            ],
+            [
+              2.075,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__a311o_2": {
+      "type": "a311o",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.995,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.905,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              2.21
+            ],
+            [
+              0.695,
+              0.51
+            ],
+            [
+              0.695,
+              0.85
+            ],
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.695,
+              1.53
+            ],
+            [
+              0.695,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__a31o_2": {
+      "type": "a31o",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              0.51
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              0.51
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              0.85
+            ],
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.99,
+              1.19
+            ],
+            [
+              2.995,
+              0.85
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.85
+            ],
+            [
+              0.235,
+              1.19
+            ],
+            [
+              0.235,
+              1.53
+            ],
+            [
+              0.235,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__a31oi_2": {
+      "type": "a31oi",
+      "pins": {
+        "A1": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.555,
+              1.53
+            ],
+            [
+              2.075,
+              1.53
+            ],
+            [
+              2.075,
+              1.19
+            ],
+            [
+              2.555,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.53
+            ],
+            [
+              1.155,
+              1.19
+            ],
+            [
+              1.155,
+              1.53
+            ],
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.695,
+              1.53
+            ],
+            [
+              0.235,
+              1.53
+            ],
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.905,
+              1.19
+            ],
+            [
+              4.365,
+              1.19
+            ],
+            [
+              4.365,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.445,
+              1.19
+            ],
+            [
+              3.445,
+              1.53
+            ],
+            [
+              3.445,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__a32o_2": {
+      "type": "a32o",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.99,
+              0.51
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.45,
+              0.51
+            ],
+            [
+              3.45,
+              0.85
+            ],
+            [
+              3.45,
+              1.19
+            ],
+            [
+              3.45,
+              1.53
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.91,
+              1.53
+            ],
+            [
+              3.91,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.44,
+              1.53
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.21,
+              0.85
+            ],
+            [
+              1.21,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 5,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.53
+            ],
+            [
+              0.235,
+              1.19
+            ],
+            [
+              0.235,
+              2.21
+            ],
+            [
+              0.235,
+              1.87
+            ],
+            [
+              0.235,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__a41oi_2": {
+      "type": "a41oi",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.99,
+              1.19
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.93,
+              1.19
+            ],
+            [
+              4.39,
+              1.19
+            ]
+          ]
+        },
+        "A4": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              5.75,
+              1.19
+            ],
+            [
+              4.85,
+              1.19
+            ],
+            [
+              5.29,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.69,
+              1.19
+            ],
+            [
+              1.15,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ],
+            [
+              0.23,
+              1.53
+            ],
+            [
+              0.23,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__and2_2": {
+      "type": "and2",
+      "pins": {
+        "A": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.69,
+              1.19
+            ],
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.15,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              0.85
+            ],
+            [
+              2.07,
+              0.51
+            ],
+            [
+              2.07,
+              1.19
+            ],
+            [
+              2.07,
+              1.53
+            ],
+            [
+              2.07,
+              1.87
+            ],
+            [
+              2.07,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    },
+    "sky130_fd_sc_hd__and2b_2": {
+      "type": "and2b",
+      "pins": {
+        "A_N": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ],
+            [
+              0.23,
+              0.85
+            ],
+            [
+              0.23,
+              1.53
+            ]
+          ]
+        },
+        "B": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.095,
+              1.87
+            ],
+            [
+              1.635,
+              1.87
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.555,
+              2.21
+            ],
+            [
+              2.555,
+              0.51
+            ],
+            [
+              2.555,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    },
+    "sky130_fd_sc_hd__and3_2": {
+      "type": "and3",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.85
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.15,
+              2.21
+            ]
+          ]
+        },
+        "C": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.15,
+              0.85
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 2,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ],
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 2,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ],
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              0.51
+            ],
+            [
+              2.07,
+              2.21
+            ],
+            [
+              2.53,
+              1.19
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__and3b_2": {
+      "type": "and3b",
+      "pins": {
+        "A_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.095,
+              2.21
+            ]
+          ]
+        },
+        "C": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.095,
+              0.85
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.005,
+              0.51
+            ],
+            [
+              3.005,
+              2.21
+            ],
+            [
+              3.445,
+              1.19
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__and4_2": {
+      "type": "and4",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              0.51
+            ],
+            [
+              1.155,
+              0.85
+            ]
+          ]
+        },
+        "C": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              0.51
+            ],
+            [
+              1.615,
+              0.85
+            ],
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "D": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.985,
+              2.21
+            ],
+            [
+              2.985,
+              0.51
+            ],
+            [
+              2.985,
+              0.85
+            ],
+            [
+              2.985,
+              1.19
+            ],
+            [
+              2.985,
+              1.53
+            ],
+            [
+              2.985,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__and4b_2": {
+      "type": "and4b",
+      "pins": {
+        "A_N": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.53
+            ],
+            [
+              0.235,
+              1.19
+            ],
+            [
+              0.235,
+              0.85
+            ]
+          ]
+        },
+        "B": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              0.51
+            ],
+            [
+              1.615,
+              0.85
+            ],
+            [
+              1.615,
+              1.19
+            ],
+            [
+              1.615,
+              1.53
+            ]
+          ]
+        },
+        "C": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              0.51
+            ],
+            [
+              2.07,
+              0.85
+            ]
+          ]
+        },
+        "D": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.905,
+              0.85
+            ],
+            [
+              3.905,
+              1.19
+            ],
+            [
+              3.905,
+              1.53
+            ],
+            [
+              3.445,
+              0.51
+            ],
+            [
+              3.445,
+              1.87
+            ],
+            [
+              3.445,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__and4bb_2": {
+      "type": "and4bb",
+      "pins": {
+        "A_N": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.53
+            ],
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "B_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.905,
+              0.85
+            ]
+          ]
+        },
+        "C": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.995,
+              0.51
+            ],
+            [
+              2.995,
+              0.85
+            ],
+            [
+              2.995,
+              1.19
+            ]
+          ]
+        },
+        "D": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.455,
+              0.51
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ],
+            [
+              1.155,
+              1.53
+            ],
+            [
+              1.155,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__buf_2": {
+      "type": "buf",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 2,
+          "on_layers": [
+            "67/5",
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ],
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 2,
+          "on_layers": [
+            "67/5",
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ],
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.145,
+              0.51
+            ],
+            [
+              1.145,
+              1.87
+            ],
+            [
+              1.145,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 6
+    },
+    "sky130_fd_sc_hd__clkbuf_16": {
+      "type": "clkbuf",
+      "pins": {
+        "A": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.85
+            ],
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 2,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ],
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 2,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ],
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              8.05,
+              1.53
+            ],
+            [
+              8.51,
+              1.53
+            ],
+            [
+              8.51,
+              1.19
+            ],
+            [
+              8.05,
+              1.19
+            ],
+            [
+              8.05,
+              0.85
+            ],
+            [
+              8.51,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 6
+    },
+    "sky130_fd_sc_hd__clkbuf_4": {
+      "type": "clkbuf",
+      "pins": {
+        "A": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.69,
+              0.85
+            ],
+            [
+              0.69,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              1.53
+            ],
+            [
+              2.53,
+              0.85
+            ],
+            [
+              2.53,
+              1.19
+            ]
+          ]
+        }
+      },
+      "n_pins": 6
+    },
+    "sky130_fd_sc_hd__clkbuf_8": {
+      "type": "clkbuf",
+      "pins": {
+        "A": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.85
+            ],
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.91,
+              1.53
+            ],
+            [
+              3.91,
+              0.85
+            ],
+            [
+              4.37,
+              0.85
+            ],
+            [
+              4.37,
+              1.53
+            ],
+            [
+              3.91,
+              1.19
+            ],
+            [
+              4.37,
+              1.19
+            ]
+          ]
+        }
+      },
+      "n_pins": 6
+    },
+    "sky130_fd_sc_hd__conb_1": {
+      "type": "conb",
+      "pins": {
+        "HI": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.42,
+              1.21
+            ]
+          ]
+        },
+        "LO": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.055,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        }
+      },
+      "n_pins": 6
+    },
+    "sky130_fd_sc_hd__decap_3": {
+      "type": "decap",
+      "pins": {
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        }
+      },
+      "n_pins": 4
+    },
+    "sky130_fd_sc_hd__dfrtp_2": {
+      "type": "dfrtp",
+      "pins": {
+        "CLK": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.53
+            ],
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "D": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.61,
+              1.53
+            ]
+          ]
+        },
+        "Q": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              8.965,
+              2.21
+            ],
+            [
+              8.965,
+              1.87
+            ],
+            [
+              8.965,
+              1.53
+            ],
+            [
+              8.965,
+              0.51
+            ]
+          ]
+        },
+        "RESET_B": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              7.49,
+              0.85
+            ],
+            [
+              7.49,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__dfstp_2": {
+      "type": "dfstp",
+      "pins": {
+        "CLK": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.53
+            ],
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "D": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              1.53
+            ],
+            [
+              2.07,
+              1.19
+            ]
+          ]
+        },
+        "Q": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              9.43,
+              0.85
+            ],
+            [
+              9.43,
+              1.53
+            ],
+            [
+              9.43,
+              1.19
+            ],
+            [
+              8.98,
+              2.21
+            ],
+            [
+              8.98,
+              1.87
+            ],
+            [
+              8.98,
+              0.51
+            ]
+          ]
+        },
+        "SET_B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.91,
+              0.85
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 2,
+          "on_layers": [
+            "67/5",
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ],
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 2,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ],
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 2,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ],
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 2,
+          "on_layers": [
+            "67/5",
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ],
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__dfxtp_2": {
+      "type": "dfxtp",
+      "pins": {
+        "CLK": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "D": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.535,
+              1.19
+            ]
+          ]
+        },
+        "Q": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              7.035,
+              0.51
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 2,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ],
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 2,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ],
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    },
+    "sky130_fd_sc_hd__diode_2": {
+      "type": "diode",
+      "pins": {
+        "DIODE": {
+          "labels": 12,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.69,
+              0.51
+            ],
+            [
+              0.69,
+              1.87
+            ],
+            [
+              0.23,
+              1.87
+            ],
+            [
+              0.69,
+              2.21
+            ],
+            [
+              0.23,
+              2.21
+            ],
+            [
+              0.23,
+              1.53
+            ],
+            [
+              0.69,
+              1.53
+            ],
+            [
+              0.23,
+              1.19
+            ],
+            [
+              0.69,
+              1.19
+            ],
+            [
+              0.69,
+              0.85
+            ],
+            [
+              0.23,
+              0.85
+            ],
+            [
+              0.23,
+              0.51
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        }
+      },
+      "n_pins": 5
+    },
+    "sky130_fd_sc_hd__inv_2": {
+      "type": "inv",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.69,
+              0.85
+            ],
+            [
+              0.69,
+              1.53
+            ],
+            [
+              0.69,
+              1.19
+            ]
+          ]
+        }
+      },
+      "n_pins": 6
+    },
+    "sky130_fd_sc_hd__mux2_1": {
+      "type": "mux2",
+      "pins": {
+        "A0": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ]
+          ]
+        },
+        "A1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              0.85
+            ],
+            [
+              2.535,
+              1.19
+            ]
+          ]
+        },
+        "S": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.455,
+              1.53
+            ],
+            [
+              2.995,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.505,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.455,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.51
+            ],
+            [
+              0.235,
+              1.87
+            ],
+            [
+              0.235,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__nand2_2": {
+      "type": "nand2",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              0.85
+            ],
+            [
+              2.075,
+              1.19
+            ],
+            [
+              2.075,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    },
+    "sky130_fd_sc_hd__nand2b_2": {
+      "type": "nand2b",
+      "pins": {
+        "A_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.995,
+              1.19
+            ],
+            [
+              2.535,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.64,
+              0.85
+            ],
+            [
+              1.615,
+              1.19
+            ],
+            [
+              1.615,
+              1.53
+            ],
+            [
+              1.615,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    },
+    "sky130_fd_sc_hd__nand3_2": {
+      "type": "nand3",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ],
+            [
+              1.615,
+              1.19
+            ],
+            [
+              2.075,
+              1.19
+            ]
+          ]
+        },
+        "C": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.47,
+              1.19
+            ],
+            [
+              3.015,
+              1.19
+            ],
+            [
+              2.555,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              0.85
+            ],
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.695,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__nand3b_2": {
+      "type": "nand3b",
+      "pins": {
+        "A_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ],
+            [
+              2.075,
+              1.19
+            ]
+          ]
+        },
+        "C": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.935,
+              1.19
+            ],
+            [
+              3.935,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__nand4_2": {
+      "type": "nand4",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.37,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.995,
+              1.19
+            ],
+            [
+              2.535,
+              1.19
+            ]
+          ]
+        },
+        "C": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ],
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "D": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              1.53
+            ],
+            [
+              2.995,
+              1.53
+            ],
+            [
+              3.455,
+              1.19
+            ],
+            [
+              3.455,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__nor2_2": {
+      "type": "nor2",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    },
+    "sky130_fd_sc_hd__nor3_2": {
+      "type": "nor3",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "C": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.555,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.475,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__nor3b_2": {
+      "type": "nor3b",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "C_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.37,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.015,
+              0.51
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__nor4_2": {
+      "type": "nor4",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "C": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.555,
+              1.19
+            ]
+          ]
+        },
+        "D": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.475,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.395,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__nor4b_2": {
+      "type": "nor4b",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.675,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.595,
+              1.19
+            ]
+          ]
+        },
+        "C": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.99,
+              1.19
+            ]
+          ]
+        },
+        "D_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              5.29,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.91,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__o211a_2": {
+      "type": "o211a",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.455,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__o211ai_2": {
+      "type": "o211ai",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.37,
+              0.85
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.53,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.61,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.69,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__o21a_2": {
+      "type": "o21a",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.98,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.525,
+              1.87
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.605,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.685,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__o21ai_2": {
+      "type": "o21ai",
+      "pins": {
+        "A1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.225,
+              1.53
+            ],
+            [
+              0.225,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.145,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.985,
+              0.85
+            ],
+            [
+              2.985,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.225,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.225,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.225,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.225,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.525,
+              1.87
+            ],
+            [
+              2.065,
+              1.87
+            ],
+            [
+              1.605,
+              1.87
+            ],
+            [
+              1.145,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__o21ba_2": {
+      "type": "o21ba",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.45,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.53,
+              1.19
+            ]
+          ]
+        },
+        "B1_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.69,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.15,
+              0.51
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__o21bai_2": {
+      "type": "o21bai",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.45,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.53,
+              1.19
+            ]
+          ]
+        },
+        "B1_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.61,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__o221a_2": {
+      "type": "o221a",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.985,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.065,
+              1.53
+            ],
+            [
+              2.065,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.125,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.585,
+              1.53
+            ],
+            [
+              1.585,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.905,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__o22a_2": {
+      "type": "o22a",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.45,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.985,
+              1.87
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.605,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.065,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.215,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.215,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.675,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__o22ai_2": {
+      "type": "o22ai",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.935,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.015,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__o2bb2a_2": {
+      "type": "o2bb2a",
+      "pins": {
+        "A1_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.6,
+              1.19
+            ]
+          ]
+        },
+        "A2_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.6,
+              0.51
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.91,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.44,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.68,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__o311a_2": {
+      "type": "o311a",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.065,
+              1.53
+            ],
+            [
+              2.065,
+              1.87
+            ],
+            [
+              2.065,
+              1.19
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.525,
+              1.53
+            ],
+            [
+              2.525,
+              1.87
+            ],
+            [
+              2.525,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.985,
+              1.19
+            ]
+          ]
+        },
+        "C1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.905,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 7,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.87
+            ],
+            [
+              0.695,
+              2.21
+            ],
+            [
+              0.695,
+              0.85
+            ],
+            [
+              0.695,
+              0.51
+            ],
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.695,
+              1.53
+            ],
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__o31a_2": {
+      "type": "o31a",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ],
+            [
+              2.075,
+              1.53
+            ],
+            [
+              2.075,
+              1.87
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.995,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 7,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              2.21
+            ],
+            [
+              0.235,
+              1.19
+            ],
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.695,
+              0.85
+            ],
+            [
+              0.695,
+              0.51
+            ],
+            [
+              0.695,
+              1.53
+            ],
+            [
+              0.695,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__o31ai_2": {
+      "type": "o31ai",
+      "pins": {
+        "A1": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.235,
+              1.19
+            ],
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ],
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.995,
+              1.19
+            ],
+            [
+              2.535,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.375,
+              0.85
+            ],
+            [
+              4.37,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.375,
+              2.21
+            ],
+            [
+              3.915,
+              1.53
+            ],
+            [
+              3.915,
+              1.19
+            ],
+            [
+              2.535,
+              1.87
+            ],
+            [
+              4.375,
+              1.87
+            ],
+            [
+              3.915,
+              0.85
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__o32a_2": {
+      "type": "o32a",
+      "pins": {
+        "A1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.915,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.995,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 6,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              0.51
+            ],
+            [
+              0.695,
+              0.85
+            ],
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.695,
+              1.53
+            ],
+            [
+              0.695,
+              1.87
+            ],
+            [
+              0.695,
+              2.21
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__o32ai_2": {
+      "type": "o32ai",
+      "pins": {
+        "A1": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              5.755,
+              1.19
+            ],
+            [
+              5.295,
+              1.19
+            ],
+            [
+              4.835,
+              1.19
+            ]
+          ]
+        },
+        "A2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              4.375,
+              1.19
+            ],
+            [
+              3.455,
+              1.19
+            ]
+          ]
+        },
+        "A3": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              1.19
+            ]
+          ]
+        },
+        "B1": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ],
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "B2": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ],
+            [
+              2.075,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 10
+    },
+    "sky130_fd_sc_hd__or2_2": {
+      "type": "or2",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    },
+    "sky130_fd_sc_hd__or3_2": {
+      "type": "or3",
+      "pins": {
+        "A": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.69,
+              1.19
+            ],
+            [
+              1.15,
+              1.19
+            ],
+            [
+              0.69,
+              1.53
+            ]
+          ]
+        },
+        "B": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.21
+            ],
+            [
+              0.69,
+              2.21
+            ]
+          ]
+        },
+        "C": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__or3b_2": {
+      "type": "or3b",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.075,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              2.21
+            ]
+          ]
+        },
+        "C_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              0.51
+            ]
+          ]
+        }
+      },
+      "n_pins": 8
+    },
+    "sky130_fd_sc_hd__or4_2": {
+      "type": "or4",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.615,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 3,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              2.21
+            ],
+            [
+              0.695,
+              2.21
+            ],
+            [
+              0.235,
+              2.21
+            ]
+          ]
+        },
+        "C": {
+          "labels": 4,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ],
+            [
+              0.695,
+              1.19
+            ],
+            [
+              0.695,
+              1.53
+            ],
+            [
+              1.155,
+              1.53
+            ]
+          ]
+        },
+        "D": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              1.19
+            ],
+            [
+              0.235,
+              0.85
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.535,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__or4b_2": {
+      "type": "or4b",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.53,
+              2.21
+            ]
+          ]
+        },
+        "C": {
+          "labels": 2,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.45,
+              1.19
+            ],
+            [
+              2.99,
+              1.19
+            ]
+          ]
+        },
+        "D_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              0.51
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__or4bb_2": {
+      "type": "or4bb",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.015,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.015,
+              2.21
+            ]
+          ]
+        },
+        "C_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              0.695,
+              1.19
+            ]
+          ]
+        },
+        "D_N": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.155,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.235,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.935,
+              1.87
+            ]
+          ]
+        }
+      },
+      "n_pins": 9
+    },
+    "sky130_fd_sc_hd__tapvpwrvgnd_1": {
+      "type": "tapvpwrvgnd",
+      "pins": {
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        }
+      },
+      "n_pins": 2
+    },
+    "sky130_fd_sc_hd__xnor2_2": {
+      "type": "xnor2",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              2.07,
+              1.19
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.15,
+              1.53
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "Y": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              5.79,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    },
+    "sky130_fd_sc_hd__xor2_2": {
+      "type": "xor2",
+      "pins": {
+        "A": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              1.15,
+              1.53
+            ]
+          ]
+        },
+        "B": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              3.91,
+              1.19
+            ]
+          ]
+        },
+        "VGND": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VNB": {
+          "labels": 1,
+          "on_layers": [
+            "64/59"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              0.0
+            ]
+          ]
+        },
+        "VPB": {
+          "labels": 1,
+          "on_layers": [
+            "64/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "VPWR": {
+          "labels": 1,
+          "on_layers": [
+            "68/5"
+          ],
+          "positions_um": [
+            [
+              0.23,
+              2.72
+            ]
+          ]
+        },
+        "X": {
+          "labels": 1,
+          "on_layers": [
+            "67/5"
+          ],
+          "positions_um": [
+            [
+              5.75,
+              1.53
+            ]
+          ]
+        }
+      },
+      "n_pins": 7
+    }
+  },
+  "top_ports": {
+    "I": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          0.3,
+          79.22
+        ]
+      ]
+    },
+    "O[0]": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          204.34
+        ]
+      ]
+    },
+    "O[1]": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          177.14
+        ]
+      ]
+    },
+    "O[2]": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          149.94
+        ]
+      ]
+    },
+    "O[3]": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          122.74
+        ]
+      ]
+    },
+    "O[4]": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          95.54
+        ]
+      ]
+    },
+    "O[5]": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          68.34
+        ]
+      ]
+    },
+    "O[6]": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          41.14
+        ]
+      ]
+    },
+    "O[7]": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          13.94
+        ]
+      ]
+    },
+    "VGND": {
+      "labels": 2,
+      "on_layers": [
+        "71/5",
+        "72/5"
+      ],
+      "positions_um": [
+        [
+          30.14,
+          149.6
+        ],
+        [
+          100.05,
+          31.23
+        ]
+      ]
+    },
+    "VPWR": {
+      "labels": 2,
+      "on_layers": [
+        "71/5",
+        "72/5"
+      ],
+      "positions_um": [
+        [
+          26.44,
+          149.6
+        ],
+        [
+          100.05,
+          27.53
+        ]
+      ]
+    },
+    "clk": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          0.3,
+          238.34
+        ]
+      ]
+    },
+    "enable": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          0.3,
+          132.26
+        ]
+      ]
+    },
+    "rst_n": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          0.3,
+          185.3
+        ]
+      ]
+    },
+    "success": {
+      "labels": 1,
+      "on_layers": [
+        "70/5"
+      ],
+      "positions_um": [
+        [
+          199.7,
+          285.94
+        ]
+      ]
+    }
+  },
+  "census": {
+    "VGND": 69,
+    "VPWR": 69,
+    "VNB": 68,
+    "VPB": 68,
+    "X": 36,
+    "A1": 31,
+    "A2": 30,
+    "B1": 27,
+    "Y": 26,
+    "A": 24,
+    "B": 24,
+    "C": 14,
+    "B2": 11,
+    "A3": 10,
+    "C1": 10,
+    "D": 9,
+    "A_N": 6,
+    "B1_N": 4,
+    "CLK": 3,
+    "C_N": 3,
+    "D_N": 3,
+    "Q": 3,
+    "A0": 1,
+    "A1_N": 1,
+    "A2_N": 1,
+    "A4": 1,
+    "B_N": 1,
+    "D1": 1,
+    "DIODE": 1,
+    "HI": 1,
+    "LO": 1,
+    "RESET_B": 1,
+    "S": 1,
+    "SET_B": 1
+  },
+  "label_counts_by_layer": {
+    "64/5": 71,
+    "64/59": 71,
+    "67/5": 521,
+    "68/5": 140
+  },
+  "consistency": {
+    "checks": [
+      {
+        "check": "a CLK label appears exactly on the flip-flop cells",
+        "from_labels": [
+          "sky130_fd_sc_hd__dfrtp_2",
+          "sky130_fd_sc_hd__dfstp_2",
+          "sky130_fd_sc_hd__dfxtp_2"
+        ],
+        "from_names": [
+          "sky130_fd_sc_hd__dfrtp_2",
+          "sky130_fd_sc_hd__dfstp_2",
+          "sky130_fd_sc_hd__dfxtp_2"
+        ],
+        "passed": true
+      },
+      {
+        "check": "a RESET_B label appears exactly on the dfr* cells",
+        "from_labels": [
+          "sky130_fd_sc_hd__dfrtp_2"
+        ],
+        "from_names": [
+          "sky130_fd_sc_hd__dfrtp_2"
+        ],
+        "passed": true
+      },
+      {
+        "check": "a SET_B label appears exactly on the dfs* cells",
+        "from_labels": [
+          "sky130_fd_sc_hd__dfstp_2"
+        ],
+        "from_names": [
+          "sky130_fd_sc_hd__dfstp_2"
+        ],
+        "passed": true
+      },
+      {
+        "check": "a select pin S appears exactly on the mux* cells",
+        "from_labels": [
+          "sky130_fd_sc_hd__mux2_1"
+        ],
+        "from_names": [
+          "sky130_fd_sc_hd__mux2_1"
+        ],
+        "passed": true
+      },
+      {
+        "check": "no master has both an X and a Y pin",
+        "from_labels": [],
+        "from_names": [],
+        "passed": true
+      },
+      {
+        "check": "a Q output appears exactly on the flip-flop cells",
+        "from_labels": [
+          "sky130_fd_sc_hd__dfrtp_2",
+          "sky130_fd_sc_hd__dfstp_2",
+          "sky130_fd_sc_hd__dfxtp_2"
+        ],
+        "from_names": [
+          "sky130_fd_sc_hd__dfrtp_2",
+          "sky130_fd_sc_hd__dfstp_2",
+          "sky130_fd_sc_hd__dfxtp_2"
+        ],
+        "passed": true
+      },
+      {
+        "check": "no master has both Q and an X/Y output",
+        "from_labels": [],
+        "from_names": [],
+        "passed": true
+      },
+      {
+        "check": "only the physical cells (tap, decap) lack an output pin",
+        "from_labels": [
+          "decap",
+          "tapvpwrvgnd"
+        ],
+        "from_names": [
+          "decap",
+          "tapvpwrvgnd"
+        ],
+        "passed": true
+      },
+      {
+        "check": "the named-type anchors have their expected pin",
+        "from_labels": [],
+        "from_names": [],
+        "passed": true
+      },
+      {
+        "check": "every master has both VPWR and VGND",
+        "from_labels": [],
+        "from_names": [],
+        "passed": true
+      },
+      {
+        "check": "every master but the tap cell has VPB",
+        "from_labels": [
+          "sky130_fd_sc_hd__tapvpwrvgnd_1"
+        ],
+        "from_names": "tapvpwrvgnd",
+        "passed": true
+      },
+      {
+        "check": "every master but the tap cell has VNB",
+        "from_labels": [
+          "sky130_fd_sc_hd__tapvpwrvgnd_1"
+        ],
+        "from_names": "tapvpwrvgnd",
+        "passed": true
+      },
+      {
+        "check": "per-layer label totals agree with A1 (master scope)",
+        "from_labels": {
+          "67/5": 521,
+          "68/5": 140,
+          "64/5": 71,
+          "64/59": 71
+        },
+        "from_names": {
+          "64/5": 71,
+          "64/59": 71,
+          "67/5": 521,
+          "68/5": 140,
+          "70/5": 0,
+          "71/5": 0,
+          "72/5": 0,
+          "83/44": 73
+        },
+        "passed": true,
+        "detail": {
+          "mismatch": {},
+          "unexpected": []
+        }
+      },
+      {
+        "check": "the excluded label layer really is out of scope",
+        "from_labels": {
+          "83/44": 73
+        },
+        "from_names": {
+          "83/44": 73
+        },
+        "passed": true
+      },
+      {
+        "check": "the top cell exposes Step 1's 13 ports",
+        "from_labels": [
+          "I",
+          "O[0]",
+          "O[1]",
+          "O[2]",
+          "O[3]",
+          "O[4]",
+          "O[5]",
+          "O[6]",
+          "O[7]",
+          "clk",
+          "enable",
+          "rst_n",
+          "success"
+        ],
+        "from_names": [
+          "I",
+          "O[0]",
+          "O[1]",
+          "O[2]",
+          "O[3]",
+          "O[4]",
+          "O[5]",
+          "O[6]",
+          "O[7]",
+          "clk",
+          "enable",
+          "rst_n",
+          "success"
+        ],
+        "passed": true
+      }
+    ],
+    "passed": 15,
+    "failed": 0
+  },
+  "totals": {
+    "masters": 69,
+    "distinct_pin_names": 34,
+    "pin_labels": 803,
+    "top_port_labels": 15
+  }
+}
