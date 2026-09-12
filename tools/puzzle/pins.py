@@ -592,12 +592,195 @@ def stage_pin_geom(argv: list[str]) -> int:
     return 1 if bad else 0
 
 
+# ===================================================================== A5: coverage
+COV_OUT = ROOT / 'recon' / 'derived' / 'pin_coverage.json'
+
+
+def stage_pin_coverage(argv: list[str]) -> int:
+    """A5: state exactly how complete the pin model is, before anything trusts it.
+
+    Note on artifact ownership: the plan said to append this to `pinmodel.json`. It is a
+    separate file instead, because A4's gate asserts that re-running `pin-geom` reproduces
+    that file byte for byte -- an appended key would break that guarantee for a stage that
+    does not own it. Each stage owns its own artifact.
+    """
+    lib = gdstk.read_gds(str(GDS))
+    top = lib.top_level()[0]
+    a1 = json.loads(A1_OUT.read_text(encoding='utf-8'))
+    a3 = json.loads(NAMES_OUT.read_text(encoding='utf-8'))
+    a4 = json.loads(GEOM_OUT.read_text(encoding='utf-8'))
+
+    pin_layers = {tuple(int(x) for x in s.split('/'))
+                  for s in a3['pin_label_layers']['master']}
+    excluded_layers = {tuple(int(x) for x in s.split('/'))
+                       for s in a3['pin_label_layers']['excluded']}
+
+    # ---- 1. complete label census over the standard-cell masters ---------------
+    census: dict[str, int] = {}
+    per_layer: Counter = Counter()
+    unknown: list[str] = []
+    placements: Counter = Counter()
+    for ref in top.references:
+        placements[ref.cell.name] += (getattr(ref, 'columns', 1) or 1) * \
+                                     (getattr(ref, 'rows', 1) or 1)
+    for cell in lib.cells:
+        if cell_kind(cell.name, top.name) != 'STD':
+            continue
+        for lb in cell.labels:
+            k = (lb.layer, lb.texttype)
+            if k in pin_layers:
+                cat = 'pin_label'
+            elif k in excluded_layers:
+                cat = 'cell_name'
+            else:
+                cat = 'unclassified'
+                unknown.append(f'{cell.name}:{lb.text}')
+            census[cat] = census.get(cat, 0) + 1
+            per_layer[f'{lb.layer}/{lb.texttype}'] += 1
+
+    # ---- 2. named vs modelled vs geometry-bearing -----------------------------
+    a3_keys = {(mn, pn) for mn, m in a3['masters'].items() for pn in m['pins']}
+    a4_keys = {(mn, pn) for mn, m in a4['masters'].items() for pn in m['pins']}
+    geom_keys = {(mn, pn) for mn, m in a4['masters'].items()
+                 for pn, p in m['pins'].items() if p['n_shapes'] > 0}
+    routed_keys = {(mn, pn) for mn, m in a4['masters'].items()
+                   for pn, p in m['pins'].items() if p['routing_rects']}
+
+    # ---- 3. what each exception is, by cause ---------------------------------
+    def cause(mn: str, pn: str) -> str:
+        if pn == 'VPB':
+            return 'well-tie contact only (64/16); no routing-layer geometry'
+        if mn.endswith('diode_2'):
+            return "antenna diode: supply exists only as a 68/16 pin square"
+        return 'unexplained'
+
+    exceptions = Counter()
+    unexplained = []
+    for mn, pn in sorted(a4_keys - routed_keys):
+        c = cause(mn, pn)
+        exceptions[c] += 1
+        if c == 'unexplained':
+            unexplained.append(f'{mn}:{pn}')
+
+    # ---- 4. per-routing-layer reach, and instance-level reach ----------------
+    layer_reach: Counter = Counter()
+    for m in a4['masters'].values():
+        for p in m['pins'].values():
+            for pair in p['by_pair']:
+                if pair in {f'{r["layer"]}/{r["datatype"]}' for r in a1['pairs']
+                            if r['role'] in ('routing', 'local_wire')}:
+                    layer_reach[pair] += 1
+    pin_instances = sum(placements.get(mn, 0) * len(m['pins'])
+                        for mn, m in a4['masters'].items())
+    routed_instances = sum(placements.get(mn, 0) * sum(
+        1 for p in m['pins'].values() if p['routing_rects'])
+        for mn, m in a4['masters'].items())
+
+    checks = [
+        {'check': 'every master pin label falls in a known category',
+         'failures': unknown, 'passed': not unknown},
+        {'check': 'A4 models exactly the pins A3 named',
+         'failures': sorted(set(a3_keys) ^ set(a4_keys)), 'passed': a3_keys == a4_keys},
+        {'check': 'every modelled pin carries geometry',
+         'failures': sorted(a4_keys - geom_keys), 'passed': a4_keys == geom_keys},
+        {'check': 'every pin without routing geometry has a recorded cause',
+         'failures': unexplained, 'passed': not unexplained},
+        {'check': 'the label census accounts for every label in the masters',
+         'failures': [], 'passed': sum(census.values()) == a1_total_labels(a1)},
+        {'check': 'the pin-label total matches A3',
+         'failures': [], 'passed': census.get('pin_label', 0) == a3['totals']['pin_labels']},
+    ]
+
+    out = {
+        'generated_by': 'tools/puzzle/pins.py::pin-coverage',
+        'source': {'path': 'asic-puzzle-2026/puzzle.gds', 'sha256': sha256(GDS)},
+        'inputs': ['recon/derived/pin_names.json', 'recon/derived/pinmodel.json'],
+        'label_census': {
+            'total': sum(census.values()),
+            'by_category': dict(sorted(census.items())),
+            'per_layer': dict(sorted(per_layer.items())),
+            'excluded_layers': sorted(f'{a}/{b}' for a, b in excluded_layers),
+            'unclassified': unknown,
+        },
+        'pin_coverage': {
+            'named': len(a3_keys),
+            'modelled': len(a4_keys),
+            'with_geometry': len(geom_keys),
+            'with_routing_geometry': len(routed_keys),
+            'without_routing_geometry': len(a4_keys - routed_keys),
+            'exceptions_by_cause': dict(sorted(exceptions.items())),
+            'routing_coverage_pct': round(100.0 * len(routed_keys) / max(len(a4_keys), 1), 2),
+        },
+        'routing_layer_reach_pins': dict(sorted(layer_reach.items())),
+        'instance_reach': {
+            'placed_pins': pin_instances,
+            'placed_pins_with_routing_geometry': routed_instances,
+            'coverage_pct': round(100.0 * routed_instances / max(pin_instances, 1), 2),
+        },
+        'checks': checks,
+        'verdict': 'PIN MODEL COVERAGE: PASS' if all(c['passed'] for c in checks)
+                   else 'PIN MODEL COVERAGE: FAIL',
+    }
+    COV_OUT.parent.mkdir(parents=True, exist_ok=True)
+    COV_OUT.write_text(json.dumps(out, indent=2, sort_keys=False) + '\n',
+                       encoding='utf-8', newline='\n')
+
+    # ---- report
+    lc, pc = out['label_census'], out['pin_coverage']
+    print('label census over the 69 standard-cell masters:')
+    for k, v in sorted(lc['per_layer'].items()):
+        role = ('pin label' if k in a3['pin_label_layers']['master']
+                else 'cell name' if k in a3['pin_label_layers']['excluded']
+                else 'UNCLASSIFIED')
+        print(f'   {k:<16}{v:>5}   {role}')
+    print(f'   {"total":<16}{lc["total"]:>5}')
+    print()
+    print('pin coverage:')
+    print(f'   named (A3)                  {pc["named"]:>5}')
+    print(f'   modelled (A4)               {pc["modelled"]:>5}')
+    print(f'   with geometry               {pc["with_geometry"]:>5}')
+    print(f'   with routing geometry       {pc["with_routing_geometry"]:>5}  '
+          f'({pc["routing_coverage_pct"]}%)')
+    print(f'   without routing geometry    {pc["without_routing_geometry"]:>5}')
+    for c, n in pc['exceptions_by_cause'].items():
+        print(f'        {n:>4}  {c}')
+    print()
+    print('routing-layer reach (pins with geometry on each layer):')
+    for k, v in out['routing_layer_reach_pins'].items():
+        print(f'   {k:<8}{v:>5}')
+    print()
+    ir = out['instance_reach']
+    print(f'instance reach: {ir["placed_pins_with_routing_geometry"]} of '
+          f'{ir["placed_pins"]} placed pins ({ir["coverage_pct"]}%)')
+    print()
+    print('checks:')
+    for c in checks:
+        print(f"  {'PASS' if c['passed'] else 'FAIL'}  {c['check']}"
+              + ('' if c['passed'] else f'  -> {c["failures"][:4]}'))
+    print()
+    print(out['verdict'])
+    print(f'written: {COV_OUT.relative_to(ROOT)}')
+    return 0 if all(c['passed'] for c in checks) else 1
+
+
+def a1_total_labels(a1: dict) -> int:
+    """Label elements inside the standard-cell masters, from A1's per-pair counts.
+
+    A1 splits each label pair by the kind of cell the labels sit in, so this must be the
+    STD share -- the file total would also count the top cell's ports and the two
+    outside-die cells, which are not part of the master label census.
+    """
+    return sum(r['by_cell_kind']['STD'] for r in a1['pairs'] if r['role'] == 'label')
+
+
 def main(argv: list[str]) -> int:
     stage = argv[0] if argv else 'pin-names'
     if stage == 'pin-names':
         return stage_pin_names(argv[1:])
     if stage == 'pin-geom':
         return stage_pin_geom(argv[1:])
+    if stage == 'pin-coverage':
+        return stage_pin_coverage(argv[1:])
     print(f'pins.py does not provide stage {stage!r} yet', file=sys.stderr)
     return 2
 

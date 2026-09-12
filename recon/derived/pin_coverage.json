@@ -1,0 +1,83 @@
+{
+  "generated_by": "tools/puzzle/pins.py::pin-coverage",
+  "source": {
+    "path": "asic-puzzle-2026/puzzle.gds",
+    "sha256": "8913ea4be5367b484d5886c3c5f7608942b67544a0dbe364b17223503b8d851a"
+  },
+  "inputs": [
+    "recon/derived/pin_names.json",
+    "recon/derived/pinmodel.json"
+  ],
+  "label_census": {
+    "total": 876,
+    "by_category": {
+      "cell_name": 73,
+      "pin_label": 803
+    },
+    "per_layer": {
+      "64/5": 71,
+      "64/59": 71,
+      "67/5": 521,
+      "68/5": 140,
+      "83/44": 73
+    },
+    "excluded_layers": [
+      "83/44"
+    ],
+    "unclassified": []
+  },
+  "pin_coverage": {
+    "named": 560,
+    "modelled": 560,
+    "with_geometry": 560,
+    "with_routing_geometry": 489,
+    "without_routing_geometry": 71,
+    "exceptions_by_cause": {
+      "antenna diode: supply exists only as a 68/16 pin square": 3,
+      "well-tie contact only (64/16); no routing-layer geometry": 68
+    },
+    "routing_coverage_pct": 87.32
+  },
+  "routing_layer_reach_pins": {
+    "67/20": 489,
+    "68/20": 20
+  },
+  "instance_reach": {
+    "placed_pins": 7897,
+    "placed_pins_with_routing_geometry": 6925,
+    "coverage_pct": 87.69
+  },
+  "checks": [
+    {
+      "check": "every master pin label falls in a known category",
+      "failures": [],
+      "passed": true
+    },
+    {
+      "check": "A4 models exactly the pins A3 named",
+      "failures": [],
+      "passed": true
+    },
+    {
+      "check": "every modelled pin carries geometry",
+      "failures": [],
+      "passed": true
+    },
+    {
+      "check": "every pin without routing geometry has a recorded cause",
+      "failures": [],
+      "passed": true
+    },
+    {
+      "check": "the label census accounts for every label in the masters",
+      "failures": [],
+      "passed": true
+    },
+    {
+      "check": "the pin-label total matches A3",
+      "failures": [],
+      "passed": true
+    }
+  ],
+  "verdict": "PIN MODEL COVERAGE: PASS"
+}
