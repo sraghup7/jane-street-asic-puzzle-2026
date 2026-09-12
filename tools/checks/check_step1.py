@@ -20,9 +20,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'tools'))
+sys.path.insert(0, str(ROOT))          # importable as `tools.*` from any cwd
 
-from inventory import build_inventory          # noqa: E402
+from tools import inventory                     # noqa: E402
 
 COMMITTED = ROOT / 'recon' / 'inventory.json'
 
@@ -37,7 +37,7 @@ def main() -> int:
     committed_text = COMMITTED.read_text(encoding='utf-8')
     committed = json.loads(committed_text)
 
-    fresh = build_inventory()
+    fresh = inventory.build_inventory()
     fresh_text = json.dumps(fresh, indent=2, sort_keys=True) + '\n'
     check('inventory regenerates bit-identically', fresh_text == committed_text, True)
 

@@ -26,9 +26,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'tools'))
+sys.path.insert(0, str(ROOT))          # importable as `tools.*` from any cwd
 
-import target                                   # noqa: E402
+from tools import target                        # noqa: E402
 
 SNAPSHOT_TXT = ROOT / 'recon' / 'sources' / 'known_solution.txt'
 SNAPSHOT_HTML = ROOT / 'recon' / 'sources' / 'known_solution.html'
