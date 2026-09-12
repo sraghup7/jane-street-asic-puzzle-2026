@@ -1,0 +1,1815 @@
+{
+  "generated_by": "tools/puzzle/layers.py",
+  "source": {
+    "path": "asic-puzzle-2026/puzzle.gds",
+    "sha256": "8913ea4be5367b484d5886c3c5f7608942b67544a0dbe364b17223503b8d851a"
+  },
+  "cells": {
+    "total": 81,
+    "top": "puzzle",
+    "via_masters": [
+      "VIA_L1M1_PR_MR",
+      "VIA_M1M2_PR",
+      "VIA_M1M2_PR_MR",
+      "VIA_M2M3_PR",
+      "VIA_M3M4_PR",
+      "VIA_via2_3_2000_480_1_6_320_320",
+      "VIA_via3_4_2000_480_1_5_400_400",
+      "VIA_via4_5_2000_480_1_5_400_400",
+      "VIA_via5_6_2000_2000_1_1_1600_1600"
+    ],
+    "std_masters": 69,
+    "other_masters": [
+      "INTERNAL_3",
+      "INTERNAL_7"
+    ]
+  },
+  "die_bbox_um": [
+    [
+      0.0,
+      -52.72
+    ],
+    [
+      200.0,
+      300.0
+    ]
+  ],
+  "derived_site_pitch_um": 0.46,
+  "derived_pin_datatype": {
+    "datatype": 16,
+    "evidence": {
+      "top_labels": 17,
+      "labels_by_layer": {
+        "70": 13,
+        "71": 2,
+        "72": 2
+      },
+      "candidates": {
+        "70/16": {
+          "shapes": 13,
+          "labels": 13,
+          "one_shape_per_label": true
+        },
+        "70/20": {
+          "shapes": 909,
+          "labels": 13,
+          "one_shape_per_label": false
+        },
+        "71/16": {
+          "shapes": 12,
+          "labels": 2,
+          "one_shape_per_label": true
+        },
+        "71/20": {
+          "shapes": 60,
+          "labels": 2,
+          "one_shape_per_label": false
+        },
+        "72/16": {
+          "shapes": 18,
+          "labels": 2,
+          "one_shape_per_label": true
+        },
+        "72/20": {
+          "shapes": 36,
+          "labels": 2,
+          "one_shape_per_label": false
+        }
+      },
+      "chosen": "70/16",
+      "datatype": 16
+    }
+  },
+  "derived_label_layers": [
+    64,
+    67,
+    68,
+    70,
+    71,
+    72,
+    83
+  ],
+  "pairs": [
+    {
+      "layer": 64,
+      "datatype": 5,
+      "elements": {
+        "text": 71
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 71,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 0,
+        "distinct_sizes": 0,
+        "square_fraction": 0.0,
+        "min_dim": 0.0,
+        "max_dim": 0.0,
+        "median_area": 0.0,
+        "max_area": 0.0,
+        "distinct_insets": 0,
+        "max_shapes_per_master": 2,
+        "masters_containing": 68
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "label",
+      "rule": "R1",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": []
+    },
+    {
+      "layer": 64,
+      "datatype": 16,
+      "elements": {
+        "boundary": 71
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 71,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 71,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.17,
+        "max_dim": 0.17,
+        "median_area": 0.0289,
+        "max_area": 0.0289,
+        "distinct_insets": 26,
+        "max_shapes_per_master": 2,
+        "masters_containing": 68
+      },
+      "in_via_masters": [],
+      "labels_contained": 77,
+      "role": "pin",
+      "rule": "R2",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "datatype 16 is the pin datatype (derived from the top-cell ports); layer 64 carries labels"
+      ]
+    },
+    {
+      "layer": 64,
+      "datatype": 20,
+      "elements": {
+        "boundary": 69
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 69,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 69,
+        "distinct_sizes": 16,
+        "square_fraction": 0.0,
+        "min_dim": 0.84,
+        "max_dim": 10.04,
+        "median_area": 7.2546,
+        "max_area": 16.1142,
+        "distinct_insets": 1,
+        "max_shapes_per_master": 1,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 71,
+      "role": "cell_geometry",
+      "rule": "R8",
+      "confidence": "medium",
+      "needs_review": true,
+      "notes": [
+        "shares area with cut layers in-master: ['64/16', '65/44', '66/44', '67/16', '67/44', '68/16']",
+        "subkind=footprint_pinned"
+      ]
+    },
+    {
+      "layer": 64,
+      "datatype": 59,
+      "elements": {
+        "text": 71
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 71,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 0,
+        "distinct_sizes": 0,
+        "square_fraction": 0.0,
+        "min_dim": 0.0,
+        "max_dim": 0.0,
+        "median_area": 0.0,
+        "max_area": 0.0,
+        "distinct_insets": 0,
+        "max_shapes_per_master": 2,
+        "masters_containing": 68
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "label",
+      "rule": "R1",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": []
+    },
+    {
+      "layer": 65,
+      "datatype": 20,
+      "elements": {
+        "boundary": 215
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 215,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 215,
+        "distinct_sizes": 128,
+        "square_fraction": 0.0,
+        "min_dim": 0.42,
+        "max_dim": 8.845,
+        "median_area": 1.3845,
+        "max_area": 8.845,
+        "distinct_insets": 178,
+        "max_shapes_per_master": 8,
+        "masters_containing": 67
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "cell_geometry",
+      "rule": "R8",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "shares area with cut layers in-master: ['66/44', '67/16', '67/44', '81/23']",
+        "subkind=in_master_geometry"
+      ]
+    },
+    {
+      "layer": 65,
+      "datatype": 44,
+      "elements": {
+        "boundary": 2
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 2,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 2,
+        "distinct_sizes": 2,
+        "square_fraction": 0.0,
+        "min_dim": 0.17,
+        "max_dim": 0.875,
+        "median_area": 0.1487,
+        "max_area": 0.1487,
+        "distinct_insets": 2,
+        "max_shapes_per_master": 2,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "cell_geometry",
+      "rule": "R8",
+      "confidence": "medium",
+      "needs_review": true,
+      "notes": [
+        "shares area with cut layers in-master: ['66/44']",
+        "subkind=contact_sized"
+      ]
+    },
+    {
+      "layer": 66,
+      "datatype": 15,
+      "elements": {
+        "boundary": 2
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 2,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 2,
+        "distinct_sizes": 1,
+        "square_fraction": 0.0,
+        "min_dim": 0.045,
+        "max_dim": 0.48,
+        "median_area": 0.0216,
+        "max_area": 0.0216,
+        "distinct_insets": 2,
+        "max_shapes_per_master": 2,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "cell_geometry",
+      "rule": "R8",
+      "confidence": "medium",
+      "needs_review": true,
+      "notes": [
+        "shares area with cut layers in-master: ['67/16']",
+        "subkind=contact_sized"
+      ]
+    },
+    {
+      "layer": 66,
+      "datatype": 20,
+      "elements": {
+        "boundary": 358
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 358,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 358,
+        "distinct_sizes": 167,
+        "square_fraction": 0.0,
+        "min_dim": 0.01,
+        "max_dim": 6.595,
+        "median_area": 0.4563,
+        "max_area": 7.5971,
+        "distinct_insets": 348,
+        "max_shapes_per_master": 19,
+        "masters_containing": 67
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "cell_geometry",
+      "rule": "R8",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "shares area with cut layers in-master: ['66/15', '66/44', '67/16', '67/44']",
+        "subkind=in_master_geometry"
+      ]
+    },
+    {
+      "layer": 66,
+      "datatype": 44,
+      "elements": {
+        "boundary": 2085
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 2085,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 2085,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.17,
+        "max_dim": 0.17,
+        "median_area": 0.0289,
+        "max_area": 0.0289,
+        "distinct_insets": 1896,
+        "max_shapes_per_master": 72,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "contact",
+      "rule": "R6",
+      "confidence": "medium",
+      "needs_review": true,
+      "notes": [
+        "cut-shaped but no via master contains it"
+      ]
+    },
+    {
+      "layer": 67,
+      "datatype": 5,
+      "elements": {
+        "text": 521
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 521,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 0,
+        "distinct_sizes": 0,
+        "square_fraction": 0.0,
+        "min_dim": 0.0,
+        "max_dim": 0.0,
+        "median_area": 0.0,
+        "max_area": 0.0,
+        "distinct_insets": 0,
+        "max_shapes_per_master": 18,
+        "masters_containing": 67
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "label",
+      "rule": "R1",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": []
+    },
+    {
+      "layer": 67,
+      "datatype": 16,
+      "elements": {
+        "boundary": 568
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 568,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 568,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.17,
+        "max_dim": 0.17,
+        "median_area": 0.0289,
+        "max_area": 0.0289,
+        "distinct_insets": 409,
+        "max_shapes_per_master": 20,
+        "masters_containing": 67
+      },
+      "in_via_masters": [],
+      "labels_contained": 516,
+      "role": "pin",
+      "rule": "R2",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "datatype 16 is the pin datatype (derived from the top-cell ports); layer 67 carries labels"
+      ]
+    },
+    {
+      "layer": 67,
+      "datatype": 20,
+      "elements": {
+        "boundary": 619,
+        "path": 7
+      },
+      "by_cell_kind": {
+        "VIA": 1,
+        "STD": 625,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 619,
+        "distinct_sizes": 557,
+        "square_fraction": 0.0341,
+        "min_dim": 0.17,
+        "max_dim": 9.66,
+        "median_area": 0.5349,
+        "max_area": 5.92,
+        "distinct_insets": 550,
+        "max_shapes_per_master": 36,
+        "masters_containing": 70
+      },
+      "in_via_masters": [
+        "VIA_L1M1_PR_MR"
+      ],
+      "labels_contained": 943,
+      "role": "local_wire",
+      "rule": "R5",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "bridged by a via master; confined to the cell masters"
+      ]
+    },
+    {
+      "layer": 67,
+      "datatype": 44,
+      "elements": {
+        "boundary": 1251
+      },
+      "by_cell_kind": {
+        "VIA": 1,
+        "STD": 1250,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 1251,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.17,
+        "max_dim": 0.17,
+        "median_area": 0.0289,
+        "max_area": 0.0289,
+        "distinct_insets": 329,
+        "max_shapes_per_master": 52,
+        "masters_containing": 70
+      },
+      "in_via_masters": [
+        "VIA_L1M1_PR_MR"
+      ],
+      "labels_contained": 11,
+      "role": "via_cut",
+      "rule": "R3",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "used by 1 via master(s): VIA_L1M1_PR_MR"
+      ]
+    },
+    {
+      "layer": 68,
+      "datatype": 5,
+      "elements": {
+        "text": 140
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 140,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 0,
+        "distinct_sizes": 0,
+        "square_fraction": 0.0,
+        "min_dim": 0.0,
+        "max_dim": 0.0,
+        "median_area": 0.0,
+        "max_area": 0.0,
+        "distinct_insets": 0,
+        "max_shapes_per_master": 4,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "label",
+      "rule": "R1",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": []
+    },
+    {
+      "layer": 68,
+      "datatype": 16,
+      "elements": {
+        "boundary": 140
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 140,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 140,
+        "distinct_sizes": 3,
+        "square_fraction": 0.3333,
+        "min_dim": 0.145,
+        "max_dim": 0.265,
+        "median_area": 0.0289,
+        "max_area": 0.0485,
+        "distinct_insets": 52,
+        "max_shapes_per_master": 4,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 144,
+      "role": "pin",
+      "rule": "R2",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "datatype 16 is the pin datatype (derived from the top-cell ports); layer 68 carries labels"
+      ]
+    },
+    {
+      "layer": 68,
+      "datatype": 20,
+      "elements": {
+        "boundary": 49,
+        "path": 3835
+      },
+      "by_cell_kind": {
+        "VIA": 4,
+        "STD": 156,
+        "TOP": 3724,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 49,
+        "distinct_sizes": 27,
+        "square_fraction": 0.0741,
+        "min_dim": 0.135,
+        "max_dim": 9.66,
+        "median_area": 0.1073,
+        "max_area": 4.6368,
+        "distinct_insets": 37,
+        "max_shapes_per_master": 3724,
+        "masters_containing": 74
+      },
+      "in_via_masters": [
+        "VIA_L1M1_PR_MR",
+        "VIA_M1M2_PR",
+        "VIA_M1M2_PR_MR",
+        "VIA_via2_3_2000_480_1_6_320_320"
+      ],
+      "labels_contained": 14,
+      "role": "routing",
+      "rule": "R4",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "bridged by a via master; used in the top cell (3724 shapes/paths)"
+      ]
+    },
+    {
+      "layer": 68,
+      "datatype": 44,
+      "elements": {
+        "boundary": 8
+      },
+      "by_cell_kind": {
+        "VIA": 8,
+        "STD": 0,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 8,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.15,
+        "max_dim": 0.15,
+        "median_area": 0.0225,
+        "max_area": 0.0225,
+        "distinct_insets": 8,
+        "max_shapes_per_master": 6,
+        "masters_containing": 3
+      },
+      "in_via_masters": [
+        "VIA_M1M2_PR",
+        "VIA_M1M2_PR_MR",
+        "VIA_via2_3_2000_480_1_6_320_320"
+      ],
+      "labels_contained": 0,
+      "role": "via_cut",
+      "rule": "R3",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "used by 3 via master(s): VIA_M1M2_PR, VIA_M1M2_PR_MR, VIA_via2_3_2000_480_1_6_320_320"
+      ]
+    },
+    {
+      "layer": 69,
+      "datatype": 20,
+      "elements": {
+        "boundary": 1371,
+        "path": 2421
+      },
+      "by_cell_kind": {
+        "VIA": 5,
+        "STD": 0,
+        "TOP": 3787,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 1371,
+        "distinct_sizes": 5,
+        "square_fraction": 0.2,
+        "min_dim": 0.26,
+        "max_dim": 1.88,
+        "median_area": 0.09,
+        "max_area": 0.6956,
+        "distinct_insets": 1370,
+        "max_shapes_per_master": 3787,
+        "masters_containing": 6
+      },
+      "in_via_masters": [
+        "VIA_M1M2_PR",
+        "VIA_M1M2_PR_MR",
+        "VIA_M2M3_PR",
+        "VIA_via2_3_2000_480_1_6_320_320",
+        "VIA_via3_4_2000_480_1_5_400_400"
+      ],
+      "labels_contained": 0,
+      "role": "routing",
+      "rule": "R4",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "bridged by a via master; used in the top cell (3787 shapes/paths)"
+      ]
+    },
+    {
+      "layer": 69,
+      "datatype": 44,
+      "elements": {
+        "boundary": 6
+      },
+      "by_cell_kind": {
+        "VIA": 6,
+        "STD": 0,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 6,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.2,
+        "max_dim": 0.2,
+        "median_area": 0.04,
+        "max_area": 0.04,
+        "distinct_insets": 6,
+        "max_shapes_per_master": 5,
+        "masters_containing": 2
+      },
+      "in_via_masters": [
+        "VIA_M2M3_PR",
+        "VIA_via3_4_2000_480_1_5_400_400"
+      ],
+      "labels_contained": 0,
+      "role": "via_cut",
+      "rule": "R3",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "used by 2 via master(s): VIA_M2M3_PR, VIA_via3_4_2000_480_1_5_400_400"
+      ]
+    },
+    {
+      "layer": 70,
+      "datatype": 5,
+      "elements": {
+        "text": 13
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 0,
+        "TOP": 13,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 0,
+        "distinct_sizes": 0,
+        "square_fraction": 0.0,
+        "min_dim": 0.0,
+        "max_dim": 0.0,
+        "median_area": 0.0,
+        "max_area": 0.0,
+        "distinct_insets": 0,
+        "max_shapes_per_master": 13,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "label",
+      "rule": "R1",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": []
+    },
+    {
+      "layer": 70,
+      "datatype": 16,
+      "elements": {
+        "boundary": 13
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 0,
+        "TOP": 13,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 13,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.6,
+        "max_dim": 0.6,
+        "median_area": 0.36,
+        "max_area": 0.36,
+        "distinct_insets": 13,
+        "max_shapes_per_master": 13,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 13,
+      "role": "pin",
+      "rule": "R2",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "datatype 16 is the pin datatype (derived from the top-cell ports); layer 70 carries labels"
+      ]
+    },
+    {
+      "layer": 70,
+      "datatype": 20,
+      "elements": {
+        "boundary": 45,
+        "path": 868
+      },
+      "by_cell_kind": {
+        "VIA": 4,
+        "STD": 0,
+        "TOP": 909,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 45,
+        "distinct_sizes": 7,
+        "square_fraction": 0.2857,
+        "min_dim": 0.3,
+        "max_dim": 1.98,
+        "median_area": 0.186,
+        "max_area": 0.6369,
+        "distinct_insets": 44,
+        "max_shapes_per_master": 909,
+        "masters_containing": 5
+      },
+      "in_via_masters": [
+        "VIA_M2M3_PR",
+        "VIA_M3M4_PR",
+        "VIA_via3_4_2000_480_1_5_400_400",
+        "VIA_via4_5_2000_480_1_5_400_400"
+      ],
+      "labels_contained": 13,
+      "role": "routing",
+      "rule": "R4",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "bridged by a via master; used in the top cell (909 shapes/paths)"
+      ]
+    },
+    {
+      "layer": 70,
+      "datatype": 44,
+      "elements": {
+        "boundary": 6
+      },
+      "by_cell_kind": {
+        "VIA": 6,
+        "STD": 0,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 6,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.2,
+        "max_dim": 0.2,
+        "median_area": 0.04,
+        "max_area": 0.04,
+        "distinct_insets": 6,
+        "max_shapes_per_master": 5,
+        "masters_containing": 2
+      },
+      "in_via_masters": [
+        "VIA_M3M4_PR",
+        "VIA_via4_5_2000_480_1_5_400_400"
+      ],
+      "labels_contained": 0,
+      "role": "via_cut",
+      "rule": "R3",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "used by 2 via master(s): VIA_M3M4_PR, VIA_via4_5_2000_480_1_5_400_400"
+      ]
+    },
+    {
+      "layer": 71,
+      "datatype": 5,
+      "elements": {
+        "text": 2
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 0,
+        "TOP": 2,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 0,
+        "distinct_sizes": 0,
+        "square_fraction": 0.0,
+        "min_dim": 0.0,
+        "max_dim": 0.0,
+        "median_area": 0.0,
+        "max_area": 0.0,
+        "distinct_insets": 0,
+        "max_shapes_per_master": 2,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "label",
+      "rule": "R1",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": []
+    },
+    {
+      "layer": 71,
+      "datatype": 16,
+      "elements": {
+        "boundary": 12
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 0,
+        "TOP": 12,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 12,
+        "distinct_sizes": 1,
+        "square_fraction": 0.0,
+        "min_dim": 2.0,
+        "max_dim": 277.92,
+        "median_area": 555.84,
+        "max_area": 555.84,
+        "distinct_insets": 12,
+        "max_shapes_per_master": 12,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 2,
+      "role": "pin",
+      "rule": "R2",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "datatype 16 is the pin datatype (derived from the top-cell ports); layer 71 carries labels"
+      ]
+    },
+    {
+      "layer": 71,
+      "datatype": 20,
+      "elements": {
+        "boundary": 16,
+        "path": 47
+      },
+      "by_cell_kind": {
+        "VIA": 3,
+        "STD": 0,
+        "TOP": 60,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 16,
+        "distinct_sizes": 5,
+        "square_fraction": 0.2,
+        "min_dim": 0.3,
+        "max_dim": 277.92,
+        "median_area": 555.84,
+        "max_area": 555.84,
+        "distinct_insets": 16,
+        "max_shapes_per_master": 60,
+        "masters_containing": 4
+      },
+      "in_via_masters": [
+        "VIA_M3M4_PR",
+        "VIA_via4_5_2000_480_1_5_400_400",
+        "VIA_via5_6_2000_2000_1_1_1600_1600"
+      ],
+      "labels_contained": 2,
+      "role": "routing",
+      "rule": "R4",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "bridged by a via master; used in the top cell (60 shapes/paths)"
+      ]
+    },
+    {
+      "layer": 71,
+      "datatype": 44,
+      "elements": {
+        "boundary": 1
+      },
+      "by_cell_kind": {
+        "VIA": 1,
+        "STD": 0,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 1,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.8,
+        "max_dim": 0.8,
+        "median_area": 0.64,
+        "max_area": 0.64,
+        "distinct_insets": 1,
+        "max_shapes_per_master": 1,
+        "masters_containing": 1
+      },
+      "in_via_masters": [
+        "VIA_via5_6_2000_2000_1_1_1600_1600"
+      ],
+      "labels_contained": 0,
+      "role": "via_cut",
+      "rule": "R3",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "used by 1 via master(s): VIA_via5_6_2000_2000_1_1_1600_1600"
+      ]
+    },
+    {
+      "layer": 72,
+      "datatype": 5,
+      "elements": {
+        "text": 2
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 0,
+        "TOP": 2,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 0,
+        "distinct_sizes": 0,
+        "square_fraction": 0.0,
+        "min_dim": 0.0,
+        "max_dim": 0.0,
+        "median_area": 0.0,
+        "max_area": 0.0,
+        "distinct_insets": 0,
+        "max_shapes_per_master": 2,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "label",
+      "rule": "R1",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": []
+    },
+    {
+      "layer": 72,
+      "datatype": 16,
+      "elements": {
+        "boundary": 18
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 0,
+        "TOP": 18,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 18,
+        "distinct_sizes": 1,
+        "square_fraction": 0.0,
+        "min_dim": 2.0,
+        "max_dim": 179.86,
+        "median_area": 359.72,
+        "max_area": 359.72,
+        "distinct_insets": 18,
+        "max_shapes_per_master": 18,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 2,
+      "role": "pin",
+      "rule": "R2",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "datatype 16 is the pin datatype (derived from the top-cell ports); layer 72 carries labels"
+      ]
+    },
+    {
+      "layer": 72,
+      "datatype": 20,
+      "elements": {
+        "boundary": 19,
+        "path": 18
+      },
+      "by_cell_kind": {
+        "VIA": 1,
+        "STD": 0,
+        "TOP": 36,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 19,
+        "distinct_sizes": 2,
+        "square_fraction": 0.0,
+        "min_dim": 1.42,
+        "max_dim": 179.86,
+        "median_area": 359.72,
+        "max_area": 359.72,
+        "distinct_insets": 19,
+        "max_shapes_per_master": 36,
+        "masters_containing": 2
+      },
+      "in_via_masters": [
+        "VIA_via5_6_2000_2000_1_1_1600_1600"
+      ],
+      "labels_contained": 2,
+      "role": "routing",
+      "rule": "R4",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "bridged by a via master; used in the top cell (36 shapes/paths)"
+      ]
+    },
+    {
+      "layer": 78,
+      "datatype": 44,
+      "elements": {
+        "boundary": 70
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 70,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 70,
+        "distinct_sizes": 16,
+        "square_fraction": 0.0,
+        "min_dim": 0.46,
+        "max_dim": 9.66,
+        "median_area": 6.0858,
+        "max_area": 14.2002,
+        "distinct_insets": 3,
+        "max_shapes_per_master": 2,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "non_electrical",
+      "rule": "R7b",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "widths snap to the 0.46 um site pitch, height constant at 1.47 um",
+        "subkind=footprint_marker"
+      ]
+    },
+    {
+      "layer": 81,
+      "datatype": 4,
+      "elements": {
+        "boundary": 69
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 69,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 69,
+        "distinct_sizes": 16,
+        "square_fraction": 0.0625,
+        "min_dim": 0.46,
+        "max_dim": 9.66,
+        "median_area": 11.2608,
+        "max_area": 26.2752,
+        "distinct_insets": 1,
+        "max_shapes_per_master": 1,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "non_electrical",
+      "rule": "R7a",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "present at most twice per master; every shape inset from the master bbox by the same (0.19, 0.24, 0.19, 0.24)",
+        "subkind=footprint_marker"
+      ]
+    },
+    {
+      "layer": 81,
+      "datatype": 23,
+      "elements": {
+        "boundary": 1
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 1,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 1,
+        "distinct_sizes": 1,
+        "square_fraction": 0.0,
+        "min_dim": 0.63,
+        "max_dim": 0.69,
+        "median_area": 0.4347,
+        "max_area": 0.4347,
+        "distinct_insets": 1,
+        "max_shapes_per_master": 1,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "non_electrical",
+      "rule": "R7a",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "present at most twice per master; every shape inset from the master bbox by the same (0.345, 0.435, 0.325, 2.075)",
+        "subkind=footprint_marker"
+      ]
+    },
+    {
+      "layer": 83,
+      "datatype": 44,
+      "elements": {
+        "text": 73
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 73,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 0,
+        "distinct_sizes": 0,
+        "square_fraction": 0.0,
+        "min_dim": 0.0,
+        "max_dim": 0.0,
+        "median_area": 0.0,
+        "max_area": 0.0,
+        "distinct_insets": 0,
+        "max_shapes_per_master": 5,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "label",
+      "rule": "R1",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": []
+    },
+    {
+      "layer": 93,
+      "datatype": 44,
+      "elements": {
+        "boundary": 70
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 70,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 70,
+        "distinct_sizes": 17,
+        "square_fraction": 0.0,
+        "min_dim": 0.38,
+        "max_dim": 9.66,
+        "median_area": 4.9887,
+        "max_area": 11.6403,
+        "distinct_insets": 3,
+        "max_shapes_per_master": 2,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "cell_geometry",
+      "rule": "R8",
+      "confidence": "medium",
+      "needs_review": true,
+      "notes": [
+        "shares area with cut layers in-master: ['122/16', '65/44', '66/44', '67/16', '67/44', '68/16', '81/23']",
+        "subkind=footprint_pinned"
+      ]
+    },
+    {
+      "layer": 94,
+      "datatype": 20,
+      "elements": {
+        "boundary": 70
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 70,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 70,
+        "distinct_sizes": 19,
+        "square_fraction": 0.0526,
+        "min_dim": 0.38,
+        "max_dim": 9.66,
+        "median_area": 6.125,
+        "max_area": 14.306,
+        "distinct_insets": 4,
+        "max_shapes_per_master": 2,
+        "masters_containing": 69
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "cell_geometry",
+      "rule": "R8",
+      "confidence": "medium",
+      "needs_review": true,
+      "notes": [
+        "shares area with cut layers in-master: ['64/16', '65/44', '66/44', '67/16', '67/44', '68/16']",
+        "subkind=footprint_pinned"
+      ]
+    },
+    {
+      "layer": 95,
+      "datatype": 20,
+      "elements": {
+        "boundary": 76
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 76,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 76,
+        "distinct_sizes": 30,
+        "square_fraction": 0.0333,
+        "min_dim": 0.37,
+        "max_dim": 9.66,
+        "median_area": 1.3616,
+        "max_area": 5.8416,
+        "distinct_insets": 20,
+        "max_shapes_per_master": 2,
+        "masters_containing": 67
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "cell_geometry",
+      "rule": "R8",
+      "confidence": "medium",
+      "needs_review": true,
+      "notes": [
+        "shares area with cut layers in-master: ['66/15', '66/44', '67/16', '67/44']",
+        "subkind=footprint_pinned"
+      ]
+    },
+    {
+      "layer": 122,
+      "datatype": 16,
+      "elements": {
+        "boundary": 71
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 71,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 71,
+        "distinct_sizes": 1,
+        "square_fraction": 1.0,
+        "min_dim": 0.17,
+        "max_dim": 0.17,
+        "median_area": 0.0289,
+        "max_area": 0.0289,
+        "distinct_insets": 26,
+        "max_shapes_per_master": 2,
+        "masters_containing": 68
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "contact",
+      "rule": "R6",
+      "confidence": "medium",
+      "needs_review": true,
+      "notes": [
+        "cut-shaped but no via master contains it"
+      ]
+    },
+    {
+      "layer": 200,
+      "datatype": 0,
+      "elements": {
+        "boundary": 2
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 0,
+        "TOP": 0,
+        "OTHER": 2
+      },
+      "geometry": {
+        "shapes": 2,
+        "distinct_sizes": 2,
+        "square_fraction": 0.0,
+        "min_dim": 1.38,
+        "max_dim": 4.14,
+        "median_area": 11.2608,
+        "max_area": 11.2608,
+        "distinct_insets": 1,
+        "max_shapes_per_master": 1,
+        "masters_containing": 2
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "non_electrical",
+      "rule": "R9",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "subkind=outside_die"
+      ]
+    },
+    {
+      "layer": 235,
+      "datatype": 4,
+      "elements": {
+        "boundary": 1
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 0,
+        "TOP": 1,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 1,
+        "distinct_sizes": 1,
+        "square_fraction": 0.0,
+        "min_dim": 200.0,
+        "max_dim": 300.0,
+        "median_area": 60000.0,
+        "max_area": 60000.0,
+        "distinct_insets": 1,
+        "max_shapes_per_master": 1,
+        "masters_containing": 1
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "non_electrical",
+      "rule": "R9",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "subkind=die_outline"
+      ]
+    },
+    {
+      "layer": 236,
+      "datatype": 0,
+      "elements": {
+        "boundary": 68
+      },
+      "by_cell_kind": {
+        "VIA": 0,
+        "STD": 68,
+        "TOP": 0,
+        "OTHER": 0
+      },
+      "geometry": {
+        "shapes": 68,
+        "distinct_sizes": 15,
+        "square_fraction": 0.0667,
+        "min_dim": 0.92,
+        "max_dim": 9.66,
+        "median_area": 11.2608,
+        "max_area": 26.2752,
+        "distinct_insets": 1,
+        "max_shapes_per_master": 1,
+        "masters_containing": 68
+      },
+      "in_via_masters": [],
+      "labels_contained": 0,
+      "role": "non_electrical",
+      "rule": "R7a",
+      "confidence": "high",
+      "needs_review": false,
+      "notes": [
+        "present at most twice per master; every shape inset from the master bbox by the same (0.19, 0.24, 0.19, 0.24)",
+        "subkind=footprint_marker"
+      ]
+    }
+  ],
+  "roles": {
+    "cell_geometry": [
+      [
+        64,
+        20
+      ],
+      [
+        65,
+        20
+      ],
+      [
+        65,
+        44
+      ],
+      [
+        66,
+        15
+      ],
+      [
+        66,
+        20
+      ],
+      [
+        93,
+        44
+      ],
+      [
+        94,
+        20
+      ],
+      [
+        95,
+        20
+      ]
+    ],
+    "contact": [
+      [
+        66,
+        44
+      ],
+      [
+        122,
+        16
+      ]
+    ],
+    "label": [
+      [
+        64,
+        5
+      ],
+      [
+        64,
+        59
+      ],
+      [
+        67,
+        5
+      ],
+      [
+        68,
+        5
+      ],
+      [
+        70,
+        5
+      ],
+      [
+        71,
+        5
+      ],
+      [
+        72,
+        5
+      ],
+      [
+        83,
+        44
+      ]
+    ],
+    "local_wire": [
+      [
+        67,
+        20
+      ]
+    ],
+    "non_electrical": [
+      [
+        78,
+        44
+      ],
+      [
+        81,
+        4
+      ],
+      [
+        81,
+        23
+      ],
+      [
+        200,
+        0
+      ],
+      [
+        235,
+        4
+      ],
+      [
+        236,
+        0
+      ]
+    ],
+    "pin": [
+      [
+        64,
+        16
+      ],
+      [
+        67,
+        16
+      ],
+      [
+        68,
+        16
+      ],
+      [
+        70,
+        16
+      ],
+      [
+        71,
+        16
+      ],
+      [
+        72,
+        16
+      ]
+    ],
+    "routing": [
+      [
+        68,
+        20
+      ],
+      [
+        69,
+        20
+      ],
+      [
+        70,
+        20
+      ],
+      [
+        71,
+        20
+      ],
+      [
+        72,
+        20
+      ]
+    ],
+    "via_cut": [
+      [
+        67,
+        44
+      ],
+      [
+        68,
+        44
+      ],
+      [
+        69,
+        44
+      ],
+      [
+        70,
+        44
+      ],
+      [
+        71,
+        44
+      ]
+    ]
+  },
+  "via_layer_sets": {
+    "VIA_M1M2_PR_MR": {
+      "68/20": 1,
+      "68/44": 1,
+      "69/20": 1
+    },
+    "VIA_M3M4_PR": {
+      "70/20": 1,
+      "70/44": 1,
+      "71/20": 1
+    },
+    "VIA_M2M3_PR": {
+      "69/20": 1,
+      "69/44": 1,
+      "70/20": 1
+    },
+    "VIA_M1M2_PR": {
+      "68/20": 1,
+      "68/44": 1,
+      "69/20": 1
+    },
+    "VIA_L1M1_PR_MR": {
+      "67/20": 1,
+      "67/44": 1,
+      "68/20": 1
+    },
+    "VIA_via2_3_2000_480_1_6_320_320": {
+      "68/20": 1,
+      "68/44": 6,
+      "69/20": 1
+    },
+    "VIA_via3_4_2000_480_1_5_400_400": {
+      "69/20": 1,
+      "69/44": 5,
+      "70/20": 1
+    },
+    "VIA_via4_5_2000_480_1_5_400_400": {
+      "70/20": 1,
+      "70/44": 5,
+      "71/20": 1
+    },
+    "VIA_via5_6_2000_2000_1_1_1600_1600": {
+      "71/20": 1,
+      "71/44": 1,
+      "72/20": 1
+    }
+  },
+  "via_placements": {
+    "VIA_L1M1_PR_MR": 2696,
+    "VIA_M1M2_PR": 3154,
+    "VIA_M1M2_PR_MR": 7,
+    "VIA_M2M3_PR": 333,
+    "VIA_M3M4_PR": 69,
+    "VIA_via2_3_2000_480_1_6_320_320": 618,
+    "VIA_via3_4_2000_480_1_5_400_400": 618,
+    "VIA_via4_5_2000_480_1_5_400_400": 618,
+    "VIA_via5_6_2000_2000_1_1_1600_1600": 108
+  },
+  "summary": {
+    "pairs": 41,
+    "by_role": {
+      "cell_geometry": 8,
+      "contact": 2,
+      "label": 8,
+      "local_wire": 1,
+      "non_electrical": 6,
+      "pin": 6,
+      "routing": 5,
+      "via_cut": 5
+    },
+    "needs_review": [
+      [
+        64,
+        20
+      ],
+      [
+        65,
+        44
+      ],
+      [
+        66,
+        15
+      ],
+      [
+        66,
+        44
+      ],
+      [
+        93,
+        44
+      ],
+      [
+        94,
+        20
+      ],
+      [
+        95,
+        20
+      ],
+      [
+        122,
+        16
+      ]
+    ]
+  }
+}

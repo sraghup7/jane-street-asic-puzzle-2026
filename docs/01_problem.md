@@ -163,7 +163,7 @@ netlist we extract must reproduce these bytes exactly, and must *not* raise `suc
 | Database unit | 1000 / µm → **1 nm** per DBU (GDS version 600) |
 | Library name | `LIB` (generic — no metadata leak) |
 | Structures | **81** = 1 top cell (`puzzle`) + 69 standard-cell masters + 9 via masters + 2 `INTERNAL_*` |
-| Layers present in the placed design | 33 distinct `(layer, datatype)` pairs |
+| Layers present in the placed design | **41** distinct `(layer, datatype)` pairs — **33** carry polygons or paths, the other **8** carry only `TEXT` labels (reconciled in `docs/steps/A1.md`) |
 | Power labels | `VPWR`/`VGND` on layers 71/5, 72/5 — a real power grid exists |
 
 ### 5.1 Placement grid — a major simplification

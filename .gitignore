@@ -11,4 +11,6 @@ recon/renders/
 recon/hints/
 # third-party source snapshots: cited for verification, not redistributed
 recon/sources/
+# throwaway exploration scripts used to design a step; not part of the pipeline
+recon/scratch/
 *.log
