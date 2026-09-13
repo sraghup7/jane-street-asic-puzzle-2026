@@ -23,8 +23,10 @@ Reading the extraction API (0.30.12, all measured not assumed):
     becomes two pairwise connections that transitively join the two conductors;
   * `extract_netlist()` returns the LayoutToNetlist itself, and the netlist comes from the
     `.netlist()` accessor;
-  * `Net#cluster_id()` is the stable net identity, and `probe_net(region, point)` answers
-    "which net is at this point" only after extraction.
+  * `Net#cluster_id()` is the net identity **only within one circuit of the hierarchical
+    netlist**, and `probe_net(region, point)` returns the net of the cell that owns the
+    shape. Both facts together are why `build_engine` flattens before extracting -- see its
+    docstring for the measurement.
 """
 from __future__ import annotations
 
@@ -40,6 +42,7 @@ from klayout import db
 
 ROOT = Path(__file__).resolve().parents[2]
 
+PUZZLE = ROOT / 'asic-puzzle-2026' / 'puzzle.gds'
 WU_GDS = ROOT / 'asic-puzzle-2026' / 'warmup' / '04_final.gds'
 WU_DEF = ROOT / 'asic-puzzle-2026' / 'warmup' / '03_post_place_and_route.def'
 WU_NET = ROOT / 'asic-puzzle-2026' / 'warmup' / '01_netlist.v'
@@ -343,6 +346,62 @@ def main(argv: list[str]) -> int:
     return 0 if equivalent else 1
 
 
+def lindex(ly, pair: str):
+    """'67/20' -> the layout's LayerIndex. The one place a pair string is parsed."""
+    l, dt = (int(x) for x in pair.split('/'))
+    return ly.layer(l, dt)
+
+
+def build_engine(gds: Path, conductors: list[str], cuts: list[str], pairs: list[dict],
+                 flatten: bool = True):
+    """The extraction engine, configured from A1/A2 output and nothing else.
+
+    -> (ly, top, l2n, netlist, {pair: Region})
+
+    This is the single definition of "our connectivity method": KLayout's built-in
+    extractor (D3) driven by the conductor set A1 derived and the rule set A2 proved.
+    Nothing here is a hand-written layer map, and no layer number appears in this file.
+
+    **The layout is flattened first, and that is a correctness requirement, not an
+    optimisation.** `cluster_id` is only unique *within one circuit of the hierarchical
+    netlist*, and `probe_net(point)` returns the net of the **cell that owns the shape** -- so
+    a probe inside a standard cell comes back as that master's *local* net. Measured on the
+    full die: 70 different nets, in 70 different circuits, all carried `cluster_id == 2`, and
+    probing one cell's output pin gave circuit `sky130_fd_sc_hd__clkbuf_4` while probing that
+    same cell's power rail gave circuit `puzzle` -- both reporting cluster 2. Keying nets on
+    `cluster_id` from hierarchical probes therefore silently merges unrelated nets. Flattening
+    leaves exactly one circuit, after which the ids are unique (measured: 2626 nets, 2626
+    distinct ids; the same two probes then give 683 and 27, two different nets, which is the
+    correct answer). One consequence to remember: with no subcircuits,
+    `subcircuit_pin_count()` is 0 for every net, so nets must be *ranked* by something else --
+    polygon count is the geometry-only choice.
+
+    The call order is load-bearing: `make_layer` on conductors + cuts, then one `connect`
+    per conductor, then two per via rule, then one extraction. KLayout assigns net
+    (`cluster_id`) identities in the order shapes are visited, so reordering these calls
+    renumbers every net in `nets.json` and `pin_net.json` without changing the netlist's
+    meaning. Keep it in this order. (KLayout has no 3-argument `connect`, so each A2 rule
+    becomes two pairwise connects that transitively join the two conductors through the
+    cut -- measured, see the module docstring.)
+    """
+    ly = db.Layout()
+    ly.read(str(gds))
+    top = ly.top_cell()
+    if flatten:
+        ly.flatten(top, -1)
+    l2n = db.LayoutToNetlist(db.RecursiveShapeIterator(
+        ly, top, [lindex(ly, p) for p in conductors + cuts]))
+    reg = {p: l2n.make_layer(lindex(ly, p)) for p in conductors + cuts}
+    for c in conductors:
+        l2n.connect(reg[c])
+    for r in pairs:
+        a, b = r['connects']
+        l2n.connect(reg[a], reg[r['cut']])
+        l2n.connect(reg[r['cut']], reg[b])
+    l2n.extract_netlist()
+    return ly, top, l2n, l2n.netlist(), reg
+
+
 # ---------------------------------------------------------------------------------
 # B3 -- full connectivity on the puzzle
 # ---------------------------------------------------------------------------------
@@ -364,39 +423,26 @@ def stage_nets() -> int:
     cuts = sorted({r['cut'] for r in a2['pairs']})
 
     t0 = time.time()
-    ly = db.Layout()
-    ly.read(str(ROOT / 'asic-puzzle-2026' / 'puzzle.gds'))
-    top = ly.top_cell()
-
-    def lnum(pair):
-        l, dt = (int(x) for x in pair.split('/'))
-        return ly.layer(l, dt)
-
-    l2n = db.LayoutToNetlist(db.RecursiveShapeIterator(
-        ly, top, [lnum(p) for p in conductors + cuts]))
-    reg = {p: l2n.make_layer(lnum(p)) for p in conductors + cuts}
-    for c in conductors:
-        l2n.connect(reg[c])
-    for r in a2['pairs']:
-        a, b = r['connects']
-        l2n.connect(reg[a], reg[r['cut']])
-        l2n.connect(reg[r['cut']], reg[b])
-    l2n.extract_netlist()
-    nl = l2n.netlist()
+    ly, top, l2n, nl, reg = build_engine(PUZZLE, conductors, cuts, a2['pairs'])
     t_extract = time.time() - t0
     print(f'design                             : {top.name}, {ly.dbu and 1/ly.dbu} dbu/um')
     print(f'conductor layers / via rules        : {len(conductors)} / {len(a2["pairs"])}')
     print(f'extraction                          : {t_extract:.1f}s, '
           f'{sum(1 for _ in nl.each_circuit())} circuits')
 
-    tops = [c for c in nl.each_circuit() if c.name == top.name]
-    if len(tops) != 1:
-        print(f'FAIL: expected exactly one circuit named {top.name!r}, got {len(tops)}')
+    circs = list(nl.each_circuit())
+    if len(circs) != 1 or circs[0].name != top.name:
+        print(f'FAIL: after flattening there must be exactly one circuit {top.name!r}, got '
+              f'{[(c.name, sum(1 for _ in c.each_net())) for c in circs][:4]}')
         return 1
-    tc = tops[0]
+    tc = circs[0]
     nets = list(tc.each_net())
-    print(f'top circuit                         : {tc.name!r}, {len(nets)} nets, '
-          f'{sum(1 for _ in tc.each_subcircuit())} subcircuits')
+    ids = {n.cluster_id for n in nets}
+    # The property the hierarchical extraction did NOT have, and the whole reason for
+    # flattening: net identity has to be unique, or every downstream key is wrong.
+    id_ok = len(ids) == len(nets)
+    print(f'circuit                             : {tc.name!r}, {len(nets)} nets, '
+          f'{len(ids)} distinct cluster ids')
 
     # ---- 1. every conductor shape belongs to exactly one net ---------------------
     # Done by probing every individual shape, which is what the plan actually asks for.
@@ -440,7 +486,7 @@ def stage_nets() -> int:
     per_net_shapes = {p: Counter() for p in conductors}
     t_shapes = time.time()
     for p in conductors:
-        idx = lnum(p)
+        idx = lindex(ly, p)
         n_shapes = assigned_here = 0
         it = top.begin_shapes_rec(idx)
         while not it.at_end():
@@ -538,18 +584,26 @@ def stage_nets() -> int:
     print(f'  outside the known gap classes      : {sum(unexplained.values())}'
           f'{" " + str(unexplained) if unexplained else ""}')
 
-    ranked = sorted(nets, key=lambda n: -n.subcircuit_pin_count())
+    def polygons_of(cluster: int) -> int:
+        """Geometry-only size metric.
+
+        `subcircuit_pin_count` cannot be used here: flattening leaves no subcircuits, so it
+        is 0 for every net. Polygon count is the honest geometry-only substitute, and it is
+        reported next to the pin-name evidence rather than instead of it.
+        """
+        return sum(per_net_shapes[p].get(cluster, 0) for p in conductors)
+
+    ranked = sorted(nets, key=lambda n: (-polygons_of(n.cluster_id), n.cluster_id))
     top_nets = []
     print()
-    print(f"  {'cluster':>8}{'subckt pins':>12}{'polygons':>10}  pin names carried")
+    print(f"  {'cluster':>8}{'polygons':>10}  supply pin names carried")
     for n in ranked[:6]:
         names = by_cluster.get(n.cluster_id, Counter())
-        polys = sum(per_net_shapes[p].get(n.cluster_id, 0) for p in conductors)
-        top_nets.append({'cluster': n.cluster_id, 'subcircuit_pins': n.subcircuit_pin_count(),
-                         'polygons': polys,
+        polys = polygons_of(n.cluster_id)
+        top_nets.append({'cluster': n.cluster_id, 'polygons': polys,
                          'supply_pins': dict(sorted(names.items())),
                          'only_supply_pins': set(names) <= SUPPLY and bool(names)})
-        print(f'  {n.cluster_id:>8}{n.subcircuit_pin_count():>12}{polys:>10}  '
+        print(f'  {n.cluster_id:>8}{polys:>10}  '
               f'{dict(sorted(names.items())) if names else "(no supply pin sampled)"}')
 
     biggest = [t for t in top_nets if t['only_supply_pins']]
@@ -562,13 +616,14 @@ def stage_nets() -> int:
 
     result = {
         'generated_by': 'tools/puzzle/connect.py::stage_nets',
-        'source': {'path': 'asic-puzzle-2026/puzzle.gds', 'sha256': sha256(
-            ROOT / 'asic-puzzle-2026' / 'puzzle.gds')},
+        'source': {'path': 'asic-puzzle-2026/puzzle.gds', 'sha256': sha256(PUZZLE)},
         'engine': {'name': 'klayout LayoutToNetlist', 'conductors': conductors,
                    'via_rules': len(a2['pairs']),
                    'configured_from': ['recon/derived/layers.json',
                                        'recon/derived/via_pairs.json']},
-        'totals': {'nets': len(nets), 'subcircuits': sum(1 for _ in tc.each_subcircuit()),
+        'totals': {'nets': len(nets),
+                   'distinct_cluster_ids': len(ids),
+                   'net_identity_unique': id_ok,
                    'conductor_shapes': sum(layer_total.values()),
                    'shapes_assigned_to_a_net': sum(layer_assigned.values()),
                    'orphan_shapes': len(orphan_shapes),
@@ -596,7 +651,7 @@ def stage_nets() -> int:
                         encoding='utf-8', newline='\n')
     print(f'\nwritten: {OUT_NETS.relative_to(ROOT)}')
     print()
-    ok = recon_ok and largest_two_are_supply and not unexplained
+    ok = recon_ok and largest_two_are_supply and not unexplained and id_ok
     print('B3 FULL CONNECTIVITY: ' + ('PASS' if ok else 'FAIL'))
     return 0 if ok else 1
 

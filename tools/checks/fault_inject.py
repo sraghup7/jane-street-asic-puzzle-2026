@@ -34,9 +34,12 @@ Exit code 0 iff no mutation escaped every gate and no gate rewrote the tree.
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -56,6 +59,7 @@ GATES = [
     ('stepB1', 'tools/checks/check_stepB1.py'),
     ('stepB2', 'tools/checks/check_stepB2.py'),
     ('stepB3', 'tools/checks/check_stepB3.py'),
+    ('stepB4', 'tools/checks/check_stepB4.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -66,8 +70,13 @@ COV = 'recon/derived/pin_coverage.json'
 INST = 'recon/derived/instances.json'
 WNET = 'recon/derived/warmup_netlist.json'
 NETS = 'recon/derived/nets.json'
+PINNET = 'recon/derived/pin_net.json'
 INV = 'recon/inventory.json'
-ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, INV]
+ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, INV]
+
+# Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
+# no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
+SUPPLY = {'VPWR', 'VGND', 'VPB', 'VNB'}
 
 NAND2 = 'sky130_fd_sc_hd__nand2_2'
 
@@ -236,6 +245,58 @@ def m_nets_supply_claim(d):
     d['supply_identification']['largest_two_are_supply'] = False
 
 
+def m_nets_ids_collide(d):
+    # The property that forced the flattening: net identity must be unique. After the
+    # cluster_id collision was found, a gate that does not notice this is not guarding it.
+    d['totals']['distinct_cluster_ids'] = d['totals']['nets'] - 1
+
+
+def m_nets_unique_claim(d):
+    d['totals']['net_identity_unique'] = False
+
+
+def _first_assigned(d, functional=None):
+    """(instance, pin, value) of the first assigned pin, deterministically."""
+    for iid, rec in sorted(d['instances'].items()):
+        for pin, val in sorted(rec['pins'].items()):
+            if val is None:
+                continue
+            if functional is None or functional == (pin not in SUPPLY):
+                return iid, pin, val
+    return None, None, None
+
+
+def m_pn_unassign_functional(d):
+    d['totals']['unassigned_functional'] = 1
+
+
+def m_pn_move_terminal(d):
+    _, _, val = _first_assigned(d, functional=True)
+    if val is not None:
+        val[0] = 3 if val[0] != 3 else 27
+
+
+def m_pn_falsify_evidence(d):
+    # Leave the claimed net alone but move the recorded probe point: only the independent
+    # re-probe can catch this, which is exactly the check it exists for.
+    _, _, val = _first_assigned(d)
+    if val is not None:
+        val[2] += 1000
+
+
+def m_pn_drop_instance(d):
+    d['instances'].pop(sorted(d['instances'])[0])
+
+
+def m_pn_gap_unexplained(d):
+    d['gap_classes']['unexplained'] = 1
+    d['totals']['unassigned_supply_unexplained'] = 1
+
+
+def m_pn_uniqueness_lie(d):
+    d['totals']['engine_distinct_cluster_ids'] = d['totals']['engine_nets'] - 1
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -275,6 +336,14 @@ MUTATIONS = [
     ('nets: one layer short by a shape', NETS, m_nets_layer),
     ('nets: total shape count -1', NETS, m_nets_shapes),
     ('nets: supply claim weakened', NETS, m_nets_supply_claim),
+    ('nets: cluster ids made non-unique', NETS, m_nets_ids_collide),
+    ('nets: uniqueness claim inverted', NETS, m_nets_unique_claim),
+    ('pin_net: a functional pin left unassigned', PINNET, m_pn_unassign_functional),
+    ('pin_net: a terminal moved to another net', PINNET, m_pn_move_terminal),
+    ('pin_net: evidence point falsified', PINNET, m_pn_falsify_evidence),
+    ('pin_net: an instance dropped from the map', PINNET, m_pn_drop_instance),
+    ('pin_net: a supply gap called unexplained', PINNET, m_pn_gap_unexplained),
+    ('pin_net: uniqueness lied about', PINNET, m_pn_uniqueness_lie),
 ]
 
 
@@ -286,9 +355,54 @@ def snapshot() -> dict[str, bytes]:
     return {a: read(a) for a in ARTIFACTS}
 
 
-def restore(snap: dict[str, bytes]) -> None:
+def restore(snap: dict[str, bytes], attempts: int = 10) -> None:
+    """Rewrite the pristine snapshot, and *prove* it landed.
+
+    Crash-safety matters here more than style, because a failed restore is corrosive: it
+    leaves the working tree holding a deliberately corrupted artifact, so the next
+    `run_all.py` fails for a reason that has nothing to do with the code, and the artifact
+    stays silently wrong on disk until somebody notices.
+
+    Measured once, and it is why this function looks like this: the suite died here with
+    `OSError: [Errno 22] Invalid argument` while rewriting the 745 KB `pinmodel.json`, after
+    14 gate subprocesses had just read it -- and left a mutated `pinmodel.json` behind. The
+    identical write succeeds in isolation, so it is an OS-level transient (a filter driver
+    holding a file that was repeatedly rewritten under load), which is exactly the case a
+    bounded retry is for. Two properties are added on top of the retry:
+
+    * the target is never opened for truncation while something else may hold it -- the bytes
+      go to a sibling temp file and are moved in with `os.replace`, which is atomic;
+    * success is not assumed from a clean return: the bytes on disk are read back and
+      compared, and a failure raises loudly instead of passing quietly.
+    """
     for a, b in snap.items():
-        (ROOT / a).write_bytes(b)
+        p = ROOT / a
+        tmp = p.with_name(p.name + '.restore.tmp')
+        last: object = None
+        for k in range(attempts):
+            try:
+                tmp.write_bytes(b)
+                os.replace(tmp, p)
+                if p.read_bytes() == b:
+                    break
+                last = f'{a}: bytes differ after replace'
+            except OSError as exc:
+                last = f'{a}: {exc}'
+                try:
+                    tmp.unlink()
+                except OSError:
+                    pass
+            time.sleep(0.2 * (k + 1))
+        else:
+            raise OSError(f'restore failed after {attempts} attempts -- {last}')
+
+
+def stamp_path() -> Path:
+    return ROOT / 'recon' / 'scratch' / 'verify' / 'fault_inject.stamp'
+
+
+def drift(pristine: dict[str, bytes]) -> list[str]:
+    return sorted(a for a in ARTIFACTS if read(a) != pristine[a])
 
 
 def run_gate(rel: str) -> int:
@@ -297,7 +411,27 @@ def run_gate(rel: str) -> int:
 
 
 def main() -> int:
+    # A run that died between a mutation and its restore left the tree holding corrupted
+    # artifacts. Detect that rather than starting on top of it -- otherwise the baseline
+    # check below aborts with a misleading "baseline already failing", pointing the finger
+    # at the gates instead of at the leftovers.
+    if stamp_path().exists():
+        want = json.loads(stamp_path().read_text(encoding='utf-8'))
+        bad = [a for a, h in want.items() if hashlib.sha256(read(a)).hexdigest() != h]
+        if bad:
+            print('!! a previous run died with artifacts left mutated:')
+            for a in bad:
+                print(f'   - {a}')
+            print('!! fix with:  git checkout -- ' + ' '.join(bad))
+            return 1
+        print('note: stale stamp, but no artifact drifted -- removing it')
+        stamp_path().unlink()
+
     pristine = snapshot()
+    stamp_path().parent.mkdir(parents=True, exist_ok=True)
+    stamp_path().write_text(
+        json.dumps({a: hashlib.sha256(b).hexdigest() for a, b in pristine.items()},
+                   indent=2) + '\n', encoding='utf-8', newline='\n')
     base = {n: run_gate(rel) for n, rel in GATES}
     restore(pristine)
     print('baseline (unmutated): ' + ' '.join(f'{n}={rc}' for n, rc in base.items()))
@@ -337,8 +471,12 @@ def main() -> int:
                 misses.append(label)
     finally:
         restore(pristine)
+    # Reached only on a clean pass: an exception above propagates past this line and leaves
+    # the stamp in place for the next run to find.
+    stamp_path().unlink(missing_ok=True)
 
     silent = [n for n, _ in GATES if n not in fired_any]
+    left = drift(pristine)
     print()
     print(f'mutations with no gate firing : {len(misses)}')
     for m in misses:
@@ -347,8 +485,10 @@ def main() -> int:
     for v in sorted(set(nonhermetic)):
         print('  -', v)
     print(f'gates that never fired        : {silent or "none"}')
-    print(f'artifacts restored            : {snapshot() == pristine}')
-    ok = not misses and not nonhermetic and snapshot() == pristine
+    print(f'artifacts restored            : {not left}')
+    if left:
+        print(f'  STILL MUTATED: {left}  ->  git checkout -- ' + ' '.join(left))
+    ok = not misses and not nonhermetic and not left
     print()
     print('FAULT INJECTION: ' + ('PASS -- every injected fault was caught, nothing rewrote it'
                                 if ok else 'FAIL -- see above'))

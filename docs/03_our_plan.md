@@ -358,12 +358,27 @@ from A3), and that identification is consistent — this is a different, stronge
 "drop the two biggest".
 *If it fails:* bisect by region of the die; report the count of unassigned shapes.
 
-***Outcome (executed): PASS.*** 729 nets / 9839 subcircuits; extraction 0.3 s; **all 40 360
-conductor shapes probed individually and every one is in exactly one net — 0 orphans, 0
-unprobeable**, in 1.5 s. Supply identified by pin name as specified: the two largest nets carry
-only supply names (`VGND`+`VNB`, `VPWR`), and the 972 supply pins the engine cannot place are
-**exactly** A5's two predicted gap classes (942 `VPB` well ties + 30 diode supplies, 0
-unexplained). Gate `check_stepB3.py` → 31/31; see `docs/steps/B3.md`.
+***Outcome (executed): PASS — re-verified after a later fix.*** All 40 360 conductor shapes
+probed individually, every one in exactly one net, 0 orphans, 0 unprobeable. Supply identified
+by pin name as specified: the two largest nets carry only supply names (`VGND`+`VNB`, `VPWR`),
+and the 972 supply pins the engine cannot place are **exactly** A5's two predicted gap classes
+(942 `VPB` well ties + 30 diode supplies, 0 unexplained). Gate `check_stepB3.py` → **36/36**;
+see `docs/steps/B3.md`.
+
+**Revised by B4.** The first run of this step reported 729 nets / 9839 subcircuits, and a later
+step found that its net **key was invalid**: in the hierarchical netlist `probe_net(point)`
+returns the net of the *cell that owns the shape*, and `cluster_id` is unique only *within one
+circuit* — 70 different nets, in 70 different circuits, all carried `cluster_id == 2`. This
+stage's supply identification keyed nets on that number, so it was reasoned unsoundly even
+though its answers happen to be right. The layout is now **flattened before extraction**, which
+makes `cluster_id` a real net identity: **2626 nets, 2626 distinct cluster ids**, ranked by
+polygon count (with no subcircuits, `subcircuit_pin_count()` is 0 for every net). The supply
+identification survives unchanged — the same two clusters, the same pin counts, now an order of
+magnitude bigger than the next net — and the gate asserts net-identity uniqueness explicitly so
+a regression fails loudly. Lost in the change: the hierarchical run's independent evidence that
+9839 subcircuits = 1618 cells + 8221 via placements, i.e. that the hierarchy is exactly one
+level deep. That measurement stands in this stage's output but no gate can re-derive it.
+See `docs/steps/B4.md` §2–3 and `docs/verification.md`.
 
 Three things this step settled, worth carrying forward:
 
@@ -378,6 +393,11 @@ Three things this step settled, worth carrying forward:
 * **An artifact may not contain a clock.** Storing `runtime_s` in `nets.json` broke
   byte-identical regeneration on the first gate run; runtimes are now printed and measured by the
   gate, never committed.
+* **A net key must be unique, and hierarchically it is not.** `cluster_id` is unique only within
+  one circuit, and `probe_net` returns the owning cell's net. 70 nets in 70 circuits shared one
+  id. `build_engine` therefore flattens before extracting. This is the fourth instance of the
+  project's recurring bug class — keying on something not unique — and the only one that
+  produced a confident wrong answer instead of an error.
 
 **B4 — Net ↔ (instance, pin) mapping.**
 *Method:* transform A4 pin rectangles by B1 transforms; assign each pin to a net by following its
@@ -387,6 +407,22 @@ not by same-layer overlap, which A5 ruled out.
 ***Verify:*** every functional pin of every instance is assigned exactly one net; count of
 unassigned pins is reported (and must be 0 for functional pins; a non-zero count with an
 explanation is a failure, not a footnote).
+
+***Outcome (executed): PASS.*** **2777 of 2777 functional pins** across all 1618 placements are on
+exactly one net, 0 conflicts, 0 probe errors. Unassigned is 972 and is **exactly** A5's two
+predicted classes (942 `VPB` well ties + 30 antenna diode supplies), 0 unexplained. The two
+largest nets are supply-only by pin name, matching B3 (`VGND`+`VNB`, and `VPWR`). Gate
+`check_stepB4.py` → **58/58**; see `docs/steps/B4.md`.
+
+Two things this step established beyond its own deliverable:
+
+* **The net key was wrong and is now fixed** — see the B3 amendment above. The first run reported
+  a power net carrying 15 `clkbuf_4` outputs, which would have been a short; it was an artifact of
+  `cluster_id` colliding across 70 circuits. Resolved by flattening, and confirmed two independent
+  ways (a ±100 µm clipped window and a flattened whole-die extraction both give X=683, VPWR=27).
+* **The terminals are trustworthy for the first time.** B5's single-driver and floating checks can
+  now be stated against nets whose identity is unique; before this fix they would have been
+  computed over merged nets and would have appeared to pass.
 
 **B5 — Netlist integrity checks.**
 *Method:* build the netlist object and run the checks.

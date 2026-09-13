@@ -200,3 +200,52 @@ it is why the rule set is derived from the whole file rather than master by mast
    residual risk in Phase C and should be planned for, not discovered.
 4. **`recon/scratch/` is not committed** (gitignored): it holds the audit's scratch output. F1
    removes it at the end like every other scratch directory.
+
+---
+
+## 8. Post-audit finding: `cluster_id` is not a global net key (found during B4)
+
+Recorded here because it is the same bug class as §4 and it invalidated reasoning in two steps.
+
+**What happened.** B4's first run reported the `VPWR` net carrying 15 functional pins, all of
+them `clkbuf_4.X` — a power net driving nothing, i.e. a short. It was not a short.
+
+**Why.** In the hierarchical netlist, `probe_net(point)` returns the net of the **cell that owns
+the shape**, and `cluster_id` is unique only **within one circuit**. Measured on the full die:
+
+```
+X    pin point -> cluster_id=2  circuit='sky130_fd_sc_hd__clkbuf_4'  0 subcircuit pins
+VPWR pin point -> cluster_id=2  circuit='puzzle'                 2590 subcircuit pins
+nets sharing cluster_id == 2, across all circuits: 70
+```
+
+Any map keyed on `cluster_id` from hierarchical probes therefore merges unrelated nets.
+
+**How it was confirmed.** Two independent measurements agree once the layout is flattened
+(one circuit): X = 683 and VPWR = 27, two different nets. The same pair of numbers comes from a
+±100 µm clipped-window extraction — which is how the collision was caught, because a purely local
+result kept contradicting the whole-die one.
+
+**Fix.** `connect.build_engine` flattens before extracting (`ly.flatten(top, -1)`). One circuit ⇒
+2626 nets with 2626 distinct cluster ids. Side effects: `subcircuit_pin_count()` is 0 for every
+net under flattening, so B3 ranks nets by polygon count instead; and the hierarchical run's
+evidence that 9839 subcircuits = 1618 cells + 8221 vias is no longer reproducible by any gate.
+
+**Two API facts worth not rediscovering.**
+
+1. `LayoutToNetlist` **refuses a clipped iterator** — *"The netlist extractor cannot work on
+   clipped layouts"*. Window studies must build a complete, flattened clipped layout instead of
+   setting `RecursiveShapeIterator.region`.
+2. `probe_net` returns a net whose `.circuit()` must be inspected; two probes returning the same
+   `cluster_id` are not evidence of the same net unless both are in the same circuit.
+
+**Consequence for B3.** Its supply identification used the same pattern. It has been re-run
+through the flattened engine and its conclusion survives unchanged (same two clusters, same pin
+counts, now an order of magnitude above the next net), and both gates now assert net-identity
+uniqueness explicitly. The answers were right; the reasoning was unsound, and the difference
+matters for anything built on top of them.
+
+**Status of B2's evidence.** B2's warm-up partition comparison — the evidence that
+the extraction method is sound — was obtained on the *hierarchical* path. It passed, which is
+itself informative (no collision mattered at 230 cells), but B7 must be re-run through the
+flattened engine before Phase C relies on it. That is now B7's job, not an assumption.

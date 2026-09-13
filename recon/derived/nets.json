@@ -21,8 +21,9 @@
     ]
   },
   "totals": {
-    "nets": 729,
-    "subcircuits": 9839,
+    "nets": 2626,
+    "distinct_cluster_ids": 2626,
+    "net_identity_unique": true,
     "conductor_shapes": 40360,
     "shapes_assigned_to_a_net": 40360,
     "orphan_shapes": 0,
@@ -69,9 +70,16 @@
   "unprobeable_examples": [],
   "largest_nets": [
     {
+      "cluster": 27,
+      "polygons": 7015,
+      "supply_pins": {
+        "VPWR": 1608
+      },
+      "only_supply_pins": true
+    },
+    {
       "cluster": 3,
-      "subcircuit_pins": 2608,
-      "polygons": 7359,
+      "polygons": 6974,
       "supply_pins": {
         "VGND": 1608,
         "VNB": 932
@@ -79,39 +87,26 @@
       "only_supply_pins": true
     },
     {
-      "cluster": 2,
-      "subcircuit_pins": 2590,
-      "polygons": 7064,
-      "supply_pins": {
-        "VPWR": 1608
-      },
-      "only_supply_pins": true
-    },
-    {
-      "cluster": 934,
-      "subcircuit_pins": 289,
-      "polygons": 724,
-      "supply_pins": {},
-      "only_supply_pins": false
-    },
-    {
-      "cluster": 651,
-      "subcircuit_pins": 225,
+      "cluster": 322,
       "polygons": 824,
       "supply_pins": {},
       "only_supply_pins": false
     },
     {
-      "cluster": 972,
-      "subcircuit_pins": 167,
-      "polygons": 434,
+      "cluster": 604,
+      "polygons": 724,
       "supply_pins": {},
       "only_supply_pins": false
     },
     {
-      "cluster": 1351,
-      "subcircuit_pins": 146,
-      "polygons": 363,
+      "cluster": 293,
+      "polygons": 596,
+      "supply_pins": {},
+      "only_supply_pins": false
+    },
+    {
+      "cluster": 321,
+      "polygons": 470,
       "supply_pins": {},
       "only_supply_pins": false
     }

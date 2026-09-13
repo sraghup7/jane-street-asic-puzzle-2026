@@ -68,8 +68,15 @@ def main() -> int:
     check('via rules applied', d['engine']['via_rules'], len(a2['pairs']))
 
     t = d['totals']
-    check('nets in the top circuit', t['nets'], 729)
-    check('subcircuits', t['subcircuits'], 9839)
+    check('nets in the extracted circuit', t['nets'], 2626)
+    # The property that forced the flattening, and the reason this gate exists in this shape:
+    # net identity must be unique. Extracted hierarchically it was NOT -- 70 different nets in
+    # 70 different circuits all carried cluster_id 2, and `probe_net` returns the owning
+    # cell's local net, so any map keyed on cluster_id silently merges unrelated nets.
+    check('every net has a distinct cluster id', t['distinct_cluster_ids'], t['nets'])
+    check('the artifact asserts unique net identity', t['net_identity_unique'], True)
+    check('the flattened extraction has no subcircuit count left',
+          'subcircuits' in t, False)
 
     # ---- 3. completeness: no orphan conductor shapes -----------------------------
     per_layer = d['per_layer_shapes']
@@ -120,6 +127,19 @@ def main() -> int:
           sorted((n['cluster'] for n in largest[:2]),
                  key=lambda c: -[x['polygons'] for x in largest if x['cluster'] == c][0])
           == [n['cluster'] for n in sorted(largest, key=lambda n: -n['polygons'])[:2]], True)
+    # Pinned, and this is the strongest form of the claim: the two biggest nets carry exactly
+    # the supply pin names, with the counts the pin model predicts (1608 placements carry
+    # VPWR; 1608 carry VGND; 932 carry VNB). Identification by name and by size therefore
+    # agree, and neither is doing the work alone.
+    check('the largest net carries VPWR and nothing else',
+          largest[0]['supply_pins'], {'VPWR': 1608})
+    check('the second largest carries VGND and VNB and nothing else',
+          largest[1]['supply_pins'], {'VGND': 1608, 'VNB': 932})
+    # Supply is separated from signal by an order of magnitude in polygon count, so "biggest"
+    # is not a knife-edge call that a small change could flip.
+    check('the supply nets are >5x the next biggest net',
+          min(largest[0]['polygons'], largest[1]['polygons']) > 5 * largest[2]['polygons'],
+          True)
 
     # ---- report -----------------------------------------------------------------
     w = max(len(r[1]) for r in results)
