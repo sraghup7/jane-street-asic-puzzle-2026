@@ -1,29 +1,35 @@
 # The C4 issue: we cannot find the hidden region map, and the evidence says the chip may not compute one per cell
 
-## Postscript (same day) — part of §4 has been superseded
+## Postscript (revised) — an earlier version of this section is corrected here
 
-Written after §4, and recorded rather than quietly edited in, because it changes the picture:
+Recorded rather than quietly edited, because it changes the picture.
 
-A test that does **not** use single-star stimuli — remove one star at a time from the *accepted* board
-and compare each flop's full state trajectory (`probe_c4aq.py`) — recovers a **perfect matching of the
-22 stars into 11 pairs**, and it is exactly the grouping this project derived earlier and then withdrew.
-So the region mechanism **does exist as counters**; what made it invisible was that the single-star
-stimuli used in §4 and §5 put an **invalid** board on the wire (one star fails "2 per row" the moment
-row 0 ends), and the region counters evidently only run while the pattern is still on a valid path.
+**What replaced the earlier postscript.** That one said a per-star flip test had confirmed the star
+pairing, and that the region mechanism therefore exists as counters — and that the published method
+cannot work because its stimulus is an invalid board. The *stimulus* half was right and is kept. The
+*pairing* half is **withdrawn**: running 60 random **valid** boards and accumulating each counter's tick
+positions shows that the eleven counters are the eleven **column** counters whose enable decode is
+registered **one column behind** the star that feeds them (`docs/steps/C4.md` R15). A star in column `c`
+changes both the column-`c` counter and the column-`(c-1)` counter — which is exactly what the pairing
+test was detecting. The pairing was a decode lag, not a region structure.
 
-That also means the published method as our notes describe it **cannot work on this design** — not
-because the method is wrong, but because its stimulus is an invalid board.
+**Corrected state of the issue:**
 
-Corrected state of the issue:
+* the counters are **column** counters (eleven of them); **no per-region counter exists** in this design;
+* the hidden constraint demonstrably exists (40 of 40 valid-looking boards are rejected) but is **not** a
+  per-cell region decode (§4 R9/R10) and **not** a per-region counter (R11–R15);
+* the only unexplained structure left is the **sliding window of 11 consecutive positions** in the index
+  decode — i.e. the design reasons about the incoming *stream*, so the hidden rule may be a stream rule,
+  in which case "11 regions spelling JS" describes the *shape of the answer* rather than machinery the
+  chip contains;
+* the published method as our notes describe it **cannot work on this design**: it assumes per-region
+  counters to probe one cell at a time, and there are none. Either those notes compress Stage 8, or the
+  public "JS" map came from something other than per-cell counter probing.
 
-* region **pairing** (which two stars share a region): **recovered**, confirmed by two independent routes;
-* region **extents** (which of the 121 cells belong to each region): **still not recovered** — but the
-  eleven region counters are now *identified flops*, so their enable cones are a known target, and
-  evaluating those cones over the 121 cells is the remaining step.
-
-Consequently §9's options shift: option 1 is now a well-posed step rather than "try pairs and hope", and
-options 2 and 3 (close as a negative / re-scope) are correspondingly less attractive. The §4 table's
-R11 and R12 rows remain literally true *for the stimuli they used*, and are superseded by this test.
+§4's negative results stand as written and are now *explained* rather than merely observed. §9's options
+are unchanged in shape, but option 1 is now "test the stream/window hypothesis" rather than "probe pairs
+and hope", and options 2–3 (close as an evidenced negative / re-scope) carry a much stronger evidence base
+than when this document was first written.
 
 
 **What this document is.** A statement of one blocked item in a reverse-engineering project, written so
