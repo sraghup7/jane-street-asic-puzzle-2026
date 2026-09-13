@@ -65,6 +65,7 @@ def parse_netlist(text: str) -> dict:
     """Independently re-read `build/puzzle.v` into ports, wires and instances."""
     ports: list[str] = []
     decls: dict[str, str] = {}
+    ranges: dict[str, str] = {}
     wires: list[str] = []
     insts: dict[str, dict] = {}
     for raw in text.splitlines():
@@ -75,6 +76,8 @@ def parse_netlist(text: str) -> dict:
         m = re.match(r'^(input|output|inout)\s+(?:\[(\d+):(\d+)\]\s+)?(\w+);$', line)
         if m:
             decls[m.group(4)] = m.group(1)
+            if m.group(2) is not None:
+                ranges[m.group(4)] = f'[{m.group(2)}:{m.group(3)}]'
             continue
         if line.startswith('wire ') and line.endswith(';'):
             wires.append(line[5:-1].strip())
@@ -88,7 +91,7 @@ def parse_netlist(text: str) -> dict:
                 if cm:
                     conns[cm.group(1)] = cm.group(2)
             insts[iid] = {'master': master, 'conns': conns}
-    return {'ports': ports, 'decls': decls, 'wires': wires, 'insts': insts}
+    return {'ports': ports, 'decls': decls, 'ranges': ranges, 'wires': wires, 'insts': insts}
 
 
 def name_to_cluster(b4: dict, b5: dict) -> dict[str, int]:
@@ -129,6 +132,76 @@ def family_output(family: str) -> str | None:
     return None
 
 
+def family_function(family: str, pins: list[str]) -> tuple[str, str | None]:
+    """Re-derive a model's *function* from its family name and pin names. -> (kind, expression)
+
+    Independent of `tools/puzzle/cells.py` by construction: this reads the name string and the
+    pin names only. SkyWater's convention, read positionally -- for `a21oi`, `a21bo` or `o2bb2a`
+    the first character is the operation *inside* each group, the last (before an optional `i`)
+    the operation that combines them, the digits are the group sizes, and a trailing `i` inverts
+    the output. A pin named `*_N` is complemented at the input (which is what the `b`/`bb` in the
+    family name also marks, so one rule covers both spellings).
+
+    Expressions are 0/1 arithmetic so Python can evaluate them directly: `~1` is -2 in Python,
+    so inversion must never be written as a bitwise operator.
+
+    kind is one of: comb (fully checkable over all inputs), tie (`conb`), seq (flip-flop), none.
+    """
+    sig = [p for p in pins if p not in SUPPLY]
+    outs = [p for p in sig if p in ('X', 'Y', 'Q', 'HI', 'LO')]
+    ins = [p for p in sig if p not in outs]
+
+    def term(p: str) -> str:
+        return f'(1 - {p})' if p.endswith('_N') else p
+
+    def inv(e: str) -> str:
+        return f'(1 - ({e}))'          # parenthesise: `1 - a or b` binds the wrong way
+
+    if family in ('decap', 'tapvpwrvgnd', 'diode'):
+        return 'none', None
+    if family == 'conb':
+        return 'tie', None
+    if family in ('dfxtp', 'dfrtp', 'dfstp'):
+        return 'seq', None
+    if family in ('inv', 'buf', 'clkbuf'):
+        e = term(ins[0])
+        return 'comb', (inv(e) if family == 'inv' else e)
+    if family in ('xor2', 'xnor2'):
+        e = f'(({term(ins[0])} + {term(ins[1])}) % 2)'
+        return 'comb', (inv(e) if family == 'xnor2' else e)
+    if family == 'mux2':
+        return 'comb', f'((A0 and {inv("S")}) or (A1 and S))'
+    body = family[:-1] if family.endswith('i') else family
+    if (len(body) >= 3 and body[0] in 'ao' and body[-1] in 'ao'
+            and not family.startswith(('and', 'or'))):
+        inner, outer = body[0], body[-1]
+        groups = [int(d) for d in re.findall(r'\d', body[1:-1])]
+        parts = []
+        for letter, n in zip('ABCDE', groups):
+            gp = [p for p in ins if re.fullmatch(rf'{letter}\d*_?N?', p)]
+            if len(gp) != n:
+                return 'comb', f'UNGROUPABLE {family}: {letter} wants {n}, pins {gp}'
+            parts.append('(' + (' and ' if inner == 'a' else ' or ').join(
+                term(p) for p in gp) + ')')
+        e = (' or ' if outer == 'o' else ' and ').join(parts)
+        return 'comb', (inv(e) if family.endswith('i') else e)
+    m = re.fullmatch(r'(and|nand|or|nor)(\d+)(b?b?)', family)
+    if m:
+        invert = m.group(1) in ('nand', 'nor')
+        e = (' and ' if m.group(1) in ('and', 'nand') else ' or ').join(
+            term(p) for p in ins)
+        return 'comb', (inv(e) if invert else e)
+    return 'comb', f'UNRECOGNISED {family}'
+
+
+def eval_expr(expr: str, env: dict[str, int]) -> int:
+    """Evaluate a 0/1-arithmetic reference expression against a pin environment."""
+    py = expr
+    for p in sorted(env, key=len, reverse=True):
+        py = re.sub(rf'\b{re.escape(p)}\b', str(env[p]), py)
+    return int(bool(eval(py, {'__builtins__': {}}, {})))
+
+
 def main() -> int:
     a3, b1, b4, b5 = (read_json(p) for p in (A3, B1, B4, B5))
     text = PUZZLE_V.read_text(encoding='utf-8')
@@ -150,8 +223,10 @@ def main() -> int:
     inv = name_to_cluster(b4, b5)
     check('the emitted port list is the documented interface plus the supplies',
           nl['ports'], ['clk', 'rst_n', 'enable', 'I', 'O', 'success', 'VGND', 'VPWR'])
+    # The declaration's *width* was previously parsed and then thrown away, so this check
+    # recorded only the direction and never tested the 8 bits its label claims.
     check('the bus O is declared 8 bits wide',
-          nl['decls'].get('O'), 'output')
+          nl['ranges'].get('O'), '[7:0]')
 
     # Every instance B4 knows about is present exactly once, with the right master.
     check('instance count equals B1', len(nl['insts']), len(b1['instances']))
@@ -280,6 +355,159 @@ def main() -> int:
     check('no wire is declared that carries no pin',
           sorted(set(nl['wires']) - {v for rec in nl['insts'].values()
                                      for v in rec['conns'].values() if v}), [])
+
+    # ---- 6b. the functional oracle: does each model compute its family's function? ----
+    # Sections 4 and 5 check the models' *interfaces* and that they compile. Neither notices a
+    # wrong operator: measured, changing `or2_2` to compute `A & B` left the whole 18-gate suite
+    # green. So each function is re-derived here from the family name and the pin names alone --
+    # never from `cells.py` -- and simulated over every input vector; `conb` and the three flops
+    # get directed tests. The comparison count is asserted *per model*, so a model that never got
+    # compared (an all-x output, say) fails instead of counting as a pass.
+    if iverilog is None:
+        fail('iverilog is on PATH for the functional oracle', 'not found')
+    else:
+        import time as _time                                       # noqa: PLC0415
+        t0 = _time.time()
+        modports = {name: body[body.index('(') + 1:body.index(')')].split(', ')
+                    for name, body in models.items()}
+
+        def io_of(name: str) -> tuple[list[str], list[str]]:
+            sig = [p for p in modports[name] if p not in SUPPLY]
+            outs_ = [p for p in sig if p in ('X', 'Y', 'Q', 'HI', 'LO')]
+            return [p for p in sig if p not in outs_], outs_
+
+        def supply_conns(name: str) -> list[str]:
+            return [f'.{p}({"one" if p in ("VPWR", "VPB") else "zero"})'
+                    for p in modports[name] if p in SUPPLY]
+
+        comb, ties, seqs, unref = [], [], [], []
+        for name in sorted(models):
+            kind, expr = family_function(a3['masters'][name]['type'], modports[name])
+            if expr and expr.startswith(('UNGROUPABLE', 'UNRECOGNISED')):
+                unref.append((name, expr))
+            elif kind == 'comb':
+                comb.append((name, expr))
+            elif kind == 'tie':
+                ties.append(name)
+            elif kind == 'seq':
+                seqs.append(name)
+        check('every model family is recognised by the reference derivation', unref, [])
+        check('the oracle reaches every combinational model (floor 55)', len(comb) >= 55, True)
+        check('the sequential models are the three expected flops', seqs,
+              ['sky130_fd_sc_hd__dfrtp_2', 'sky130_fd_sc_hd__dfstp_2',
+               'sky130_fd_sc_hd__dfxtp_2'])
+
+        # one testbench, every combinational model, all 2**n vectors
+        tb = ['`timescale 1ns/1ps', 'module comb_check;', '  reg [5:0] iv;',
+              "  wire one = 1'b1;", "  wire zero = 1'b0;"]
+        for k, (name, _) in enumerate(comb):
+            ins_, outs_ = io_of(name)
+            tb += [f'  reg k{k}_{p};' for p in ins_]
+            tb.append(f'  wire k{k}_o;')
+            conns = ([f'.{p}(k{k}_{p})' for p in ins_] + [f'.{p}(k{k}_o)' for p in outs_]
+                     + supply_conns(name))
+            tb.append(f'  {name} u{k} ({", ".join(conns)});')
+        tb += ['  initial begin', '    for (iv = 0; iv < 32; iv = iv + 1) begin']
+        for k, (name, _) in enumerate(comb):
+            ins_, _ = io_of(name)
+            tb += [f'      k{k}_{p} = iv[{b}];' for b, p in enumerate(ins_)]
+        tb.append('      #1;')
+        tb += [f'      $display("{k} %0d %b", iv, k{k}_o);' for k, _ in enumerate(comb)]
+        tb += ['    end', '    $finish;', '  end', 'endmodule']
+
+        # the tie cell and the flops, directed
+        tie = ['`timescale 1ns/1ps', 'module tie_check;',
+               "  wire one = 1'b1;", "  wire zero = 1'b0;"]
+        for k, name in enumerate(ties):
+            tie += [f'  wire hi{k}, lo{k};',
+                    f'  {name} t{k} ({", ".join([f".HI(hi{k})", f".LO(lo{k})"] + supply_conns(name))});']
+        tie += ['  initial begin', '    #1;',
+                '    $display("%s", "ties");']
+        tie += [f'    $display("{k} %b %b", hi{k}, lo{k});' for k in range(len(ties))]
+        tie += ['    $finish;', '  end', 'endmodule']
+
+        flop = ['`timescale 1ns/1ps', 'module flop_check;',
+                '  reg CLK = 0, D = 0, RB = 1, SB = 1;', '  wire qx, qr, qs;',
+                "  wire one = 1'b1;", "  wire zero = 1'b0;",
+                '  sky130_fd_sc_hd__dfxtp_2 fx (.CLK(CLK), .D(D), .Q(qx),'
+                ' .VGND(zero), .VNB(zero), .VPB(one), .VPWR(one));',
+                '  sky130_fd_sc_hd__dfrtp_2 fr (.CLK(CLK), .D(D), .Q(qr), .RESET_B(RB),'
+                ' .VGND(zero), .VNB(zero), .VPB(one), .VPWR(one));',
+                '  sky130_fd_sc_hd__dfstp_2 fs (.CLK(CLK), .D(D), .Q(qs), .SET_B(SB),'
+                ' .VGND(zero), .VNB(zero), .VPB(one), .VPWR(one));',
+                '  task tick; begin #5 CLK = 1; #5 CLK = 0; #1; end endtask',
+                '  initial begin',
+                '    $display("t0 %b %b %b", qx, qr, qs);',
+                '    D = 1; tick;      $display("t1 %b %b %b", qx, qr, qs);',
+                '    D = 0; #4;        $display("t2 %b %b %b", qx, qr, qs);',
+                '    tick;             $display("t3 %b %b %b", qx, qr, qs);',
+                '    D = 1; #4;        $display("t4 %b %b %b", qx, qr, qs);',
+                '    tick;             $display("t5 %b %b %b", qx, qr, qs);',
+                '    RB = 0; #2;       $display("t6 %b %b %b", qx, qr, qs);',
+                '    RB = 1; #2;       $display("t7 %b %b %b", qx, qr, qs);',
+                '    tick;             $display("t8 %b %b %b", qx, qr, qs);',
+                '    D = 0; SB = 0; #2; $display("t9 %b %b %b", qx, qr, qs);',
+                '    SB = 1; #2;       $display("t10 %b %b %b", qx, qr, qs);',
+                '    tick;             $display("t11 %b %b %b", qx, qr, qs);',
+                '    $finish;', '  end', 'endmodule']
+
+        def run(name: str, source: str, top: str) -> str:
+            d = Path(td) / name
+            d.mkdir()
+            (d / 'tb.v').write_text('\n'.join(source) + '\n', encoding='utf-8', newline='\n')
+            (d / 'cells.v').write_text(cells_text, encoding='utf-8', newline='\n')
+            r = subprocess.run([iverilog, '-o', str(d / 'a.vvp'), str(d / 'tb.v'),
+                                str(d / 'cells.v')], capture_output=True, text=True)
+            if r.returncode:
+                return f'COMPILE FAILED: {r.stderr.strip()[:200]}'
+            return subprocess.run(['vvp', str(d / 'a.vvp')], capture_output=True,
+                                  text=True).stdout
+
+        with tempfile.TemporaryDirectory() as td:
+            simout: dict[int, dict[int, str]] = {}
+            for ln in run('comb', tb, 'comb_check').splitlines():
+                parts = ln.split()
+                if len(parts) == 3 and parts[0].isdigit():
+                    simout.setdefault(int(parts[0]), {})[int(parts[1])] = parts[2]
+            weak, mismatch = [], []
+            for k, (name, expr) in enumerate(comb):
+                ins_, _ = io_of(name)
+                compared = 0
+                for vec in range(2 ** len(ins_)):
+                    got = simout.get(k, {}).get(vec)
+                    if got not in ('0', '1'):
+                        continue
+                    compared += 1
+                    # No early break: `compared` must measure *coverage*, so that the check below
+                    # means "some vector produced x/z" and not "we stopped at the first wrong
+                    # value". A wrong function then fails exactly one check, with a diagnosis
+                    # that names it, instead of two.
+                    if len(mismatch) < 4 and eval_expr(
+                            expr, {p: (vec >> b) & 1 for b, p in enumerate(ins_)}) != int(got):
+                        mismatch.append((name, [f'{p}={(vec >> b) & 1}'
+                                                for b, p in enumerate(ins_)], got, expr))
+                if compared < 2 ** len(ins_):
+                    weak.append((name, compared, 2 ** len(ins_)))
+            check('every combinational model was compared over all of its input vectors',
+                  weak, [])
+            check('every combinational model computes its family function',
+                  mismatch[:4], [])
+
+            tie_vals = set()
+            for ln in run('tie', tie, 'tie_check').splitlines():
+                parts = ln.split()
+                if len(parts) == 3 and parts[0].isdigit():
+                    tie_vals.add((parts[1], parts[2]))
+            check('conb drives HI=1 and LO=0', tie_vals, {('1', '0')})
+
+            flop_want = ['x x x', '1 1 1', '1 1 1', '0 0 0', '0 0 0', '1 1 1',
+                         '1 0 1', '1 0 1', '1 1 1', '1 1 1', '1 1 1', '0 0 0']
+            flop_got = [ln.split(' ', 1)[1].strip()
+                        for ln in run('flop', flop, 'flop_check').splitlines()
+                        if ln.startswith('t') and ' ' in ln]
+            check('the three flops behave under directed stimulus', flop_got, flop_want)
+            print(f'  (functional oracle: {len(comb)} combinational models + '
+                  f'{len(ties)} tie + {len(seqs)} sequential, {_time.time() - t0:.1f}s)')
 
     # ---- 7. anti-vacuity -----------------------------------------------------------
     n_checks = len(results) + 1            # +1 for this check, which is appended below

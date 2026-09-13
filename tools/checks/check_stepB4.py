@@ -231,6 +231,33 @@ def main() -> int:
     check('the re-probe sample is non-trivial (>= 30 terminals)', len(sample) >= 30, True)
     check('every re-probed evidence point returns its recorded net', mismatches[:5], [])
 
+    # ---- 10. the position-layer fallback, re-derived and bounded -------------------
+    # `position_layer_fallbacks` was asserted by nothing -- not by this gate, not by the stage's
+    # own PASS condition -- while the artifact's `method` block stated the containment guarantee
+    # unconditionally. Both are fixed: the text now describes the fallback, and the counter is
+    # re-derived here from A4 + B1 + A2's conductor set. The claim that matters is not the number
+    # but the *bound*: the fallback may never produce the net for an assigned pin. Measured:
+    # every one of the 981 events sits on a pin with no net, and 951 of them are `VPB`, whose
+    # only shape is on a pair outside the conductor set -- so its pair list is empty and the
+    # "fallback" probes nothing at all.
+    cset = set(conductors)
+    fallback_events, fallback_sites = 0, set()
+    for pl in placements:
+        for pin, info in a4['masters'][pl['master']]['pins'].items():
+            rects = [(s['pair'], s['rect']) for s in info['shapes'] if s['pair'] in cset]
+            for px, py in ((float(p[0]), float(p[1]))
+                           for p in (info.get('positions_um') or [])):
+                if not any(r[0] <= px <= r[2] and r[1] <= py <= r[3] for _, r in rects):
+                    fallback_events += 1
+                    fallback_sites.add((pl['id'], pin))
+    check('the fallback counter re-derives from A4 + B1 + A2',
+          fallback_events, t['position_layer_fallbacks'])
+    check('the fallback sites are a non-trivial set (floor 100)',
+          len(fallback_sites) >= 100, True)
+    unassigned_pins = {(u['instance'], u['pin']) for u in d['unassigned']}
+    check('every fallback site is a pin B4 records as unassigned -- never an assigned one',
+          sorted(fallback_sites - unassigned_pins), [])
+
     # ---- report ------------------------------------------------------------------
     n_fail = 0
     for status, label, actual, expected in results:

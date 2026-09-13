@@ -308,7 +308,7 @@ now stated rather than papered over:
     structural auditor: 284 decided, 2 undecidable honestly, 1 contradiction (a31oi_2::A1)
     undriven: 1 — net 806, {a311o_2.A1, a31oi_2.A1}, li1 only, all inputs
 
-Gate `check_stepB5.py` went 42 → **52 checks**, the additions re-deriving the convention from A4's
+Gate `check_stepB5.py` went 42 → **54 checks**, the additions re-deriving the convention from A4's
 pin lists rather than reading B5's totals, so a regression to structural inference fails the gate.
 
 **Pitfall for reuse.** Never let a solver satisfy an invariant by *choosing a value for the thing
@@ -342,13 +342,15 @@ never run: **simulate the emitted cell models**.
 
 ### Findings
 
-**F1 — nothing verifies what a cell computes (high · coverage gap · open).** An `input`/`output`
-swap is caught by B6's gate and by `iverilog`; a wrong boolean operator is caught by nothing.
-Demonstrated rather than inferred: `or2_2` was changed to compute `A & B`, `build/cells.v` was
-regenerated from it, and the **complete suite passed 18/18**. Phase B's evidence for the models is
-"interface + compiles", and §6.2 of this document had wrongly called B7 a functional oracle. The
-oracle that closes the gap is described above and is proven to bite — pointed at the broken tree it
-reports the 6 or-family models — but it is **not yet wired into the gate set**.
+**F1 — nothing verified what a cell computes (high · fixed).** An `input`/`output` swap is caught
+by B6's gate and by `iverilog`; a wrong boolean operator was caught by nothing. Demonstrated rather
+than inferred: `or2_2` was changed to compute `A & B`, `build/cells.v` was regenerated from it, and
+the **complete suite passed 18/18**. Phase B's evidence for the models was "interface + compiles",
+and §6.2 of this document had wrongly called B7 a functional oracle. The oracle is now **wired into
+the gate** as `check_stepB6.py` §6b — every function re-derived from the family name and pin names
+alone, every combinational model simulated over all 2^n input vectors, `conb` and the flops checked
+by directed test, at a cost of ~0.3 s. The same falsification run against the new check fails
+exactly one check and names the models.
 
 **F2 — the fault injector had never completed (high · fixed).** `fault_inject.py` did not import
 `re`, while the `m_v_warmup_repoint` mutation added with B7 calls `re.findall`. Every run since B7
@@ -359,38 +361,43 @@ True`. Two things worth keeping: the crash left the stamp file behind with all a
 the stamp doing exactly its job — and the shell's exit code was useless as a signal, because the
 `cmd; echo "EXIT=$?"` wrapper exits 0 regardless.
 
-**F3 — an unasserted counter and an overstated claim in the artifact (medium · open).**
-`position_layer_fallbacks = 981` is referenced by no gate and by no stage PASS condition, and B4's
-own `method.position_layers` states the containment guarantee unconditionally ("so it cannot land
+**F3 — an unasserted counter and an overstated claim in the artifact (medium · fixed).**
+`position_layer_fallbacks = 981` was referenced by no gate and by no stage PASS condition, and B4's
+own `method.position_layers` stated the containment guarantee unconditionally ("so it cannot land
 on another net's wire"), which its data contradicts for those 981 probes. Re-derived event by
 event: 951 are `VPB`, 30 are `diode_2` supplies, and **all 981 are on pins B4 records as
 unassigned** — the path is degenerate, not a fallback (`VPB`'s only shape is on pair `64/16`, off
-the conductor set, so there is nothing to probe). No assignment rests on it, so no data is wrong;
-the defect is a guarantee that is asserted nowhere and stated too strongly. `docs/steps/B4.md` §4
-and §6.1 claimed the extra 9 positions "still resolved to a net", which is false, and both are now
-corrected.
+the conductor set, so there is nothing to probe). No assignment rests on it, so no data was wrong;
+the defect was a guarantee asserted nowhere and stated too strongly. Both are fixed: the artifact's
+`method.position_layers` now describes the fallback, and `check_stepB4.py` §10 re-derives the
+counter from A4 + B1 + A2 and asserts that every fallback site is a pin B4 records as unassigned.
+`docs/steps/B4.md` §4 and §6.1 had claimed the extra 9 positions "still resolved to a net", which
+is false, and both are corrected.
 
-**F4 — checks that cannot fail (medium · open).** `check_stepB5.py` contains
-`check('each port net exists in B4', sorted(a), sorted(a))` — it compares a list to itself, so it
-passes for any input and never consults B4, while its label claims a property it does not test.
-`check_stepB6.py` has the same shape: `check('the bus O is declared 8 bits wide',
-nl['decls'].get('O'), 'output')` records `O`'s direction and discards the parsed range, so the
-width is never checked (compilation happens to catch that one). Both need rewriting. This is the
-sixth and seventh occurrence of the project's signature bug class, and the second time one has been
-found inside a check written to catch it.
+**F4 — checks that could not fail (medium · fixed).** `check_stepB5.py` contained
+`check('each port net exists in B4', sorted(a), sorted(a))` — it compared a list to itself, so it
+passed for any input and never consulted B4, while its label claimed a property it did not test.
+`check_stepB6.py` had the same shape: `check('the bus O is declared 8 bits wide',
+nl['decls'].get('O'), 'output')` recorded `O`'s direction and discarded the parsed range, so the
+width was never checked (compilation happens to catch that one). Both are rewritten: the B5 check
+now compares against B4's actual net table, and the B6 check now parses and asserts the declared
+range `[7:0]`. This is the sixth and seventh occurrence of the project's signature bug class, and
+the second time one has been found inside a check written to catch it.
 
-**F5 — `flatten` is exposed as an option (low · open).** `build_engine(..., flatten=True)` is
+**F5 — `flatten` was exposed as an option (low · fixed).** `build_engine(..., flatten=True)` was
 documented as a *correctness requirement* — net identity is meaningless without it — yet no caller
-ever passes `False`. An unexercised branch on the one parameter that decides whether every net key
-is valid should not exist.
+ever passed `False`. The parameter is gone: `build_engine` now flattens unconditionally, so there is
+no branch left to take.
 
-**F6 — a measurement with nothing behind it (low · open).** `9839 subcircuits = 1618 cells + 8221
-via placements` is cited as evidence that the hierarchy is exactly one level deep, but no gate can
-recompute it once the layout is flattened.
+**F6 — a measurement with nothing behind it (low · documented, no change needed).** `9839
+subcircuits = 1618 cells + 8221 via placements` is cited as evidence that the hierarchy is exactly
+one level deep, but no gate can recompute it once the layout is flattened. `docs/steps/B4.md` §3
+and §8 of this document already say so; it is recorded here only so the claim is not mistaken for a
+gated one.
 
-**F7 — B5's self-report is unasserted (low · open).** `netlist_check.json` carries 27 internal
-`checks` with `passed` flags. B7's gate asserts its report's checks; B5's gate re-derives the
-substantive claims but never iterates that list, so a self-check could begin failing unobserved.
+**F7 — B5's self-report was unasserted (low · fixed).** `netlist_check.json` carries 27 internal
+`checks` with `passed` flags. B7's gate asserted its report's checks; B5's did not. Now it does,
+with a floor so an emptied list cannot pass either.
 
 ### What this review does not establish
 
@@ -402,5 +409,8 @@ substantive claims but never iterates that list, so a self-check could begin fai
 * `target`, `hygiene`, `step2` and `step3` still never fire on an artifact mutation, by design: no
   mutation targets their inputs.
 
-**Status of the fixes.** F2 is fixed. F1, F3, F4, F5, F6 and F7 are recorded here and **not yet
-applied** — they are gate and comment changes only, with no artifact bytes expected to move.
+**Status of the fixes.** All applied, as one correction commit. F1, F4, F5 and F7 are gate changes;
+F3 also corrected the overstated `method` text inside `pin_net.json`, which is the **only artifact
+byte that moved** — verified by regenerating the stage and confirming nothing downstream changed.
+F6 needed no change (already documented). Result: B4 58 → **61** checks, B5 52 → **54**, B6
+30 → **37**, the suite stays 18/18, and the 60 × 18 fault grid still passes with 0 misses.

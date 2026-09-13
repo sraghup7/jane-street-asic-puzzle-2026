@@ -352,8 +352,7 @@ def lindex(ly, pair: str):
     return ly.layer(l, dt)
 
 
-def build_engine(gds: Path, conductors: list[str], cuts: list[str], pairs: list[dict],
-                 flatten: bool = True):
+def build_engine(gds: Path, conductors: list[str], cuts: list[str], pairs: list[dict]):
     """The extraction engine, configured from A1/A2 output and nothing else.
 
     -> (ly, top, l2n, netlist, {pair: Region})
@@ -387,8 +386,10 @@ def build_engine(gds: Path, conductors: list[str], cuts: list[str], pairs: list[
     ly = db.Layout()
     ly.read(str(gds))
     top = ly.top_cell()
-    if flatten:
-        ly.flatten(top, -1)
+    # Unconditional, and deliberately not a parameter: this is the correctness requirement above,
+    # not an option. Exposing a `flatten=False` branch would let a future caller silently
+    # reintroduce the bug where cluster_id is not a key.
+    ly.flatten(top, -1)
     l2n = db.LayoutToNetlist(db.RecursiveShapeIterator(
         ly, top, [lindex(ly, p) for p in conductors + cuts]))
     reg = {p: l2n.make_layer(lindex(ly, p)) for p in conductors + cuts}

@@ -412,7 +412,7 @@ explanation is a failure, not a footnote).
 exactly one net, 0 conflicts, 0 probe errors. Unassigned is 972 and is **exactly** A5's two
 predicted classes (942 `VPB` well ties + 30 antenna diode supplies), 0 unexplained. The two
 largest nets are supply-only by pin name, matching B3 (`VGND`+`VNB`, and `VPWR`). Gate
-`check_stepB4.py` → **58/58**; see `docs/steps/B4.md`.
+`check_stepB4.py` → **61/61**; see `docs/steps/B4.md`.
 
 Two things this step established beyond its own deliverable:
 
@@ -490,7 +490,7 @@ is undriven" claim, which could only ever have been met by inventing a driver. F
 otherwise total: 0 infeasible nets, 0 nets wanting two drivers, 0 output pins on a supply net. The
 30 single-terminal nets are each classified — 21 unused outputs (15 `clkbuf_4.X`, 5 `conb_1.HI`,
 1 `conb_1.LO`), 8 output-port terminals (the `O[0..7]` bits, each driven by an `and3_2.X`), 1
-input-port terminal (the clock root's `A`). Gate `check_stepB5.py` → **52/52** (up from 42, the
+input-port terminal (the clock root's `A`). Gate `check_stepB5.py` → **54/54** (up from 42, the
 new ones re-deriving the convention from A4 rather than reading B5's totals); see
 `docs/steps/B5.md`.
 
@@ -523,7 +523,7 @@ and it is the one the artifact enumerates.*
 pin, 726 plain signal wires, 972 pins emitted as explicit empty connections. `build/cells.v` — 69
 modules (62 combinational, 3 sequential, 1 tie, 1 protection, 2 layout-only), each deriving its
 function from its master's own function-family name and pin labels, with every master's parse
-asserted against A3's actual pin set. Gate `check_stepB6.py` → **30/30**; `iverilog -Wall -t null`
+asserted against A3's actual pin set. Gate `check_stepB6.py` → **37/37**; `iverilog -Wall -t null`
 exit 0 with empty stderr.
 
 Two things this step is worth remembering for:

@@ -269,8 +269,11 @@ def stage_pin_net() -> int:
                           'a via instance (plan sec.6.5)',
             'probe_points': 'A4 positions_um (label origins), transformed by the B1 affine '
                             'map; never a bounding-rect centre',
-            'position_layers': 'each position is probed only on the pairs whose shape '
-                               'contains it, so it cannot land on another net\'s wire',
+            'position_layers': 'a position that lands inside one of the pin\'s own shapes is '
+                               'probed only on that shape\'s pair, so it cannot land on another '
+                               'net\'s wire; a position inside none of them falls back to the '
+                               'pin\'s whole pair list, which for a pin with no conductor '
+                               'geometry is empty -- counted in position_layer_fallbacks',
             'net_identity': 'KLayout cluster_id -- stable within one engine configuration',
             'disagreement': 'a pin whose positions land on more than one net is a defect and '
                             'is recorded in conflicts; the winner is the cluster with the '

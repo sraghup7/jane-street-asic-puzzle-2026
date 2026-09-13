@@ -30,7 +30,7 @@
   "method": {
     "pin_to_net": "probe_net(point) on the pin's own conductor layers -- a pin and the wire it joins are never on the same layer, they are joined by a via instance (plan sec.6.5)",
     "probe_points": "A4 positions_um (label origins), transformed by the B1 affine map; never a bounding-rect centre",
-    "position_layers": "each position is probed only on the pairs whose shape contains it, so it cannot land on another net's wire",
+    "position_layers": "a position that lands inside one of the pin's own shapes is probed only on that shape's pair, so it cannot land on another net's wire; a position inside none of them falls back to the pin's whole pair list, which for a pin with no conductor geometry is empty -- counted in position_layer_fallbacks",
     "net_identity": "KLayout cluster_id -- stable within one engine configuration",
     "disagreement": "a pin whose positions land on more than one net is a defect and is recorded in conflicts; the winner is the cluster with the most agreeing positions, ties broken by lowest cluster id",
     "supply_note": "supply pins are modelled and probed like any other pin; 972 of them have no net for the two reasons A5 predicted"

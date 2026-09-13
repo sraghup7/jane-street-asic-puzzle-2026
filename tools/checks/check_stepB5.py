@@ -101,8 +101,11 @@ def main() -> int:
     rows = {r['port']: r for r in d5['ports']}
     check('the artifact reports all 13 ports', sorted(rows), sorted(N.PORT_DIR))
     check('the port nets are distinct', len({r['net'] for r in rows.values()}), 13)
-    check('each port net exists in B4', sorted(r['net'] for r in rows.values()),
-          sorted({r['net'] for r in rows.values()}))
+    # This used to compare a list to itself -- `sorted(x) == sorted(set(x))` -- which passes for
+    # any input and never consults B4, while claiming to. It tests what its label says now.
+    b4_nets = {r['cluster'] for r in d4['nets']}
+    check('each port net exists in B4',
+          sorted({r['net'] for r in rows.values()} - b4_nets), [])
 
     # ---- 4. direction tables, re-validated against A4 and B1 ---------------------
     state: dict[tuple, int] = {}
@@ -240,6 +243,17 @@ def main() -> int:
     check('infeasible nets', d5['totals']['infeasible_nets'], 0)
     check('undriven nets reported', d5['totals']['undriven_nets'], 1)
     check('supply nets', d5['totals']['supply_nets'], sorted(supply_nets))
+
+    # ---- 9. the artifact's own self-report ----------------------------------------
+    # B5's artifact carries 27 internal checks with `passed` flags. B7's gate asserts its
+    # report's checks; B5's re-derived the substantive claims but never iterated this list, so a
+    # self-check could begin failing with no gate noticing. Asserted, with a floor so that an
+    # emptied list cannot pass either.
+    self_reported = d5.get('checks') or []
+    check('the artifact self-reports its internal checks (floor 20)',
+          len(self_reported) >= 20, True)
+    check('every self-reported check passed',
+          sorted(c['check'] for c in self_reported if not c['passed']), [])
 
     # ---- report ------------------------------------------------------------------
     n_fail = 0
