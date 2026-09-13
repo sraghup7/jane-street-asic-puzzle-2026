@@ -443,26 +443,55 @@ restated as a classification that must be complete, not as a count that must be 
 as zero would have forced the gate to be loosened later on correct data, which is the failure
 mode this project has now hit four times.
 
-**Direction is derived, not declared.** B5 solves a small linear system instead of guessing from
-names: one unknown `x` per `(master, pin)` class (`x = 1` output, `x = 0` input), and one equation
-`Σ x = 1` per net, because a well-formed net has exactly one driver. The system is seeded by the
-*documented* interface — Step 1's port directions, which are given by the problem, not read off
-pin names — and by the single-terminal rule (an alone-on-its-net terminal that is not on a port net
-must be an output, or it would be a floating input). Consistency of the whole system *is* the
-single-driver check: a net needing `Σ x ≥ 2` is two drivers on one net, and a net with `Σ x = 0`
-has no driver. Any class the system leaves undetermined is reported, not assumed.
+**Direction comes from the labels; structure audits it.** *Amended after execution (2026-09-12) —
+this clause originally read "direction is derived, not declared", solving a linear system instead
+of reading pin names: one unknown `x` per `(master, pin)` class, one equation `Σx = 1` per net, on
+the argument that a well-formed net has exactly one driver.* That argument is sound, but its
+enforcement was not: the propagation rules that satisfy `Σx = 1` can also **manufacture** a driver
+on a net that has none, and a manufactured driver is indistinguishable from a real one in the
+result. It produced one, and the fabrication then certified its own consistency check. The amended
+clause is:
 
-***Outcome (executed): PASS.*** All 13 documented ports were found by their `70/5` labels, their
-positions agree with Step 1's record to <0.05 µm, and each resolves to exactly one net — and the
-inference then confirms them independently: **every input port carries zero output terminals and
-every output port exactly one.** 284 of 286 pin classes were determined from structure alone
-(67 outputs, 217 inputs) by the four propagation rules; **2 remain undetermined and are reported
-rather than assumed** (net 766 is `{a31oi_2.Y, o31a_2.A2, o32ai_2.A2}`, where `Σx = 1` admits
-either undecided terminal and no rule can break the tie). Feasibility is total: 0 infeasible
-nets, 0 nets wanting two drivers, 0 undriven multi-terminal nets, 0 output pins on a supply net.
-The 30 single-terminal nets are each classified — 21 unused outputs (15 `clkbuf_4.X`, 5
-`conb_1.HI`, 1 `conb_1.LO`), 8 output-port terminals (the `O[0..7]` bits, each driven by an
-`and3_2.X`), 1 input-port terminal (the clock root's `A`). Gate `check_stepB5.py` → **42/42**; see
+* the **verdict** is the output-pin label vocabulary the chip itself carries, read in A3 — a pin
+  labelled `X`, `Y`, `Q`, `HI` or `LO` is an output, every other non-supply pin is an input. This
+  is artifact evidence of the same kind Δ2 already sanctions, and it cannot be fabricated;
+* the **structural solver is kept as an auditor**, not as the authority. It decides what it can
+  from the equations, and where it disagrees with the labels, or cannot decide without inventing,
+  that is recorded as a finding;
+* a net with **no driver is reported and enumerated** — never asserted absent. "No net is
+  undriven" is a claim this layout falsifies, and it is precisely the claim that forced the
+  fabrication.
+
+***Outcome (executed): PASS, then corrected.*** All 13 documented ports were found by their `70/5`
+labels, positions agreeing with Step 1 to <0.05 µm, each resolving to exactly one net — and the
+interface confirms them independently: **every input port carries zero output terminals and every
+output port exactly one.** All **286 pin classes** now carry a direction (67 outputs, 219 inputs).
+
+That last figure is a correction. The first run derived direction from structure alone and reported
+284 of 286 with 2 undetermined and 0 undriven nets. **Both of those numbers were wrong**, and the
+way they were wrong is the project's signature bug class arriving in the one place least able to
+see it: the structural solver's "a net needs a driver" rule is enforced by mechanisms that can
+*manufacture* a driver. On net 806 — `{a31oi_2.A1, a311o_2.A1}`, two inputs and nothing else — one
+fired and declared `a31oi_2.A1` an output, which its own family name forbids (`a31oi` outputs `Y`).
+The fabrication then **certified its own check**: once it had made every class on the net decided,
+"every net whose classes are all decided has exactly one driver" passed *because of* it. The 2
+"undetermined" classes were collateral — with `a31oi_2`'s output already spent on net 806,
+`a31oi_2.Y` could no longer be recognised as net 766's driver. Net 766 was never ambiguous.
+
+B6 found it, and only because B6's cell models are generated from family names and therefore
+**refused to build** against an impossible direction. Direction now comes from the one piece of
+evidence that cannot be fabricated — the pin labels the chip carries — with the structural solver
+kept as an **auditor**: it decides 284 classes, is recorded as *contradicting the labels on exactly
+one* (the fabricated `a31oi_2.A1`), and leaves exactly the two it could not decide honestly.
+
+**One net in this design has no driver.** Net 806 is `{a31oi_2.A1, a311o_2.A1}`, both inputs,
+entirely on li1. It is reported with its terminals and asserted by enumeration — never by a "no net
+is undriven" claim, which could only ever have been met by inventing a driver. Feasibility is
+otherwise total: 0 infeasible nets, 0 nets wanting two drivers, 0 output pins on a supply net. The
+30 single-terminal nets are each classified — 21 unused outputs (15 `clkbuf_4.X`, 5 `conb_1.HI`,
+1 `conb_1.LO`), 8 output-port terminals (the `O[0..7]` bits, each driven by an `and3_2.X`), 1
+input-port terminal (the clock root's `A`). Gate `check_stepB5.py` → **52/52** (up from 42, the
+new ones re-deriving the convention from A4 rather than reading B5's totals); see
 `docs/steps/B5.md`.
 
 Two things this step is worth remembering for:
@@ -471,9 +500,9 @@ Two things this step is worth remembering for:
   first written in the gate's `(label, actual, expected)` style when the stage's helper is
   `(name, passed, detail)`, which made `bool(13)` and `bool([])` decide the verdict — one check
   could never fail and three failed on correct data. All were converted and re-verified.
-* **Direction is now available for B6.** Emitting Verilog can be checked against a structurally
-  derived input/output split instead of assuming one, and the two undetermined classes must be
-  resolved from the simulation side (B7/C2) rather than guessed.
+* **Direction is now available for B6** — from the pin labels, with the structural solver as an
+  auditor rather than the authority. What B6 must *not* assume is that every net has a driver:
+  net 806 has none, and it is enumerated rather than explained away.
 
 **B6 — Emit structural Verilog + behavioural models.**
 *Method:* `emit.py` writes `build/puzzle.v` (structural, our own net naming); `cells.py` writes

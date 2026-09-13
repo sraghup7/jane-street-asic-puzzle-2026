@@ -247,5 +247,58 @@ matters for anything built on top of them.
 
 **Status of B2's evidence.** B2's warm-up partition comparison — the evidence that
 the extraction method is sound — was obtained on the *hierarchical* path. It passed, which is
-itself informative (no collision mattered at 230 cells), but B7 must be re-run through the
-flattened engine before Phase C relies on it. That is now B7's job, not an assumption.
+itself informative (no collision mattered at 230 cells). It has since been **re-run through the
+flattened engine** and reproduces exactly: 84 nets both sides, 285 terminals both sides, 0
+signatures unique to either, with `warmup_netlist.json` rewritten byte-identically. That closes
+the concern for the warm-up path specifically; B7 remains the formal gate, because it must
+regress the whole S0→B6 chain rather than the connectivity stage alone.
+
+## 9. B5: a self-certifying direction inference (found by B6, 2026-09-12)
+
+**The bug.** B5 inferred every pin's direction from connectivity alone, via four propagation rules
+over one equation per net (`Σx = 1`, since a well-formed net has exactly one driver). Rule D
+enforced *"a cell with signal pins must have an output"*. The premise is true; the implementation
+— "if every pin of a master is decided except one, that one is the output" — lets the solver
+**manufacture a driver on a net that has none**, and a manufactured driver is indistinguishable
+from a real one once written into the artifact.
+
+**What it produced.** On net 806 — `{a31oi_2.A1, a311o_2.A1}`, two input pins and nothing else —
+the tie-break fired and recorded `a31oi_2.A1` as an **output**, which that family's own name
+forbids (`a31oi` outputs `Y`). So `direction.outputs` held an impossible verdict, and
+`direction.undetermined` reported two classes as a "genuine structural ambiguity" that was really
+collateral damage: with `a31oi_2`'s output already spent on net 806, `a31oi_2.Y` could no longer
+be recognised as net 766's driver.
+
+**Why no B5 check could see it.** The enclosing check was *"every net whose classes are all
+decided has exactly one driver"*. The fabrication is what made the classes decided, so the check
+passed **because of** the defect it existed to catch. That is the project's signature bug class —
+keying on something that is not what it claims to be — in its purest form: a check that cannot
+fail because it consumes the very fact it verifies. Its sixth occurrence.
+
+**What caught it.** B6's cell models are generated from each master's own function-family name, so
+`cells.py` refused to build a model whose family says `Y` while the direction table says `A1`:
+
+    AssertionError: sky130_fd_sc_hd__a31oi_2: family name says output Y, B5 derived ['A1']
+
+A cross-step *interface* assertion caught an upstream defect that the upstream step's own gate had
+certified. The pattern generalises: **a check derived from a second, independent source catches
+what same-source consistency checks cannot.**
+
+**The fix.** Direction now comes from the pin labels the chip carries (a pin labelled `X`, `Y`,
+`Q`, `HI` or `LO` is an output; every other non-supply pin is an input) — artifact evidence of the
+kind Δ2 already sanctions, and impossible to fabricate. The structural solver remains as an
+**auditor** whose disagreement is recorded rather than inherited. And the fact it was hiding is
+now stated rather than papered over:
+
+    classes 286 · resolved 286 · undetermined 0 · outputs 67 · inputs 219
+    structural auditor: 284 decided, 2 undecidable honestly, 1 contradiction (a31oi_2::A1)
+    undriven: 1 — net 806, {a311o_2.A1, a31oi_2.A1}, li1 only, all inputs
+
+Gate `check_stepB5.py` went 42 → **52 checks**, the additions re-deriving the convention from A4's
+pin lists rather than reading B5's totals, so a regression to structural inference fails the gate.
+
+**Pitfall for reuse.** Never let a solver satisfy an invariant by *choosing a value for the thing
+the invariant is about*. Say which inputs are evidence, which are derived, and which are asserted;
+and when an invariant has no evidence behind it, report the violation rather than resolving it. A
+check is only a check if it can fail — assert the absolute property ("no net has two drivers")
+instead of the condition your own solver has just arranged to hold.

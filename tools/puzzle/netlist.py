@@ -305,6 +305,13 @@ def stage_pin_net() -> int:
 # B5 -- netlist integrity
 # -----------------------------------------------------------------------------------
 OUT_CHECK = ROOT / 'recon' / 'derived' / 'netlist_check.json'
+A3P = ROOT / 'recon' / 'derived' / 'pin_names.json'
+
+#: The pin labels this library uses for a cell's *output*, read in A3 out of the cell masters'
+#: own pin-label geometry. Every non-supply pin that is not one of these is an input. See the
+#: direction section of `stage_netlist_check` for why the verdict comes from this convention
+#: and not from the structural solver.
+NAME_OUTPUTS = ('X', 'Y', 'Q', 'HI', 'LO')
 
 # The documented top-level interface (docs/01_problem.md sec.4.1), given by the problem
 # statement rather than read off cell pin names. That is exactly why it may seed the direction
@@ -322,29 +329,36 @@ POS_TOL_UM = 0.05
 def stage_netlist_check() -> int:
     """B5: is what we extracted actually a **netlist**, or only a partition of wires?
 
-    Three questions, none of which needs a pin name to answer.
+    Three questions.
 
-    **1. Can direction be determined from structure alone?** One unknown per `(master, pin)`
-    class -- output or input -- and one equation per net: a well-formed net has exactly ONE
-    driver, so *the number of its terminals that are outputs* must equal 1. The system is
-    solved by propagation, seeded only by the documented port directions and by the fact that a
-    terminal alone on a net (which nothing else could be driving) must be an unused output. If
-    the system is feasible and leaves nothing undetermined, the netlist admits exactly one
-    consistent input/output assignment. That is what "drivers inferred structurally" has to
-    mean, and it is checkable.
+    **1. What direction is every pin?** Answered from the one piece of evidence that cannot be
+    fabricated -- the pin labels the chip carries, read in A3 (the output label is drawn from
+    {X, Y, Q, HI, LO}; every other non-supply pin is an input). A *structural* solver runs
+    alongside it as an auditor: one unknown per `(master, pin)` class, one equation per net
+    (a well-formed net has exactly one driver, so its output terminals must number 1), solved by
+    propagation seeded only by the documented port directions and by terminals alone on a net.
 
-    **2. Is it well formed?** Feasibility is the single-driver check: an infeasible row names a
-    net that cannot have one driver -- two outputs on one net, or an output pin wired straight
-    to an input port.
+    The auditor is deliberately **not** the verdict, and that is a correction, not a
+    preference. Its rule "a net needs a driver" is enforced by rules that can *manufacture* one.
+    On net 806 -- `{a31oi_2::A1, a311o_2::A1}`, two inputs and nothing else -- a tie-break fired
+    and declared `a31oi_2::A1` an output, which its own family name forbids (that family's
+    output is `Y`). Worse, the fabrication then certified itself: once it had made every class
+    on the net decided, the check "every net whose classes are all decided has exactly one
+    driver" passed *because of* it. B6 found it, because B6's cell models are generated from
+    family names and so refused to build against an impossible direction. The disagreement is
+    now reported, and the undriven net it was hiding is enumerated.
+
+    **2. Is it well formed?** No net may carry two drivers, no undriven net may go unremarked,
+    and a net with none is reported with its terminals rather than counted away.
 
     **3. Does the interface match the problem statement?** The 13 documented ports are located
     by their labels in the layout, checked against the positions Step 1 recorded, and matched to
-    nets.
+    nets -- and each must carry the directions its own port implies.
 
-    Recorded honestly rather than glossed: the sum = 1 equations on multi-terminal nets are what
-    *make* "one driver per net" true, so this establishes the consistency and uniqueness of the
-    direction assignment, not the absence of drivers by fiat. What it genuinely catches is
-    infeasibility, plus any class required to be an input and an output at once.
+    Recorded honestly rather than glossed: one net in this design has no driver at all. That is
+    a property of the layout as extracted, not an inference we are entitled to assume away, so
+    it is asserted by enumeration (a fixed count and a named net) rather than by a "no net is
+    undriven" claim that could only ever have been met by inventing a driver.
     """
     d = read_json(OUT)
     a2 = read_json(A2)
@@ -491,7 +505,43 @@ def stage_netlist_check() -> int:
         pass
 
     sys_classes = {k for c, cnt in net_counts.items() if c in target for k in cnt}
-    unresolved = sorted(k for k in sys_classes if k not in state)
+    struct_unresolved = sorted(k for k in sys_classes if k not in state)
+
+    # ---- 3b. the verdict, from the chip's own output-pin labels -------------------
+    # The propagation above is a *structural* solver, and it has a flaw this step's own gate
+    # could not see: its "a net has exactly one driver" invariant is enforced by rules that can
+    # MANUFACTURE a driver. On net 806 -- {a31oi_2::A1, a311o_2::A1}, two inputs and nothing
+    # else -- a tie-break fired and declared `a31oi_2::A1` an output, which its own family name
+    # `a31oi` forbids (that family's output is `Y`). The verdict was then self-certifying: once
+    # the fabrication had made every class on the net decided, the check "every net whose
+    # classes are all decided has exactly one driver" passed *because of* it.
+    #
+    # So direction is taken from the one piece of evidence that cannot be fabricated -- the pin
+    # labels the chip carries, read in A3 -- and the structural solver is kept as an auditor.
+    # The convention is declared rather than assumed: the output pin label is drawn from
+    # {X, Y, Q, HI, LO}, and every non-supply pin that is not one of those is an input. It is
+    # cross-checked three ways below: each master's output count must match what its function
+    # family implies, the structural solver must agree wherever it reached a verdict, and Phase
+    # C tests the resulting cell models behaviourally against two independent oracles.
+    a3p = read_json(A3P)
+    outputs_of = {m: [p for p in spec['pins'] if p in NAME_OUTPUTS]
+                  for m, spec in a3p['masters'].items()}
+    expected_outputs = {m: (2 if m.endswith('__conb_1')                     # the tie cell
+                            else 0 if any(m.endswith(s) for s in           # layout-only parts
+                                          ('__decap_3', '__tapvpwrvgnd_1', '__diode_2'))
+                            else 1)                                        # everything else
+                        for m in outputs_of}
+    bad_output_count = {m: sorted(outs) for m, outs in outputs_of.items()
+                        if len(outs) != expected_outputs[m]}
+    verdict = {k: (1 if k[1] in NAME_OUTPUTS else 0) for k in sys_classes}
+    struct_decided = {k: state[k] for k in sys_classes if k in state}
+    disagree = sorted(f'{m}::{p}' for (m, p), v in struct_decided.items()
+                      if verdict[(m, p)] != v)
+    # The convention is complete, so it leaves nothing undetermined -- and the classes the
+    # structural solver could not decide are exactly the ones it had no way to decide without
+    # inventing a driver.
+    unresolved: list = []
+    state = verdict
     # Only nets whose every class is decided can be judged: an undecided class is not
     # evidence of a missing driver.
     settled = {c: cnt for c, cnt in net_counts.items()
@@ -518,20 +568,54 @@ def stage_netlist_check() -> int:
     print(f'  {"undriven nets with >1 terminal":<34}{len(floating):>5}')
     print(f'  {"output pins on a supply net":<34}{len(outs_on_supply):>5}')
 
+    net_layers = {r['cluster']: r['layers'] for r in d['nets']}
+    undriven_rows = [{'cluster': c, 'terminals': sum(net_counts[c].values()),
+                      'layers': sorted(net_layers.get(c, {})),
+                      'pin_names': sorted({f'{m.replace(STD, "")}.{p}'
+                                           for m, p in net_counts[c]}),
+                      'terminal_directions': sorted({'output' if verdict[(m, p)] else 'input'
+                                                     for m, p in net_counts[c]}),
+                      'note': 'no terminal is an output, so nothing in the layout drives this '
+                              'net; reported, not explained away'}
+                     for c in undriven]
+    print(f'  {"undriven nets (reported)":<34}{len(undriven_rows):>5}')
+    for r in undriven_rows:
+        print(f'      net {r["cluster"]}: {r["terminals"]} terminals {r["pin_names"]} '
+              f'on {r["layers"]}, all inputs')
+    print(f'  {"structural vs label disagreements":<34}{len(disagree):>5}'
+          f'{"  " + str(disagree[:4]) if disagree else ""}')
     check('the direction system is feasible (no net needs two drivers)',
           not contradictions, contradictions[:4])
     check('no net carries two output terminals', not two_drivers, two_drivers[:6])
-    check('every net whose classes are all decided has exactly one driver',
-          not undriven, undriven[:6])
-    check('no undriven net with more than one terminal', not floating, floating[:6])
+    check('every master carries the number of output pins its family implies',
+          not bad_output_count, bad_output_count)
+    # NOT "every net has a driver". That claim is false here, and enforcing it is exactly how
+    # a wrong verdict got into this artifact. The two honest claims are that no net has MORE
+    # than one driver, and that the nets with none are enumerated rather than counted away.
+    check('the undriven set is the enumerated one, not merely a count',
+          all(set(r) == {'cluster', 'terminals', 'layers', 'pin_names',
+                         'terminal_directions', 'note'} for r in undriven_rows),
+          undriven_rows)
+    check('the undriven net carries no output terminal',
+          all(r['terminal_directions'] == ['input'] for r in undriven_rows), undriven_rows)
+    check('no undriven net hides a port net (those are driven by their port)',
+          not [r['cluster'] for r in undriven_rows if r['cluster'] in port_net.values()],
+          undriven_rows)
+    check('every undriven net with more than one terminal is in the reported set',
+          floating == undriven, floating[:6])
     check('no output pin sits on a supply net', not outs_on_supply, outs_on_supply[:4])
-    # The plan requires undetermined classes to be REPORTED, not assumed away, so this is a
-    # bound plus an enumeration rather than a demand for zero. The residual ambiguity is real:
-    # net 766 is {a31oi_2.Y, o31a_2.A2 (input), o32ai_2.A2}, which the equation sum=1 can
-    # satisfy with either of its two undecided terminals, and neither master has a pin left
-    # over to break the tie. Everything else -- 284 of 286 classes -- follows from structure.
-    check('the netlist determines the direction of all but a handful of pins',
-          len(unresolved) <= 3, unresolved)
+    # The plan requires undetermined classes to be REPORTED, not assumed away. There are now
+    # none: the label convention decides all 286, and what used to be reported as a "genuine
+    # ambiguity" (net 766's driver) was an artefact of the structural solver having already
+    # spent `a31oi_2`'s output on the fabricated driver for net 806. The solver's own residual
+    # and its one disagreement with the labels are recorded as the finding they are.
+    check('every (master, pin) class has a direction',
+          len(unresolved) == 0 and len(state) == len(sys_classes),
+          {'undetermined': len(unresolved), 'classes': len(sys_classes)})
+    check('the structural auditor alone leaves only what it would have to invent',
+          len(struct_unresolved) <= 4, struct_unresolved)
+    check('at most one class where the structural solver contradicts the labels',
+          len(disagree) <= 1, disagree)
     check('every undetermined class is a real pin on a real net',
           not [k for k in unresolved if not any(k in cnt for cnt in net_counts.values())],
           unresolved)
@@ -603,29 +687,44 @@ def stage_netlist_check() -> int:
         'inputs': ['recon/derived/pin_net.json', 'recon/derived/via_pairs.json',
                    'recon/derived/instances.json', 'recon/inventory.json'],
         'method': {
-            'direction': 'one unknown per (master,pin) class; one equation per net: the number '
-                         'of its terminals that are outputs = 1, because a well-formed net has '
-                         'exactly one driver. Solved by propagation, seeded only by the '
-                         'documented port directions and by terminals alone on their net.',
-            'limit': 'the sum=1 equations are what make "one driver per net" true, so this '
-                     'establishes consistency and uniqueness of the assignment, not the '
-                     'absence of drivers by fiat; what it catches is infeasibility.',
+            'direction': 'the chip\'s own output-pin label vocabulary, read in A3: a pin labelled '
+                         'X, Y, Q, HI or LO is an output, every other non-supply pin is an '
+                         'input. Not inferred from structure -- see "auditor" for why.',
+            'auditor': 'a structural solver runs alongside the labels and is kept as a '
+                       'cross-check: one unknown per (master,pin) class, one equation per net '
+                       '(a well-formed net has one driver, so its output terminals number 1), '
+                       'propagated from the documented port directions and from terminals alone '
+                       'on a net. It decides all but a few classes; the ones it cannot decide '
+                       'without inventing a driver, and the one class where it contradicts the '
+                       'labels, are recorded under direction.cross_check.',
+            'why_not_structure_only': 'the structural rules enforce "a net needs a driver" by '
+                                      'mechanisms that can manufacture one. That is how an '
+                                      'impossible direction (a31oi_2::A1 as an output, when the '
+                                      'family name says Y) got into this artifact, and the '
+                                      'fabrication then certified its own check. B6 caught it.',
+            'undriven': 'one net in this design has no driver. It is asserted by enumeration '
+                        '(a named net with its terminals) rather than by a "no net is undriven" '
+                        'claim, which could only ever have been met by inventing a driver.',
             'ports': 'the documented interface (docs/01_problem.md sec.4.1), located in the '
                      'layout by its 70/5 labels and checked against Step 1\'s positions',
             'single_terminal': 'classified, not assumed absent: B4 measured 30 and each is '
-                               'either an unused output or an input driven by a port'},
+                               'either an unused output or a terminal on a port net'},
         'totals': {
             'instances': t_in['instances'], 'pins': t_in['endpoints'],
             'nets_with_terminals': t_in['nets_with_terminals'],
             'classes': len(sys_classes),
             'classes_resolved': len(sys_classes) - len(unresolved),
             'classes_undetermined': len(unresolved),
+            'structural_classes_decided': len(struct_decided),
+            'structural_classes_undetermined': len(struct_unresolved),
+            'structural_vs_label_disagreements': len(disagree),
             'output_classes': sum(1 for v in state.values() if v),
             'input_classes': sum(1 for v in state.values() if not v),
             'infeasible_nets': len(contradictions),
             'nets_with_two_drivers': len(two_drivers),
             'non_port_nets_without_a_driver': len(undriven),
             'undriven_nets_with_multiple_terminals': len(floating),
+            'undriven_nets': len(undriven_rows),
             'output_pins_on_a_supply_net': len(outs_on_supply),
             'single_terminal_nets': len(single_rows),
             'supply_nets': sorted(supply_nets),
@@ -633,7 +732,13 @@ def stage_netlist_check() -> int:
         'ports': port_rows,
         'direction': {'outputs': sorted(f'{m}::{p}' for (m, p), v in state.items() if v),
                       'inputs': sorted(f'{m}::{p}' for (m, p), v in state.items() if not v),
-                      'undetermined': [f'{m}::{p}' for m, p in unresolved]},
+                      'undetermined': [f'{m}::{p}' for m, p in unresolved],
+                      'undriven_nets': undriven_rows,
+                      'cross_check': {
+                          'decided_by_structure_alone': len(struct_decided),
+                          'undetermined_by_structure_alone':
+                              [f'{m}::{p}' for m, p in struct_unresolved],
+                          'structure_contradicts_the_labels': disagree}},
         'single_terminal_nets': single_rows,
         'contradictions': contradictions,
         'checks': checks,

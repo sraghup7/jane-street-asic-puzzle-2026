@@ -11,24 +11,30 @@
     "recon/inventory.json"
   ],
   "method": {
-    "direction": "one unknown per (master,pin) class; one equation per net: the number of its terminals that are outputs = 1, because a well-formed net has exactly one driver. Solved by propagation, seeded only by the documented port directions and by terminals alone on their net.",
-    "limit": "the sum=1 equations are what make \"one driver per net\" true, so this establishes consistency and uniqueness of the assignment, not the absence of drivers by fiat; what it catches is infeasibility.",
+    "direction": "the chip's own output-pin label vocabulary, read in A3: a pin labelled X, Y, Q, HI or LO is an output, every other non-supply pin is an input. Not inferred from structure -- see \"auditor\" for why.",
+    "auditor": "a structural solver runs alongside the labels and is kept as a cross-check: one unknown per (master,pin) class, one equation per net (a well-formed net has one driver, so its output terminals number 1), propagated from the documented port directions and from terminals alone on a net. It decides all but a few classes; the ones it cannot decide without inventing a driver, and the one class where it contradicts the labels, are recorded under direction.cross_check.",
+    "why_not_structure_only": "the structural rules enforce \"a net needs a driver\" by mechanisms that can manufacture one. That is how an impossible direction (a31oi_2::A1 as an output, when the family name says Y) got into this artifact, and the fabrication then certified its own check. B6 caught it.",
+    "undriven": "one net in this design has no driver. It is asserted by enumeration (a named net with its terminals) rather than by a \"no net is undriven\" claim, which could only ever have been met by inventing a driver.",
     "ports": "the documented interface (docs/01_problem.md sec.4.1), located in the layout by its 70/5 labels and checked against Step 1's positions",
-    "single_terminal": "classified, not assumed absent: B4 measured 30 and each is either an unused output or an input driven by a port"
+    "single_terminal": "classified, not assumed absent: B4 measured 30 and each is either an unused output or a terminal on a port net"
   },
   "totals": {
     "instances": 1618,
     "pins": 7897,
     "nets_with_terminals": 741,
     "classes": 286,
-    "classes_resolved": 284,
-    "classes_undetermined": 2,
+    "classes_resolved": 286,
+    "classes_undetermined": 0,
+    "structural_classes_decided": 284,
+    "structural_classes_undetermined": 2,
+    "structural_vs_label_disagreements": 1,
     "output_classes": 67,
-    "input_classes": 217,
+    "input_classes": 219,
     "infeasible_nets": 0,
     "nets_with_two_drivers": 0,
-    "non_port_nets_without_a_driver": 0,
-    "undriven_nets_with_multiple_terminals": 0,
+    "non_port_nets_without_a_driver": 1,
+    "undriven_nets_with_multiple_terminals": 1,
+    "undriven_nets": 1,
     "output_pins_on_a_supply_net": 0,
     "single_terminal_nets": 30,
     "supply_nets": [
@@ -199,7 +205,7 @@
       "sky130_fd_sc_hd__a22oi_2::Y",
       "sky130_fd_sc_hd__a311o_2::X",
       "sky130_fd_sc_hd__a31o_2::X",
-      "sky130_fd_sc_hd__a31oi_2::A1",
+      "sky130_fd_sc_hd__a31oi_2::Y",
       "sky130_fd_sc_hd__a32o_2::X",
       "sky130_fd_sc_hd__a41oi_2::Y",
       "sky130_fd_sc_hd__and2_2::X",
@@ -307,6 +313,7 @@
       "sky130_fd_sc_hd__a31o_2::A2",
       "sky130_fd_sc_hd__a31o_2::A3",
       "sky130_fd_sc_hd__a31o_2::B1",
+      "sky130_fd_sc_hd__a31oi_2::A1",
       "sky130_fd_sc_hd__a31oi_2::A2",
       "sky130_fd_sc_hd__a31oi_2::A3",
       "sky130_fd_sc_hd__a31oi_2::B1",
@@ -445,6 +452,7 @@
       "sky130_fd_sc_hd__o32a_2::B1",
       "sky130_fd_sc_hd__o32a_2::B2",
       "sky130_fd_sc_hd__o32ai_2::A1",
+      "sky130_fd_sc_hd__o32ai_2::A2",
       "sky130_fd_sc_hd__o32ai_2::A3",
       "sky130_fd_sc_hd__o32ai_2::B1",
       "sky130_fd_sc_hd__o32ai_2::B2",
@@ -473,10 +481,34 @@
       "sky130_fd_sc_hd__xor2_2::A",
       "sky130_fd_sc_hd__xor2_2::B"
     ],
-    "undetermined": [
-      "sky130_fd_sc_hd__a31oi_2::Y",
-      "sky130_fd_sc_hd__o32ai_2::A2"
-    ]
+    "undetermined": [],
+    "undriven_nets": [
+      {
+        "cluster": 806,
+        "terminals": 2,
+        "layers": [
+          "67/20"
+        ],
+        "pin_names": [
+          "a311o_2.A1",
+          "a31oi_2.A1"
+        ],
+        "terminal_directions": [
+          "input"
+        ],
+        "note": "no terminal is an output, so nothing in the layout drives this net; reported, not explained away"
+      }
+    ],
+    "cross_check": {
+      "decided_by_structure_alone": 284,
+      "undetermined_by_structure_alone": [
+        "sky130_fd_sc_hd__a31oi_2::Y",
+        "sky130_fd_sc_hd__o32ai_2::A2"
+      ],
+      "structure_contradicts_the_labels": [
+        "sky130_fd_sc_hd__a31oi_2::A1"
+      ]
+    }
   },
   "single_terminal_nets": [
     {
@@ -832,14 +864,79 @@
       "detail": []
     },
     {
-      "check": "every net whose classes are all decided has exactly one driver",
+      "check": "every master carries the number of output pins its family implies",
       "passed": true,
-      "detail": []
+      "detail": {}
     },
     {
-      "check": "no undriven net with more than one terminal",
+      "check": "the undriven set is the enumerated one, not merely a count",
       "passed": true,
-      "detail": []
+      "detail": [
+        {
+          "cluster": 806,
+          "terminals": 2,
+          "layers": [
+            "67/20"
+          ],
+          "pin_names": [
+            "a311o_2.A1",
+            "a31oi_2.A1"
+          ],
+          "terminal_directions": [
+            "input"
+          ],
+          "note": "no terminal is an output, so nothing in the layout drives this net; reported, not explained away"
+        }
+      ]
+    },
+    {
+      "check": "the undriven net carries no output terminal",
+      "passed": true,
+      "detail": [
+        {
+          "cluster": 806,
+          "terminals": 2,
+          "layers": [
+            "67/20"
+          ],
+          "pin_names": [
+            "a311o_2.A1",
+            "a31oi_2.A1"
+          ],
+          "terminal_directions": [
+            "input"
+          ],
+          "note": "no terminal is an output, so nothing in the layout drives this net; reported, not explained away"
+        }
+      ]
+    },
+    {
+      "check": "no undriven net hides a port net (those are driven by their port)",
+      "passed": true,
+      "detail": [
+        {
+          "cluster": 806,
+          "terminals": 2,
+          "layers": [
+            "67/20"
+          ],
+          "pin_names": [
+            "a311o_2.A1",
+            "a31oi_2.A1"
+          ],
+          "terminal_directions": [
+            "input"
+          ],
+          "note": "no terminal is an output, so nothing in the layout drives this net; reported, not explained away"
+        }
+      ]
+    },
+    {
+      "check": "every undriven net with more than one terminal is in the reported set",
+      "passed": true,
+      "detail": [
+        806
+      ]
     },
     {
       "check": "no output pin sits on a supply net",
@@ -847,7 +944,15 @@
       "detail": []
     },
     {
-      "check": "the netlist determines the direction of all but a handful of pins",
+      "check": "every (master, pin) class has a direction",
+      "passed": true,
+      "detail": {
+        "undetermined": 0,
+        "classes": 286
+      }
+    },
+    {
+      "check": "the structural auditor alone leaves only what it would have to invent",
       "passed": true,
       "detail": [
         [
@@ -861,18 +966,16 @@
       ]
     },
     {
-      "check": "every undetermined class is a real pin on a real net",
+      "check": "at most one class where the structural solver contradicts the labels",
       "passed": true,
       "detail": [
-        [
-          "sky130_fd_sc_hd__a31oi_2",
-          "Y"
-        ],
-        [
-          "sky130_fd_sc_hd__o32ai_2",
-          "A2"
-        ]
+        "sky130_fd_sc_hd__a31oi_2::A1"
       ]
+    },
+    {
+      "check": "every undetermined class is a real pin on a real net",
+      "passed": true,
+      "detail": []
     },
     {
       "check": "no undetermined class sits on a supply net",

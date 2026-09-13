@@ -309,9 +309,31 @@ def m_chk_port_dir(d):
     d['ports'][0]['dir'] = 'out' if d['ports'][0]['dir'] == 'in' else 'in'
 
 
-def m_chk_hide_undetermined(d):
-    d['totals']['classes_undetermined'] = 0
-    d['direction']['undetermined'] = []
+def m_chk_undriven_hidden(d):
+    """Hide the one net with no driver.
+
+    Note the history: this mutation used to be `..._hide_undetermined`, setting
+    `classes_undetermined = 0` and `undetermined = []`. That was a lie when the structural
+    solver ran the show; now it is simply the truth, so the mutation would never fire. These
+    three replace it, and they attack the claims the artifact actually makes today.
+    """
+    d['direction']['undriven_nets'] = []
+    d['totals']['undriven_nets'] = 0
+
+
+def m_chk_direction_flipped(d):
+    """Move one input class into the output table -- the gate re-derives from A4, so it must."""
+    victim = 'sky130_fd_sc_hd__nand2_2::A'
+    assert victim in d['direction']['inputs'], victim
+    d['direction']['inputs'].remove(victim)
+    d['direction']['outputs'] = sorted([*d['direction']['outputs'], victim])
+    d['totals']['output_classes'] += 1
+    d['totals']['input_classes'] -= 1
+
+
+def m_chk_crosscheck_hidden(d):
+    """Hide the auditor's one contradiction with the labels, i.e. the fabricated driver."""
+    d['direction']['cross_check']['structure_contradicts_the_labels'] = []
 
 
 def m_chk_extra_single(d):
@@ -374,7 +396,9 @@ MUTATIONS = [
     ('pin_net: uniqueness lied about', PINNET, m_pn_uniqueness_lie),
     ('netlist_check: a port reassigned to another net', CHECK, m_chk_port_net),
     ('netlist_check: a port direction flipped', CHECK, m_chk_port_dir),
-    ('netlist_check: undetermined classes hidden', CHECK, m_chk_hide_undetermined),
+    ('netlist_check: the undriven net hidden', CHECK, m_chk_undriven_hidden),
+    ('netlist_check: an input class moved to the output table', CHECK, m_chk_direction_flipped),
+    ('netlist_check: the auditor contradiction hidden', CHECK, m_chk_crosscheck_hidden),
     ('netlist_check: an extra single-terminal net', CHECK, m_chk_extra_single),
     ('netlist_check: infeasible net count faked', CHECK, m_chk_infeasible),
 ]
@@ -388,46 +412,53 @@ def snapshot() -> dict[str, bytes]:
     return {a: read(a) for a in ARTIFACTS}
 
 
-def restore(snap: dict[str, bytes], attempts: int = 10) -> None:
-    """Rewrite the pristine snapshot, and *prove* it landed.
+def write_artifact(rel: str, data: bytes, attempts: int = 10) -> None:
+    """Write one artifact through a temp file + ``os.replace``, and *prove* it landed.
 
-    Crash-safety matters here more than style, because a failed restore is corrosive: it
+    Crash-safety matters here more than style, because a failed write is corrosive: it
     leaves the working tree holding a deliberately corrupted artifact, so the next
     `run_all.py` fails for a reason that has nothing to do with the code, and the artifact
     stays silently wrong on disk until somebody notices.
 
-    Measured once, and it is why this function looks like this: the suite died here with
-    `OSError: [Errno 22] Invalid argument` while rewriting the 745 KB `pinmodel.json`, after
-    14 gate subprocesses had just read it -- and left a mutated `pinmodel.json` behind. The
-    identical write succeeds in isolation, so it is an OS-level transient (a filter driver
-    holding a file that was repeatedly rewritten under load), which is exactly the case a
-    bounded retry is for. Two properties are added on top of the retry:
+    Measured twice. First the suite died in `restore()` with `OSError: [Errno 22] Invalid
+    argument` while rewriting the 745 KB `pinmodel.json`, after 14 gate subprocesses had just
+    read it, and left a mutated `pinmodel.json` behind. Then it died the same way at the
+    *mutation* write on `instances.json` -- so hardening `restore()` alone was not enough;
+    that simply moved the failure to the other writer. Hence one write path, used by both.
+
+    The identical write succeeds in isolation, so it is an OS-level transient (a filter
+    driver holding a file that was repeatedly rewritten under load), which is exactly the
+    case a bounded retry is for. Two properties are added on top of the retry:
 
     * the target is never opened for truncation while something else may hold it -- the bytes
       go to a sibling temp file and are moved in with `os.replace`, which is atomic;
     * success is not assumed from a clean return: the bytes on disk are read back and
       compared, and a failure raises loudly instead of passing quietly.
     """
-    for a, b in snap.items():
-        p = ROOT / a
-        tmp = p.with_name(p.name + '.restore.tmp')
-        last: object = None
-        for k in range(attempts):
+    p = ROOT / rel
+    tmp = p.with_name(p.name + '.write.tmp')
+    last: object = None
+    for k in range(attempts):
+        try:
+            tmp.write_bytes(data)
+            os.replace(tmp, p)
+            if p.read_bytes() == data:
+                return
+            last = f'{rel}: bytes differ after replace'
+        except OSError as exc:
+            last = f'{rel}: {exc}'
             try:
-                tmp.write_bytes(b)
-                os.replace(tmp, p)
-                if p.read_bytes() == b:
-                    break
-                last = f'{a}: bytes differ after replace'
-            except OSError as exc:
-                last = f'{a}: {exc}'
-                try:
-                    tmp.unlink()
-                except OSError:
-                    pass
-            time.sleep(0.2 * (k + 1))
-        else:
-            raise OSError(f'restore failed after {attempts} attempts -- {last}')
+                tmp.unlink()
+            except OSError:
+                pass
+        time.sleep(0.2 * (k + 1))
+    raise OSError(f'write failed after {attempts} attempts -- {last}')
+
+
+def restore(snap: dict[str, bytes], attempts: int = 10) -> None:
+    """Rewrite the pristine snapshot, and *prove* it landed. See :func:`write_artifact`."""
+    for a, b in snap.items():
+        write_artifact(a, b, attempts)
 
 
 def stamp_path() -> Path:
@@ -486,8 +517,7 @@ def main() -> int:
                 restore(pristine)
                 d = json.loads((ROOT / art).read_text(encoding='utf-8'))
                 mut(d)
-                (ROOT / art).write_text(json.dumps(d, indent=2, sort_keys=False) + '\n',
-                                        encoding='utf-8', newline='\n')
+                write_artifact(art, json.dumps(d, indent=2, sort_keys=False).encode() + b'\n')
                 mutated = read(art)
                 rc = run_gate(grel)
                 cells.append('FAIL' if rc else '.')

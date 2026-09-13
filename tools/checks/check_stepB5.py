@@ -3,12 +3,19 @@
 
 B5's claims are that the extracted terminal set is a well-formed netlist and that the
 top-level interface matches the problem statement. This gate re-derives both from
-`pin_net.json` and the raw inputs, and it recomputes the single-driver property itself rather
-than reading B5's own totals:
+`pin_net.json` and the raw inputs:
 
-* **Feasibility, recomputed.** From B4's map and B5's direction tables, every net whose pin
-  classes are all decided is re-counted: the number of its terminals that are outputs must be
-  exactly one (zero for an input-port net), and no net may want two.
+* **The direction tables, re-derived rather than read.** A4's own pin-name lists are walked
+  here and the convention applied independently: a pin labelled `X`, `Y`, `Q`, `HI` or `LO` is
+  an output, every other signal pin is an input. The artifact's tables must be exactly that.
+  B5's structural solver is *not* the authority for this and is not consulted for it -- its
+  verdict was demonstrably wrong once (see the undriven net below), and re-deriving from A4 is
+  what makes this gate able to catch that rather than inherit it.
+* **Driver counts, recomputed.** From B4's map and the re-derived tables, every net whose pin
+  classes are all decided is re-counted: no net may carry more than one driver, and the nets
+  carrying none must be exactly the ones B5 enumerates -- asserted as a named net with its
+  pin names, not as a "no net is undriven" claim, which the earlier version of this artifact
+  met only by inventing a driver for net 806.
 * **The interface, re-derived from the GDS.** The 13 documented port labels are found again on
   layer 70/5 and their positions compared with Step 1's, independently of the stage.
 * **The single-terminal set, re-enumerated.** B4 measured 30; the gate rebuilds that set from
@@ -117,6 +124,18 @@ def main() -> int:
           sorted(set(undetermined) - real), [])
     check('no supply pin is classed as an output',
           sorted(k for k in state if k[1] in C.SUPPLY), [])
+    # Independent re-derivation of the direction convention, from A4's pin lists rather than
+    # from B5's totals: the output label vocabulary is {X, Y, Q, HI, LO}, everything else is an
+    # input. If B5 ever regresses to inferring direction structurally, this fails.
+    real_signal = {k for k in real if k[1] not in C.SUPPLY}
+    check('the class set is the signal pins of the placed masters',
+          sorted(set(state) | set(undetermined)), sorted(real_signal))
+    check('the output table is exactly the pins whose own label names an output',
+          sorted(k for k, v in state.items() if v),
+          sorted(k for k in real_signal if k[1] in N.NAME_OUTPUTS))
+    check('the input table is exactly the remaining signal pins',
+          sorted(k for k, v in state.items() if not v),
+          sorted(k for k in real_signal if k[1] not in N.NAME_OUTPUTS))
 
     # ---- 5. feasibility, recomputed from B4's map --------------------------------
     net_counts: dict[int, Counter] = defaultdict(Counter)
@@ -136,10 +155,22 @@ def main() -> int:
     drivers = {c: sum(v * state[k] for k, v in cnt.items()) for c, cnt in settled.items()}
     check('no net has two output terminals',
           sorted(c for c, n in drivers.items() if n > 1), [])
-    check('every judged net has exactly the driver count its target requires',
-          sorted(c for c, n in drivers.items() if n != target[c]), [])
-    check('no judged net is left undriven',
-          sorted(c for c, n in drivers.items() if target[c] == 1 and n == 0), [])
+    check('no judged net has more output terminals than its target allows',
+          sorted(c for c, n in drivers.items() if n > target[c]), [])
+    # A net with no driver is a property of this layout, reported and enumerated -- never a
+    # claim that none exists, which is the claim the earlier artifact satisfied by fabrication.
+    undriven_here = sorted(c for c, n in drivers.items() if target[c] == 1 and n == 0)
+    check('the judged nets with no driver are exactly the ones B5 enumerates',
+          undriven_here, sorted(r['cluster'] for r in d5['direction']['undriven_nets']))
+    check('one undriven net, two terminals',
+          [(r['cluster'], r['terminals']) for r in d5['direction']['undriven_nets']],
+          [(806, 2)])
+    check('the undriven net is the two A1 inputs and nothing else',
+          [r['pin_names'] for r in d5['direction']['undriven_nets']],
+          [['a311o_2.A1', 'a31oi_2.A1']])
+    check('nothing on the undriven net is an output',
+          sorted({d for r in d5['direction']['undriven_nets'] for d in r['terminal_directions']}),
+          ['input'])
     # An output pin of a cell must never sit on a supply net.
     check('no output terminal appears on a supply net',
           sorted({k for c in supply_nets for k in net_counts.get(c, ())
@@ -191,15 +222,24 @@ def main() -> int:
     check('pins modelled', d5['totals']['pins'], 7897)
     check('nets carrying terminals', d5['totals']['nets_with_terminals'], 741)
     check('classes', d5['totals']['classes'], 286)
-    check('classes resolved by structure alone', d5['totals']['classes_resolved'], 284)
-    check('undetermined classes', d5['totals']['classes_undetermined'], len(undetermined))
-    check('undetermined classes (floor: most must be inferred)',
-          d5['totals']['classes_resolved'] >= 250, True)
+    check('every class has a direction', d5['totals']['classes_resolved'], 286)
+    check('no class is left undetermined', d5['totals']['classes_undetermined'], 0)
+    check('nothing is left undetermined, in any form', sorted(undetermined), [])
+    check('the structural auditor decides all but the classes it would have to invent',
+          d5['totals']['structural_classes_decided'], 284)
+    check('the structural auditor leaves exactly the classes it cannot decide honestly',
+          d5['direction']['cross_check']['undetermined_by_structure_alone'],
+          ['sky130_fd_sc_hd__a31oi_2::Y', 'sky130_fd_sc_hd__o32ai_2::A2'])
+    check('the auditor contradicts the labels on exactly one class',
+          d5['direction']['cross_check']['structure_contradicts_the_labels'],
+          ['sky130_fd_sc_hd__a31oi_2::A1'])
+    check('and that contradiction is the fabricated driver of the undriven net',
+          d5['direction']['cross_check']['structure_contradicts_the_labels'][0]
+          .endswith('::A1') and 'a31oi_2.A1' in d5['direction']['undriven_nets'][0]['pin_names'],
+          True)
     check('infeasible nets', d5['totals']['infeasible_nets'], 0)
+    check('undriven nets reported', d5['totals']['undriven_nets'], 1)
     check('supply nets', d5['totals']['supply_nets'], sorted(supply_nets))
-    check('undetermined classes are exactly the two on the ambiguous net',
-          sorted(undetermined), [('sky130_fd_sc_hd__a31oi_2', 'Y'),
-                                 ('sky130_fd_sc_hd__o32ai_2', 'A2')])
 
     # ---- report ------------------------------------------------------------------
     n_fail = 0
