@@ -540,12 +540,54 @@ Two things this step is worth remembering for:
 
 **B7 — Warm-up end-to-end regression (the Phase B gate).**
 *Goal:* our whole pipeline must reproduce a design whose correct netlist we possess.
-*Method:* run S0→B6 on `warmup/04_final.gds`; compare against `warmup/01_netlist.v`.
-*Artifact:* `docs/steps/B7.md` with the comparison report.
-***Verify:*** same instance count; **same bipartite connectivity graph up to net renaming**; pin
-names match. This must be byte-for-byte the same comparison method as B2, so B2 and B7 agree.
+*Method:* run the whole chain on `warmup/04_final.gds` and compare against `warmup/01_netlist.v`.
+***Amended before execution (2026-09-12):*** the clause originally read "run S0→B6", which in
+practice would have meant B2's separate warm-up spike — a *different* implementation from the one
+B3–B6 actually run, and a second implementation agreeing with the first would prove nothing. It now
+requires the parts to be **shared**: the flattened engine of B3/B4 (`connect.build_engine`), B4's
+prober (`netlist.probe_placements`) and B6's renderer (`emit.render_body`), with the placements the
+only input that differs. Those three were factored out of the chip-specific stages for this step,
+and the B3–B6 gates prove the factoring changed no behaviour.
+*Artifacts:* `build/warmup.v` (our netlist for the warm-up), `recon/derived/warmup_b7.json` (the
+comparison report), `docs/steps/B7.md`.
+***Verify:*** same instance count; **same bipartite connectivity graph up to net renaming**, by
+B2's exact canonical method and with B2's coverage guard, so B2 and B7 agree *by construction*; the
+reference's own module header supplies the port list, and each port is located on our side by
+terminal-set identity; the emitted netlist compiles against the same `build/cells.v`, so the models
+are exercised on a design they were not generated for.
+*A third comparison, added during execution:* `02_netlist_with_power_rails.v` connects VPB/VNB and
+our extraction assigns them nothing. A5 predicted exactly that class (well ties have no routeable
+geometry); B7 is the first time it is checked against an independent document rather than against
+our own reasoning.
 *If it fails:* **stop the phase.** Do not proceed to Phase C. Debug here — this is the single
 highest-value gate in the project, because every later stage inherits this answer.
+
+***Outcome (executed): PASS.*** The warm-up reproduces exactly: **84 nets and 285 terminals on both
+sides, 0 signatures unique to either side, 100% coverage** — the same numbers B2 reported, which
+they must, because it is B2's comparison run through the machinery B3–B6 use. 230/230 instances
+mapped to our placements; 285/285 functional pins assigned; 0 probe conflicts or errors; the
+flattened engine gives one circuit with 335 nets and 335 distinct cluster ids; all 6 ports located by
+terminal-set identity (A=226, B=96, S=236, clk=237, en=11, rst_n=62); `build/warmup.v` compiles
+against the unchanged `build/cells.v`, so the models are exercised on a design they were not
+generated for. Gate `check_stepB7.py` → **39/39**; 18/18 gates.
+
+Three things worth carrying forward:
+
+* **The third comparison earns its place.** The reference connects 137 `VPB` pins and the GDS has no
+  routeable geometry for them, so we assign none — A5's class, checked against an *independent
+  document* for the first time instead of against our own reasoning. `VNB` is the control that makes
+  it an argument rather than an assertion: a body pin too, 137 in the reference, and we recover all
+  137. `VGND`/`VPWR` 230/230 each.
+* **A compile is not a verification — twice over.** My first B7 emit declared every wire twice
+  (`iverilog`: ~90 `already been declared` errors) and leaked the scratch path into the report, so
+  the report could not regenerate byte-identically. The stage had reported PASS on all six of its own
+  checks; only the gate's compile and regeneration checks saw either. Same lesson B6 learned, in a
+  different costume: **generate, then re-read**.
+* **Phase B is closed.** Every step in it is now verified against something outside itself — the
+  A-phase numbers by `check_recompute.py`, B1–B5 by their gates, B6 by a parse-back round trip, B7 by
+  an independent netlist for a design we did not author. `net 806` remains the chip's one undriven
+  net and the warm-up has none, so it is a property of this GDS rather than of the engine; C1 will
+  show it as X, and C2 — not B7 — is what makes the cell models trustworthy.
 
 ### Phase C — Understand the chip
 

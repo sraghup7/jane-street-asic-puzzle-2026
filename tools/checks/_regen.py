@@ -34,37 +34,47 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRATCH = ROOT / 'recon' / 'scratch' / 'regen'
 
 
-def regenerate(module: str, out_attrs: tuple[str, ...], stage: str,
-               suffix: str = '.json') -> tuple[int, bytes | None, str]:
-    """Run ``<module>.main([stage])`` with ``out_attrs`` redirected to scratch.
+def regenerate_many(module: str, out_attrs: tuple[str, ...], stage: str,
+                    names: dict[str, str] | None = None,
+                    suffix: str = '.json') -> tuple[int, dict[str, bytes | None], str]:
+    """Run ``<module>.main([stage])`` with each output redirected to scratch.
 
-    ``out_attrs`` names the module-global output Path(s) the stage writes. Every stage
-    reads its *inputs* from the real artifacts, which is what makes this a test of the
-    committed upstream chain rather than of a self-contained re-run. ``suffix`` matches the
-    extension of the redirected file, so a stage that writes Verilog can be redirected too.
+    Returns ``(returncode, {attr: bytes_or_None}, captured_stdout)``.
 
-    Returns ``(returncode, bytes_written_or_None, captured_stdout)``.
+    ``names`` gives an attr its own scratch filename, for stages that write more than one
+    artifact (B7 writes `build/warmup.v` *and* a JSON report). An attr absent from ``names``
+    shares ``<stage><suffix>`` with the others, which is what :func:`regenerate` has always
+    done -- A1 relies on that shared path, so it is preserved exactly rather than tidied.
     """
     m = importlib.import_module(module)
     saved = {a: getattr(m, a) for a in out_attrs}
-    tmp = SCRATCH / f'{stage}{suffix}'
+    tmp = {a: SCRATCH / ((names or {}).get(a, f'{stage}{suffix}')) for a in out_attrs}
     buf = io.StringIO()
     try:
         SCRATCH.mkdir(parents=True, exist_ok=True)
-        if tmp.exists():
-            tmp.unlink()
+        for p in set(tmp.values()):
+            if p.exists():
+                p.unlink()
         for a in out_attrs:
-            setattr(m, a, tmp)
+            setattr(m, a, tmp[a])
         with contextlib.redirect_stdout(buf):
             rc = m.main([stage])
-        produced = tmp.read_bytes() if tmp.exists() else None
+        produced = {a: (tmp[a].read_bytes() if tmp[a].exists() else None) for a in out_attrs}
     finally:
         for a, orig in saved.items():
             setattr(m, a, orig)
-        if tmp.exists():
-            tmp.unlink()
+        for p in set(tmp.values()):
+            if p.exists():
+                p.unlink()
         try:
             SCRATCH.rmdir()
         except OSError:
             pass          # non-empty (a parallel gate) -- leave it
     return rc, produced, buf.getvalue()
+
+
+def regenerate(module: str, out_attrs: tuple[str, ...], stage: str,
+               suffix: str = '.json') -> tuple[int, bytes | None, str]:
+    """The single-artifact case of :func:`regenerate_many`, unchanged in behaviour."""
+    rc, produced, out = regenerate_many(module, out_attrs, stage, suffix=suffix)
+    return rc, produced[out_attrs[0]], out

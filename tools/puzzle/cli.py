@@ -34,7 +34,7 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('netlist-check',     'netlist',    'B5', 'single-driver / floating / port integrity checks'),
     ('emit',              'emit',       'B6', 'write build/puzzle.v and build/cells.v'),
     ('cells',             'cells',      'B6', 'write build/cells.v (our behavioural models)'),
-    ('warmup-regression', 'connect',    'B7', 'reproduce warmup/01_netlist.v connectivity'),
+    ('warmup-regression', 'warmup',    'B7', 'reproduce warmup/01_netlist.v connectivity'),
     # --- Phase C: understand the chip ---------------------------------------------
     ('vcd-replay',        'simulate',   'C1', 'byte-exact replay of example_inputs.vcd'),
     ('warmup-equiv',      'simulate',   'C2', 'validate our cell models on the warmup adder'),
@@ -67,6 +67,14 @@ GATE_NOTES: dict[str, str] = {
     'stepA3': 'pin names, read from the cell masters',
     'stepA4': 'pin geometry, calibrated on the warm-up',
     'stepA5': 'pin model coverage',
+    'recompute': 'independent recomputation of the A-phase numbers',
+    'stepB1': 'the placement table: transform convention and anchor semantics',
+    'stepB2': 'the connectivity engine, validated against the warm-up partition',
+    'stepB3': 'full connectivity on the chip; every conductor shape accounted for',
+    'stepB4': 'every instance pin mapped onto a net',
+    'stepB5': 'netlist integrity, and the documented interface read from the layout',
+    'stepB6': 'the emitted Verilog round-trips, and the cell models match their masters',
+    'stepB7': 'the whole chain, on a design whose real netlist we hold',
 }
 
 

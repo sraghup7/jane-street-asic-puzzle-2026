@@ -62,6 +62,7 @@ GATES = [
     ('stepB4', 'tools/checks/check_stepB4.py'),
     ('stepB5', 'tools/checks/check_stepB5.py'),
     ('stepB6', 'tools/checks/check_stepB6.py'),
+    ('stepB7', 'tools/checks/check_stepB7.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -78,8 +79,10 @@ INV = 'recon/inventory.json'
 # B6's outputs are the first artifacts that are not JSON, so the harness mutates them as text.
 PUZZLEV = 'build/puzzle.v'
 CELLSV = 'build/cells.v'
+WARMV = 'build/warmup.v'
+WARMREP = 'recon/derived/warmup_b7.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
-             PUZZLEV, CELLSV]
+             PUZZLEV, CELLSV, WARMV, WARMREP]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -365,6 +368,38 @@ def m_v_cells_flip_direction(text):
     return head + marker + tail.replace('  output Q;\n', '  input Q;\n', 1)
 
 
+def m_v_warmup_repoint(text):
+    """Re-point a connection in the warm-up netlist: regeneration must notice.
+
+    Swaps the first two wire names wherever they appear as *connections*, leaving the `wire`
+    declarations alone -- so the text stays valid Verilog and the only thing that changed is the
+    connectivity. Written against our own `n<cluster>` naming, not the reference's net names,
+    because the mutation has to apply to what we emit.
+    """
+    wires = sorted(set(re.findall(r'  wire (n\d+);', text)), key=lambda w: int(w[1:]))
+    assert len(wires) >= 2, 'not enough wires to swap'
+    a, b = wires[0], wires[1]
+    return (text.replace(f'({a})', '(@@SWAP@@)')
+                .replace(f'({b})', f'({a})')
+                .replace('(@@SWAP@@)', f'({b})'))
+
+
+def m_b7_claim_equivalent(d):
+    """Claim equivalence while dropping most of the coverage: the floor check must notice."""
+    d['comparison']['equivalent'] = True
+    d['comparison']['coverage'] = 0.5
+
+
+def m_b7_claim_vpb(d):
+    """Claim we assigned the well ties, which A5 says have no routeable geometry."""
+    d['supply']['ours']['VPB'] = d['supply']['reference'].get('VPB', 0)
+
+
+def m_b7_drop_port(d):
+    """Drop a located port: the interface check must notice."""
+    d['interface']['located'].pop(sorted(d['interface']['located'])[0], None)
+
+
 def m_chk_extra_single(d):
     d['single_terminal_nets'].append({'cluster': 999999,
                                       'master': 'invented_1', 'pin': 'X',
@@ -433,6 +468,10 @@ MUTATIONS = [
     ('puzzle.v: one pin re-pointed at a neighbouring net', PUZZLEV, m_v_repoint),
     ('puzzle.v: one instantiation deleted', PUZZLEV, m_v_drop_instance),
     ('cells.v: a model output declared as an input', CELLSV, m_v_cells_flip_direction),
+    ('warmup.v: one connection re-pointed', WARMV, m_v_warmup_repoint),
+    ('warmup_b7: equivalence claimed on half the coverage', WARMREP, m_b7_claim_equivalent),
+    ('warmup_b7: the well ties claimed as assigned', WARMREP, m_b7_claim_vpb),
+    ('warmup_b7: a located port dropped', WARMREP, m_b7_drop_port),
 ]
 
 

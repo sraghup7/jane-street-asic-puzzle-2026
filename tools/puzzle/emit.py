@@ -122,12 +122,25 @@ def build_netlist() -> str:
     for p in SUPPLY_ORDER:
         out.append(f'  inout {p};')
     out.append('')
-    for cluster in wires:
-        out.append(f'  wire {names.get(cluster, f"n{cluster}")};')
+    out.extend(render_body(a3, b1['instances'], insts, names, wires))
+    out.append('')
+    out.append('endmodule')
+    return '\n'.join(out) + '\n'
 
-    for inst in b1['instances']:
+
+def render_body(a3: dict, instances: list[dict], pin_map: dict, names: dict,
+                wires: list[int]) -> list[str]:
+    """Wire declarations plus instance lines. Shared by B6 (the chip) and B7 (the warm-up).
+
+    Nothing here knows which design it is rendering: it is handed placements in B1's schema, a
+    pin->net map in B4's, a cluster->name table, and A3's pin lists. That is what lets B7 claim
+    the *same emitter* ran on a second design, rather than a lookalike that might agree by
+    accident.
+    """
+    lines = [f'  wire {names.get(c, f"n{c}")};' for c in wires]
+    for inst in instances:
         iid = inst['id']
-        info = insts[iid]
+        info = pin_map[iid]
         assert info['master'] == inst['master'], (iid, info['master'], inst['master'])
         order = list(a3['masters'][inst['master']]['pins'])
         given = info['pins']
@@ -138,13 +151,13 @@ def build_netlist() -> str:
             conns.append(f'.{pin}({names.get(value[0], f"n{value[0]}")})' if value
                          else f'.{pin}()')
         x, y = inst['origin_dbu']
-        out.append('')
-        out.append(f'  // {iid}  {inst["master"]}  {inst["kind"]}  '
-                   f'@ ({x / 1000:.3f}, {y / 1000:.3f}) um, row {inst["row_line"]}')
-        out.append(f'  {inst["master"]} {iid} ({", ".join(conns)});')
-    out.append('')
-    out.append('endmodule')
-    return '\n'.join(out) + '\n'
+        row = inst.get('row_line')
+        lines.append('')
+        lines.append(f'  // {iid}  {inst["master"]}  {inst["kind"]}  '
+                     f'@ ({x / 1000:.3f}, {y / 1000:.3f}) um'
+                     + (f', row {row}' if row is not None else ''))
+        lines.append(f'  {inst["master"]} {iid} ({", ".join(conns)});')
+    return lines
 
 
 def stage_emit() -> int:

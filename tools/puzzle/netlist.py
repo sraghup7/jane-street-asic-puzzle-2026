@@ -79,37 +79,18 @@ def gap_class(master: str, pin: str) -> str:
     return 'unexplained'
 
 
-def stage_pin_net() -> int:
-    a2 = read_json(A2)
-    a4 = read_json(A4)
-    insts = read_json(B1)
-    inv = read_json(INV)
-    per_um = int(inv['gds']['dbu_per_um'])
-    conductors = sorted({p for r in a2['pairs'] for p in r['connects']})
-    cuts = sorted({r['cut'] for r in a2['pairs']})
-    cset = set(conductors)
+def probe_placements(placements: list[dict], a4: dict, per_um: int, l2n, reg, cset) -> dict:
+    """Probe every pin of every placement through an already-loaded engine.
 
-    t0 = time.time()
-    ly, top, l2n, nl, reg = build_engine(PUZZLE, conductors, cuts, a2['pairs'])
-    t_engine = time.time() - t0
+    Shared by B4 (the puzzle) and B7 (the warm-up). The placements are the only input that
+    differs between the two designs, and both producers use B1's convention, so this is
+    literally the same code path run twice -- which is what makes B7 a test of the *pipeline*
+    rather than of a second implementation that might agree with the first by accident.
 
-    circs = list(nl.each_circuit())
-    if len(circs) != 1 or circs[0].name != top.name:
-        print(f'FAIL: after flattening there must be exactly one circuit {top.name!r}, got '
-              f'{[c.name for c in circs][:4]}')
-        return 1
-    tc = circs[0]
-    all_nets = list(tc.each_net())
-    engine_nets = len(all_nets)
-    ids = {n.cluster_id for n in all_nets}
-    # See connect.build_engine: this is the property the hierarchical extraction lacked, and
-    # the only reason this stage may key its map on cluster_id at all. Without it, probes that
-    # land inside different cells can report the same cluster_id for unrelated nets.
-    id_ok = len(ids) == engine_nets
-    print(f'engine                             : {engine_nets} nets, {len(ids)} distinct '
-          f'cluster ids, {t_engine:.1f}s')
-
-    # ---- assign every pin of every instance --------------------------------------------
+    Probing uses each pin's **label positions**, never a bounding-rect centre: A4's measured
+    positions are the only points guaranteed to lie inside the pin geometry, and a centre probe
+    has already been measured to find nothing on `clkbuf_16`'s comb-shaped `X`.
+    """
     nets: dict[int, dict] = {}
     by_instance: dict[str, dict] = {}
     per_pin: dict[str, dict] = defaultdict(
@@ -120,8 +101,7 @@ def stage_pin_net() -> int:
     cnt: Counter = Counter()
     layer_fallbacks = 0
     endpoints = 0
-    t1 = time.time()
-    for pl in insts['instances']:
+    for pl in placements:
         master = a4['masters'][pl['master']]
         sx, sy = ALLOW[pl['kind']]
         ax, ay = pl['origin_dbu']
@@ -188,6 +168,48 @@ def stage_pin_net() -> int:
                     'cause': ('no_routing_geometry' if not rects
                               else 'engine_left_it_unconnected')})
         by_instance[pl['id']] = {'master': pl['master'], 'pins': out}
+    return {'nets': nets, 'by_instance': by_instance, 'per_pin': per_pin,
+            'unassigned': unassigned, 'conflicts': conflicts, 'errors': errors,
+            'cnt': cnt, 'layer_fallbacks': layer_fallbacks, 'endpoints': endpoints}
+
+
+def stage_pin_net() -> int:
+    a2 = read_json(A2)
+    a4 = read_json(A4)
+    insts = read_json(B1)
+    inv = read_json(INV)
+    per_um = int(inv['gds']['dbu_per_um'])
+    conductors = sorted({p for r in a2['pairs'] for p in r['connects']})
+    cuts = sorted({r['cut'] for r in a2['pairs']})
+    cset = set(conductors)
+
+    t0 = time.time()
+    ly, top, l2n, nl, reg = build_engine(PUZZLE, conductors, cuts, a2['pairs'])
+    t_engine = time.time() - t0
+
+    circs = list(nl.each_circuit())
+    if len(circs) != 1 or circs[0].name != top.name:
+        print(f'FAIL: after flattening there must be exactly one circuit {top.name!r}, got '
+              f'{[c.name for c in circs][:4]}')
+        return 1
+    tc = circs[0]
+    all_nets = list(tc.each_net())
+    engine_nets = len(all_nets)
+    ids = {n.cluster_id for n in all_nets}
+    # See connect.build_engine: this is the property the hierarchical extraction lacked, and
+    # the only reason this stage may key its map on cluster_id at all. Without it, probes that
+    # land inside different cells can report the same cluster_id for unrelated nets.
+    id_ok = len(ids) == engine_nets
+    print(f'engine                             : {engine_nets} nets, {len(ids)} distinct '
+          f'cluster ids, {t_engine:.1f}s')
+
+    # ---- assign every pin of every instance --------------------------------------------
+    t1 = time.time()
+    pr = probe_placements(insts['instances'], a4, per_um, l2n, reg, cset)
+    nets, by_instance = pr['nets'], pr['by_instance']
+    per_pin, unassigned = pr['per_pin'], pr['unassigned']
+    conflicts, errors = pr['conflicts'], pr['errors']
+    cnt, layer_fallbacks, endpoints = pr['cnt'], pr['layer_fallbacks'], pr['endpoints']
     t_probe = time.time() - t1
 
     net_rows = [{'cluster': c, 'terminals': v['terminals'], 'functional': v['functional'],

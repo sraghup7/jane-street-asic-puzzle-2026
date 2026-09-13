@@ -1,0 +1,111 @@
+{
+  "generated_by": "tools/puzzle/warmup.py::stage_warmup_regression",
+  "source": {
+    "path": "asic-puzzle-2026/warmup/04_final.gds",
+    "sha256": "be7f04fedf9bacd9cd6ba646963028bb4abb17d1c114be91bd09fa595b5d498e"
+  },
+  "reference": {
+    "path": "asic-puzzle-2026/warmup/01_netlist.v",
+    "sha256": "822999060e7149ee2a2852f5cac8de73cfc7f7d1466500db165349bcff6f5696"
+  },
+  "engine": {
+    "name": "klayout LayoutToNetlist (flattened, as B3/B4)",
+    "circuits": 1,
+    "nets": 335,
+    "distinct_cluster_ids": 335,
+    "net_identity_unique": true
+  },
+  "totals": {
+    "placements": 230,
+    "masters": 18,
+    "pins_functional": 285,
+    "pins_supply": 734,
+    "unassigned_functional": 0,
+    "probe_conflicts": 0,
+    "probe_errors": 0,
+    "instances_mapped_to_reference": 230,
+    "instances_unmapped": 0
+  },
+  "comparison": {
+    "equivalent": true,
+    "method": "B2's canonical partition comparison",
+    "our_nets": 84,
+    "reference_nets": 84,
+    "our_terminals": 285,
+    "reference_terminals": 285,
+    "signatures_only_in_ours": 0,
+    "signatures_only_in_reference": 0,
+    "coverage": 1.0,
+    "coverage_terminals": 285
+  },
+  "interface": {
+    "module": "adder_demo",
+    "ports": [
+      "A",
+      "B",
+      "S",
+      "clk",
+      "en",
+      "rst_n"
+    ],
+    "directions": {
+      "A": "input",
+      "B": "input",
+      "S": "output",
+      "clk": "input",
+      "en": "input",
+      "rst_n": "input"
+    },
+    "located": {
+      "A": 226,
+      "B": 96,
+      "S": 236,
+      "clk": 237,
+      "en": 11,
+      "rst_n": 62
+    },
+    "problems": [],
+    "ok": true
+  },
+  "supply": {
+    "reference": {
+      "VGND": 230,
+      "VNB": 137,
+      "VPB": 137,
+      "VPWR": 230
+    },
+    "ours": {
+      "VGND": 230,
+      "VNB": 137,
+      "VPWR": 230
+    },
+    "note": "VPB is connected in the reference netlist and unassigned by our extraction: A5 predicted exactly this (well ties on this row have no routeable geometry -- the class is even named for VPB). Everything else agrees exactly, including VNB, so the disagreement is one pin name wide rather than a hole in the supply extraction."
+  },
+  "emitted": "build/warmup.v",
+  "checks": [
+    {
+      "check": "the flattened engine yields one circuit with unique net identity",
+      "passed": true
+    },
+    {
+      "check": "every functional pin is assigned",
+      "passed": true
+    },
+    {
+      "check": "no probe conflicts or errors",
+      "passed": true
+    },
+    {
+      "check": "every reference instance maps to one of our placements",
+      "passed": true
+    },
+    {
+      "check": "the partition matches the reference, B2s method",
+      "passed": true
+    },
+    {
+      "check": "the interface is located by terminal-set identity",
+      "passed": true
+    }
+  ]
+}
