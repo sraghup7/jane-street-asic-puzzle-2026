@@ -584,3 +584,10 @@ telling the truth about a filter that was not the one intended. The labels are t
 filter is now checked against them before it is trusted, and the sweep was re-run with
 `--only 'warmup_equiv|c2_power'` to cover all eight. (The `78` is also a correction: the previous
 sections said 77.)
+
+**The re-run, definitively: 8 of 78 mutations, 0 misses, 0 hermeticity violations,
+`artifacts restored: True`, and every one of the eight fired `stepC2` and only `stepC2`.**
+The same shape as C1's verdict, and the evidence that this gate owns its three artifacts and that
+no older gate is silently covering for them. The run prints the labels it selected, so the set is
+read from the log rather than inferred from a count — which is what would have caught the first
+attempt immediately.
