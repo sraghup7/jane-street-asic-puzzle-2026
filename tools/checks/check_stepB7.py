@@ -105,7 +105,14 @@ def main() -> int:
                     conns[cm.group(1)] = cm.group(2)
             our_insts[mm.group(2)] = {'master': mm.group(1), 'conns': conns}
     check('our module is named as the reference is', m.group(1) if m else None, module)
-    check('our port list is the reference port list', our_headers, ports)
+    # The reference's ports in the reference's own order, then the supply ports we emit. They must
+    # be *in the list*: a body-level `inout VGND;` for a name the header omits is not a port at
+    # all, so the file would advertise an interface it does not have. C2 found exactly that by
+    # instantiating the netlist -- and `02_netlist_with_power_rails.v` lists VPWR and VGND the
+    # same way, so this is the reference's convention too.
+    check('our port list is the reference s, followed by the supplies we emit',
+          (our_headers[:len(ports)], sorted(set(our_headers) - set(ports))),
+          (ports, ['VGND', 'VPWR']))
     check('we emit 230 instances', len(our_insts), 230)
     check('we place the same multiset of cells as the reference',
           Counter(i['master'] for i in our_insts.values()),
@@ -149,6 +156,22 @@ def main() -> int:
                            capture_output=True, text=True)
         check('iverilog -Wall -t null accepts the warm-up netlist with its models',
               (r.returncode, r.stderr.strip()), (0, ''))
+        # Compiling the file proves it is well formed; it does not prove its interface is real.
+        # This is the check that would have caught the missing supply ports: a caller must be able
+        # to connect every port this netlist is *documented* to have -- the reference's ports plus
+        # the supplies B7 emits, both 230/230 in the supply table below -- and it must use that
+        # list, not the file's own header, or the check would agree with whatever the header says.
+        with tempfile.TemporaryDirectory() as td:
+            wrap = Path(td) / 'wrap.v'
+            intended = [*ports, 'VGND', 'VPWR']
+            decls = '\n'.join(f'  wire {p};' for p in intended)
+            conns = ', '.join(f'.{p}({p})' for p in intended)
+            wrap.write_text(f'module wrap;\n{decls}\n  {module} u({conns});\nendmodule\n',
+                            encoding='utf-8', newline='\n')
+            rw = subprocess.run([iverilog, '-t', 'null', str(wrap), str(W.OUT_NETLIST),
+                                 str(CELLS_V)], capture_output=True, text=True)
+            check('a caller can connect every port the netlist is documented to have',
+                  (rw.returncode, rw.stderr.strip()[:300]), (0, ''))
         with tempfile.TemporaryDirectory() as td:
             broken = Path(td) / 'broken.v'
             broken.write_text('module broken; sky130_fd_sc_hd__nope u ();\nendmodule\n',

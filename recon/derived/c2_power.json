@@ -1,0 +1,283 @@
+{
+  "generated_by": "tools/puzzle/power.py::stage_warmup_power",
+  "purpose": "measure what the warm-up oracle can see, by negating each cell model the design instantiates in a scratch rebuild of build/cells.v and re-running the exhaustive C2 sweep. A model whose negation moves no pair is a model neither oracle vouches for.",
+  "oracle": {
+    "harness": "build/warmup_equiv_tb.v",
+    "dut": "build/warmup.v",
+    "pairs": 65536,
+    "equating_pairs": 15,
+    "reference": "asic-puzzle-2026/warmup/00_source.v",
+    "reference_sha256": "b6868174730656f505432ea76929b3fccfa6049db4f53d20bbafec40a21a5c45"
+  },
+  "method": {
+    "mutation": "wrap the modelled output expression in a complement; for the sequential models, invert the data input",
+    "applied_to": "a scratch copy of build/cells.v; the tree is never modified",
+    "scope": "only the models build/warmup.v instantiates",
+    "metric": "pairs whose S disagrees with the reference, over all 65536"
+  },
+  "baseline": {
+    "pairs": 65536,
+    "mismatches": 0,
+    "s_high": 15
+  },
+  "totals": {
+    "masters": 18,
+    "mutable": 16,
+    "caught": 15,
+    "silent": 1,
+    "physical_only": 2
+  },
+  "per_model": [
+    {
+      "model": "sky130_fd_sc_hd__a21bo_2",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 22,
+      "caught": true,
+      "c1_blind": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a21boi_2",
+      "mutation": "Y = ~(...)",
+      "pairs_wrong": 128,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a21o_2",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 62,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a31o_2",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 24,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and2_2",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 447,
+      "caught": true,
+      "c1_blind": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and3_2",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 1024,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and4bb_2",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 65008,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__clkbuf_16",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 0,
+      "caught": false,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__decap_3",
+      "mutation": null,
+      "pairs_wrong": null,
+      "caught": null,
+      "c1_blind": false,
+      "note": "a physical-only master: no logic to negate"
+    },
+    {
+      "model": "sky130_fd_sc_hd__dfrtp_2",
+      "mutation": "<= D inverted",
+      "pairs_wrong": 30,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__mux2_1",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 30,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nand2_2",
+      "mutation": "Y = ~(...)",
+      "pairs_wrong": 447,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nor2_2",
+      "mutation": "Y = ~(...)",
+      "pairs_wrong": 155,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o21bai_2",
+      "mutation": "Y = ~(...)",
+      "pairs_wrong": 256,
+      "caught": true,
+      "c1_blind": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__or2_2",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 39,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+      "mutation": null,
+      "pairs_wrong": null,
+      "caught": null,
+      "c1_blind": false,
+      "note": "a physical-only master: no logic to negate"
+    },
+    {
+      "model": "sky130_fd_sc_hd__xnor2_2",
+      "mutation": "Y = ~(...)",
+      "pairs_wrong": 220,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__xor2_2",
+      "mutation": "X = ~(...)",
+      "pairs_wrong": 65,
+      "caught": true,
+      "c1_blind": false,
+      "note": null
+    }
+  ],
+  "cross_oracle": {
+    "c1_blind_total": 29,
+    "c1_blind_instanced_here": [
+      "sky130_fd_sc_hd__a21bo_2",
+      "sky130_fd_sc_hd__and2_2",
+      "sky130_fd_sc_hd__o21bai_2"
+    ],
+    "c1_blind_caught_here": [
+      "sky130_fd_sc_hd__a21bo_2",
+      "sky130_fd_sc_hd__and2_2",
+      "sky130_fd_sc_hd__o21bai_2"
+    ],
+    "c1_blind_silent_here": [],
+    "c1_blind_not_instanced_here": [
+      "sky130_fd_sc_hd__a2111oi_2",
+      "sky130_fd_sc_hd__a221o_2",
+      "sky130_fd_sc_hd__a22o_2",
+      "sky130_fd_sc_hd__a22oi_2",
+      "sky130_fd_sc_hd__a311o_2",
+      "sky130_fd_sc_hd__a31oi_2",
+      "sky130_fd_sc_hd__and3b_2",
+      "sky130_fd_sc_hd__buf_2",
+      "sky130_fd_sc_hd__clkbuf_4",
+      "sky130_fd_sc_hd__conb_1",
+      "sky130_fd_sc_hd__dfstp_2",
+      "sky130_fd_sc_hd__nand2b_2",
+      "sky130_fd_sc_hd__nor4_2",
+      "sky130_fd_sc_hd__o211ai_2",
+      "sky130_fd_sc_hd__o21a_2",
+      "sky130_fd_sc_hd__o21ai_2",
+      "sky130_fd_sc_hd__o221a_2",
+      "sky130_fd_sc_hd__o22ai_2",
+      "sky130_fd_sc_hd__o2bb2a_2",
+      "sky130_fd_sc_hd__o31ai_2",
+      "sky130_fd_sc_hd__o32a_2",
+      "sky130_fd_sc_hd__o32ai_2",
+      "sky130_fd_sc_hd__or3b_2",
+      "sky130_fd_sc_hd__or4_2",
+      "sky130_fd_sc_hd__or4b_2",
+      "sky130_fd_sc_hd__or4bb_2"
+    ],
+    "reached_by_neither": [
+      "sky130_fd_sc_hd__a2111oi_2",
+      "sky130_fd_sc_hd__a221o_2",
+      "sky130_fd_sc_hd__a22o_2",
+      "sky130_fd_sc_hd__a22oi_2",
+      "sky130_fd_sc_hd__a311o_2",
+      "sky130_fd_sc_hd__a31oi_2",
+      "sky130_fd_sc_hd__and3b_2",
+      "sky130_fd_sc_hd__buf_2",
+      "sky130_fd_sc_hd__clkbuf_4",
+      "sky130_fd_sc_hd__conb_1",
+      "sky130_fd_sc_hd__dfstp_2",
+      "sky130_fd_sc_hd__nand2b_2",
+      "sky130_fd_sc_hd__nor4_2",
+      "sky130_fd_sc_hd__o211ai_2",
+      "sky130_fd_sc_hd__o21a_2",
+      "sky130_fd_sc_hd__o21ai_2",
+      "sky130_fd_sc_hd__o221a_2",
+      "sky130_fd_sc_hd__o22ai_2",
+      "sky130_fd_sc_hd__o2bb2a_2",
+      "sky130_fd_sc_hd__o31ai_2",
+      "sky130_fd_sc_hd__o32a_2",
+      "sky130_fd_sc_hd__o32ai_2",
+      "sky130_fd_sc_hd__or3b_2",
+      "sky130_fd_sc_hd__or4_2",
+      "sky130_fd_sc_hd__or4b_2",
+      "sky130_fd_sc_hd__or4bb_2"
+    ],
+    "note": "C1 is blind to 29 models. This design instantiates 3 of them and this measurement catches 3; the other 26 are reached by neither behavioural oracle and rest on the B6 truth tables, which verify our Verilog against our reading of the family names rather than against the silicon."
+  },
+  "observations": [
+    {
+      "observation": "what the second oracle adds",
+      "detail": "3 of the 3 models C1 cannot see are caught here, out of 15 of 16 visible overall."
+    },
+    {
+      "observation": "what no behavioural oracle reaches",
+      "detail": "26 models: a2111oi_2, a221o_2, a22o_2, a22oi_2, a311o_2, a31oi_2, and3b_2, buf_2, clkbuf_4, conb_1, dfstp_2, nand2b_2, nor4_2, o211ai_2, o21a_2, o21ai_2, o221a_2, o22ai_2, o2bb2a_2, o31ai_2, o32a_2, o32ai_2, or3b_2, or4_2, or4b_2, or4bb_2."
+    },
+    {
+      "observation": "a large sweep is not coverage",
+      "detail": "65536 pairs compared, but the reach of this oracle is bounded by the 18 cell types the design instantiates. Exhausting the input space says nothing about the models the design never places."
+    }
+  ],
+  "checks": [
+    {
+      "check": "the baseline agrees with the reference before any mutation",
+      "passed": true
+    },
+    {
+      "check": "only the models this design instantiates were mutated",
+      "passed": true
+    },
+    {
+      "check": "every model is classified exactly once",
+      "passed": true
+    },
+    {
+      "check": "this oracle is not silent about everything: it is a real oracle",
+      "passed": true
+    },
+    {
+      "check": "every model C1 was blind to that this design instantiates was measured",
+      "passed": true
+    }
+  ]
+}

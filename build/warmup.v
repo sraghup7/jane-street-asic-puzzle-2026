@@ -9,7 +9,7 @@
 //
 // 230 instances, 1019 pins.
 // =============================================================================
-module adder_demo (A, B, S, clk, en, rst_n);
+module adder_demo (A, B, S, clk, en, rst_n, VGND, VPWR);
   input A;
   input B;
   output S;

@@ -1,6 +1,6 @@
 # Verification audit — Phases A, B and C
 
-**Date:** 2026-09-12 · **Scope:** every step executed up to and including C1
+**Date:** 2026-09-12 · **Scope:** every step executed up to and including C2
 **Question asked:** are the executed steps solid enough to build the remaining steps on?
 **Answer:** yes — after fixing three defects found in the Phase-A audit, a fourth found in B5, and
 the Phase-B review's findings (§10), which are coverage gaps rather than wrong data.
@@ -85,7 +85,7 @@ one-line notes in a dict that prints `-` for anything unlisted.
 ## 4. The fault matrix
 
 The table below is this audit's original run — **21 mutations × 11 gates** — kept as the Phase-A
-record. **The current matrix is 70 mutations × 19 gates**, re-run after B7 and after fixing the
+record. **The current matrix is 77 mutations × 20 gates**, re-run after B7 and after fixing the
 fault-injector bug in §10 F2: 0 misses, 0 hermeticity violations, `artifacts restored: True`.
 Every cell is an isolated measurement with a pristine restore between probes, and the "fired"
 column is the real output of `tools/checks/fault_inject.py`:
@@ -513,3 +513,66 @@ FAULT INJECTION: PASS
 Every one of the 10 fired **`stepC1` and only `stepC1`** — which is also the evidence that the new
 gate owns its three artifacts, and that no older gate is silently covering for them. The full
 70 × 19 grid is scheduled for the end of Phase C.
+
+## 12. C2 — the warm-up, exhaustively, and the limit of two oracles (2026-09-12)
+
+C2 is the second independent oracle: a design whose Verilog we hold (`warmup/00_source.v`) and whose
+layout we extracted (`build/warmup.v`), compared over the **whole** input space rather than one
+waveform — all **65536 `(A, B)` pairs**, because 8 serial bits per operand puts the entire space in
+a single simulation of milliseconds.
+
+### What it establishes
+
+* **`S` agrees between our netlist and Jane Street's RTL on every one of the 65536 pairs**, on three
+  channels: the reference implements `a + b == 496` (0 mismatches), our netlist matches the
+  reference (0), our netlist implements the function (0). Both assert on exactly the 15 equating
+  pairs, so neither `S` is stuck.
+* The comparison is against the **RTL**, not a formula restated in Python: both designs are
+  instantiated in one testbench and driven by one stimulus. The formula is checked too, as a third
+  witness.
+* Nothing about the protocol is typed in — width, target, serial order and the top module are read
+  out of `00_source.v`. The gate re-derives them with its own patterns and requires agreement.
+
+### C2-1 — a real defect in B7's emitter (fixed)
+
+The first run failed to compile: `error: port ``VGND'' is not a port of dut_ours`. B7's emitted
+netlist put its five reference ports in the header and declared `inout VGND;` / `inout VPWR;` in the
+**body** — and a body-level `inout` for a name the header omits is not a port, so the file advertised
+an interface it did not have and could not be instantiated the way `build/puzzle.v` can. The
+reference's own `02_netlist_with_power_rails.v` lists `VPWR`/`VGND` in the header; only B7's file
+differed. Fixed in `tools/puzzle/warmup.py`, artifact regenerated, and **`check_stepB7.py` 39 → 40
+checks** with the assertion that would have caught it: a generated caller connects every port the
+netlist is *documented* to have, and that list is derived from the source and the supply table — not
+from the file's own header, or the check would agree with whatever the header says. Falsified: the
+old header makes exactly three checks fail, the new one among them.
+
+The lesson is one the project keeps re-learning in new costumes: **compiling a file proves it is well
+formed, not that its interface is real.** B7's gate compared the port list against `01_netlist.v`'s
+six ports, which the defective header matched exactly.
+
+### C2-2 — the limit of the two behavioural oracles (measured, carried forward)
+
+`warmup-power` asks C1's `model-power` question of this oracle: negate each model the design
+instantiates (16 of 18) and re-run the sweep. Result: **15 caught**, 1 silent (`clkbuf_16`), and —
+the point — **all 3 models C1 is blind to are caught here**. The second oracle earns its place.
+
+But the same analysis, cross-referenced against C1's per-model measurement, yields the finding this
+phase should carry:
+
+> **26 of the 66 cell models are reached by neither behavioural oracle.** Union coverage: C1's 37 plus
+> C2's 3 additions = **40 of 66**.
+
+Those 26 are the models C1 cannot see *and* which the warm-up never places, so no stimulus in either
+design excites them. For them the evidence stops at B6's truth tables — which verify our Verilog
+against our *reading of the family names*, exactly the class of gap F1 opened, now quantified instead
+of suspected. `recon/derived/c2_power.json` names them.
+
+**E1 is where this can change, and it needs no new machinery**: both power stages can be re-run
+against the winning 121-bit vector, which excites parts of the design neither this waveform nor this
+warm-up does. Recorded here as the cheapest remaining coverage win in the project.
+
+### Coverage as of this section
+
+The fault grid learned C2's three artifacts (77 mutations × 20 gates, `stepC2` as the 20th gate).
+C2's own surface is closed with a focused sweep, like C1's, for the reason §11 gives: `stepC2` is
+another ~25 s gate, and the full sweep belongs at the phase boundary.

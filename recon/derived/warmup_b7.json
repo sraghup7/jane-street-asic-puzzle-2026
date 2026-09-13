@@ -56,6 +56,17 @@
       "en": "input",
       "rst_n": "input"
     },
+    "ports_emitted": [
+      "A",
+      "B",
+      "S",
+      "clk",
+      "en",
+      "rst_n",
+      "VGND",
+      "VPWR"
+    ],
+    "emitted_note": "the reference's ports in its own order, then the supply ports we emit -- in the port *list*, so the header is the interface. `02_netlist_with_power_rails.v` lists VPWR and VGND the same way",
     "located": {
       "A": 226,
       "B": 96,

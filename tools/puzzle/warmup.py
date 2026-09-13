@@ -230,11 +230,19 @@ def stage_warmup_regression() -> int:
             '//',
             f'// {len(placements)} instances, {total_pins} pins.',
             '// =============================================================================']
+    # The supply ports belong in the *port list*, not merely in a declaration. A body-level
+    # `inout VGND;` for a name the header does not list is not a port at all: Icarus rejects a
+    # caller that connects it ("port ``VGND'' is not a port"), so the file would claim an
+    # interface it does not have. C2 found this the first time anything instantiated the netlist;
+    # `02_netlist_with_power_rails.v` -- the reference's own rail-carrying netlist -- lists VPWR
+    # and VGND in its header, and so does B6's `build/puzzle.v`, so including them here is the
+    # reference's convention as well as our own.
+    emitted_ports = [*port_order, *[p for p in supply_ports if p not in port_order]]
+    port_list = ', '.join(emitted_ports)
     text = '\n'.join([
         *head,
-        f'module {module} ({", ".join([*port_order])});',
-        *[f'  {port_dir.get(p, "inout")} {p};' for p in port_order],
-        *[f'  inout {p};' for p in supply_ports if p not in port_order],
+        f'module {module} ({port_list});',
+        *[f'  {port_dir.get(p, "inout")} {p};' for p in emitted_ports],
         *body,        # render_body emits the wire declarations *and* the instances
         'endmodule',
     ]) + '\n'
@@ -270,6 +278,11 @@ def stage_warmup_regression() -> int:
                        'coverage': coverage,
                        'coverage_terminals': len(compared)},
         'interface': {'module': module, 'ports': port_order, 'directions': port_dir,
+                      'ports_emitted': emitted_ports,
+                      'emitted_note': "the reference's ports in its own order, then the supply "
+                                      "ports we emit -- in the port *list*, so the header is the "
+                                      "interface. `02_netlist_with_power_rails.v` lists VPWR "
+                                      "and VGND the same way",
                       'located': {p: c for p, c in sorted(port_cluster.items())},
                       'problems': port_problems, 'ok': ports_ok},
         'supply': {'reference': dict(sorted(ref_supply.items())),

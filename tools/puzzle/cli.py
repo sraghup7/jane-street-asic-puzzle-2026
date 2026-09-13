@@ -38,7 +38,8 @@ STAGES: list[tuple[str, str, str, str]] = [
     # --- Phase C: understand the chip ---------------------------------------------
     ('vcd-replay',        'simulate',   'C1', 'byte-exact replay of example_inputs.vcd'),
     ('model-power',       'power',      'C1', 'how much a wrong cell model would show up in C1'),
-    ('warmup-equiv',      'simulate',   'C2', 'validate our cell models on the warmup adder'),
+    ('warmup-equiv',      'equiv',      'C2', 'validate our cell models on the warmup adder'),
+    ('warmup-power',      'power',      'C2', 'how much a wrong cell model would show up in C2'),
     ('decompose',         'analyse',    'C3', 'label the counters, shift register, comparator, ROM'),
     ('regions',           'regions',    'C4', 'symbolically decode the region-select logic'),
     ('regions-crosscheck','regions',    'C5', 're-derive the region map by a second route'),

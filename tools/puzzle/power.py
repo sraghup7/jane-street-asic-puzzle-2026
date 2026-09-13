@@ -33,6 +33,7 @@ sys.path.insert(0, str(ROOT))
 from tools.puzzle import simulate as S
 
 OUT_REPORT = ROOT / 'recon' / 'derived' / 'c1_power.json'
+OUT_WU_REPORT = ROOT / 'recon' / 'derived' / 'c2_power.json'
 SCRATCH = ROOT / 'recon' / 'scratch' / 'power'
 
 #: The two cells that read the chip's undriven net, from B5's own enumeration.
@@ -210,12 +211,164 @@ def stage_model_power() -> int:
     return 0 if not failed else 1
 
 
+# ---------------------------------------------------------------------------------
+# C2's oracle: the same question, asked of the warm-up
+# ---------------------------------------------------------------------------------
+def stage_warmup_power() -> int:
+    """What can the warm-up oracle see? Negate each model it uses, and re-run C2's sweep.
+
+    C1 could not see 29 of the 66 models it negated, and the warm-up instantiates only 3 of them,
+    so the second oracle's contribution needs a number rather than an assumption. A model whose
+    negation moves no pair is a model *neither* oracle vouches for, and that is a fact about the
+    verification strategy worth stating plainly rather than leaving implied by a big sweep count.
+
+    Only the models this design instantiates are mutated. Negating the other 51 would compile 51
+    designs to prove something already known: a model the netlist never places cannot affect it.
+    """
+    from tools.puzzle import equiv as EQ
+
+    src = EQ.ensure_harness()
+    limit = 1 << src['width']
+    pairs = limit ** 2
+    expected_high = sum(1 for a in range(limit) for b in range(limit) if a + b == src['target'])
+    masters = set(EQ.warmup_masters())
+    base_text = S.CELLS.read_text(encoding='utf-8')
+    head, modules = split_modules(base_text)
+    SCRATCH.mkdir(parents=True, exist_ok=True)
+    tb_rel, dut_rel = 'build/warmup_equiv_tb.v', 'build/warmup.v'
+
+    def sweep(cells: Path, tag: str) -> dict:
+        out, crc, src_rc = S.compile_and_run(EQ.OUT_TB, SCRATCH / f'wu_{tag}.vvp',
+                                             [EQ.WU_DUT, cells, EQ.REF_V])
+        if crc != 0 or src_rc != 0:
+            raise RuntimeError(f'the sweep failed to run for {tag} (rc={crc}/{src_rc})')
+        return EQ.parse_output(out)['summary']
+
+    print(f'oracle under measurement          : {tb_rel} ({pairs} pairs, exhaustive)')
+    base = sweep(S.CELLS, 'base')
+    print(f'baseline                          : {base["checked"]} pairs, '
+          f'{base["mism_ours_vs_ref"]} mismatch(es), S high {base["ours_high"]}')
+
+    c1_blind: set[str] = set()
+    if OUT_REPORT.exists():
+        c1_blind = {r['model'] for r in
+                    json.loads(OUT_REPORT.read_text(encoding='utf-8'))['per_model']
+                    if r['caught'] is False}
+
+    per_model, counts = [], {'mutable': 0, 'caught': 0, 'silent': 0, 'physical_only': 0}
+    for i, mod in enumerate(modules):
+        name = module_name(mod)
+        if name not in masters:
+            continue
+        neg = negate(mod)
+        if neg is None:
+            counts['physical_only'] += 1
+            per_model.append({'model': name, 'mutation': None, 'pairs_wrong': None,
+                              'caught': None, 'c1_blind': name in c1_blind,
+                              'note': 'a physical-only master: no logic to negate'})
+            print(f'  {name:<34} -- no logic (physical-only master)')
+            continue
+        mutated, how = neg
+        variant = head + ''.join(mutated if j == i else m for j, m in enumerate(modules))
+        path = SCRATCH / 'cells_mut.v'
+        path.write_text(variant, encoding='utf-8', newline='\n')
+        wrong = sweep(path, 'mut')['mism_ours_vs_ref']
+        counts['mutable'] += 1
+        counts['caught' if wrong else 'silent'] += 1
+        per_model.append({'model': name, 'mutation': how, 'pairs_wrong': wrong,
+                          'caught': wrong > 0, 'c1_blind': name in c1_blind, 'note': None})
+        print(f'  {name:<34} {how:<14} {"CAUGHT" if wrong else "silent":<7} {wrong:>5} pair(s)'
+              + ('   [C1 was blind to this one]' if name in c1_blind else ''))
+
+    caught = {r['model'] for r in per_model if r['caught']}
+    silent = {r['model'] for r in per_model if r['caught'] is False}
+    blind_used = sorted(masters & c1_blind)
+    blind_caught = sorted(set(blind_used) & caught)
+    unreachable = sorted((set(blind_used) - caught) | (c1_blind - masters))
+
+    checks = [
+        {'check': 'the baseline agrees with the reference before any mutation',
+         'passed': base['checked'] == pairs and base['mism_ours_vs_ref'] == 0
+                   and base['ours_high'] == expected_high},
+        {'check': 'only the models this design instantiates were mutated',
+         'passed': counts['mutable'] + counts['physical_only'] == len(masters)},
+        {'check': 'every model is classified exactly once',
+         'passed': counts['caught'] + counts['silent'] == counts['mutable']},
+        {'check': 'this oracle is not silent about everything: it is a real oracle',
+         'passed': counts['caught'] > 0},
+        {'check': 'every model C1 was blind to that this design instantiates was measured',
+         'passed': blind_used == sorted(r['model'] for r in per_model if r['c1_blind'])},
+    ]
+    report = {
+        'generated_by': 'tools/puzzle/power.py::stage_warmup_power',
+        'purpose': 'measure what the warm-up oracle can see, by negating each cell model the '
+                   'design instantiates in a scratch rebuild of build/cells.v and re-running the '
+                   'exhaustive C2 sweep. A model whose negation moves no pair is a model neither '
+                   'oracle vouches for.',
+        'oracle': {'harness': tb_rel, 'dut': dut_rel, 'pairs': pairs,
+                   'equating_pairs': expected_high, 'reference': src['path'],
+                   'reference_sha256': src['sha256']},
+        'method': {'mutation': 'wrap the modelled output expression in a complement; for the '
+                               'sequential models, invert the data input',
+                   'applied_to': 'a scratch copy of build/cells.v; the tree is never modified',
+                   'scope': 'only the models build/warmup.v instantiates',
+                   'metric': 'pairs whose S disagrees with the reference, over all %d' % pairs},
+        'baseline': {'pairs': base['checked'], 'mismatches': base['mism_ours_vs_ref'],
+                     's_high': base['ours_high']},
+        'totals': {'masters': len(masters), **counts},
+        'per_model': sorted(per_model, key=lambda r: r['model']),
+        'cross_oracle': {
+            'c1_blind_total': len(c1_blind), 'c1_blind_instanced_here': blind_used,
+            'c1_blind_caught_here': blind_caught,
+            'c1_blind_silent_here': sorted(set(blind_used) - caught),
+            'c1_blind_not_instanced_here': sorted(c1_blind - masters),
+            'reached_by_neither': unreachable,
+            'note': f"C1 is blind to {len(c1_blind)} models. This design instantiates "
+                    f"{len(blind_used)} of them and this measurement catches "
+                    f"{len(blind_caught)}; the other {len(unreachable)} are reached by neither "
+                    f"behavioural oracle and rest on the B6 truth tables, which verify our "
+                    f"Verilog against our reading of the family names rather than against the "
+                    f"silicon."},
+        'observations': [
+            {'observation': 'what the second oracle adds',
+             'detail': f'{len(blind_caught)} of the {len(blind_used)} models C1 cannot see are '
+                       f'caught here, out of {counts["caught"]} of {counts["mutable"]} visible '
+                       f'overall.'},
+            {'observation': 'what no behavioural oracle reaches',
+             'detail': f'{len(unreachable)} models: {", ".join(m.replace("sky130_fd_sc_hd__", "") for m in unreachable)}.'},
+            {'observation': 'a large sweep is not coverage',
+             'detail': f'{pairs} pairs compared, but the reach of this oracle is bounded by the '
+                       f'{len(masters)} cell types the design instantiates. Exhausting the input '
+                       f'space says nothing about the models the design never places.'},
+        ],
+        'checks': checks,
+    }
+    OUT_WU_REPORT.parent.mkdir(parents=True, exist_ok=True)
+    OUT_WU_REPORT.write_text(json.dumps(report, indent=2, sort_keys=False) + '\n',
+                             encoding='utf-8', newline='\n')
+    print()
+    print(f'models mutated                    : {counts["mutable"]} of {len(masters)} '
+          f'({counts["physical_only"]} physical-only)')
+    print(f'C2 caught                         : {counts["caught"]}')
+    print(f'C2 silent                         : {counts["silent"]}  {sorted(silent)}')
+    print(f'C1-blind models instanced here    : {len(blind_used)}  {blind_used}')
+    print(f'  of those caught by C2           : {len(blind_caught)}  {blind_caught}')
+    print(f'reached by NEITHER oracle         : {len(unreachable)}')
+    print(f'report                            : '
+          f'{OUT_WU_REPORT.relative_to(ROOT).as_posix()}')
+    failed = [c['check'] for c in checks if not c['passed']]
+    print()
+    print(f'C2 MODEL POWER: {"PASS" if not failed else "FAIL " + str(failed)}')
+    return 0 if not failed else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     stage = (argv or ['model-power'])[0]
-    if stage != 'model-power':
+    stages = {'model-power': stage_model_power, 'warmup-power': stage_warmup_power}
+    if stage not in stages:
         print(f'power.py has no stage {stage!r}', file=sys.stderr)
         return 2
-    return stage_model_power()
+    return stages[stage]()
 
 
 if __name__ == '__main__':

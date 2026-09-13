@@ -645,6 +645,37 @@ semantics: shift A and B in, then check `S` high iff `A + B == 496`.
 `A + B == 496`. This is the check that makes our *models* trustworthy rather than name-guessed.
 *If it fails:* the failing cell type is identified by which bit pattern breaks; fix that model.
 
+***Outcome (executed): PASS.*** Exhaustive, not sampled — C1's measurement settled that argument:
+8 serial bits per operand puts all **65536 pairs** in one simulation of milliseconds, so sampling an
+oracle that can be exhausted is a choice to accept known coverage loss for no gain. **`S` agrees
+between our extracted netlist and Jane Street's RTL on all 65536 pairs**, on three channels: the
+reference implements `a + b == 496` (0 mismatches), our netlist matches the reference (0), our
+netlist implements the function (0); both assert on exactly the 15 equating pairs. The comparison is
+against the RTL — both designs instantiated in one testbench, one stimulus — not against a formula
+restated in Python, and the protocol (width, target, serial order, top module) is **read out of**
+`00_source.v` rather than typed in. Gate `check_stepC2.py` → **43/43**; 20/20 gates.
+
+**A real defect in B7's emitter, found the first time anything instantiated the netlist.** First run:
+`error: port ``VGND'' is not a port of dut_ours`. `build/warmup.v` put its five reference ports in
+the header and declared `inout VGND;` / `inout VPWR;` in the *body* — which is not a port at all, so
+the file advertised an interface it did not have and could not be instantiated the way its sibling
+can. Jane Street's own `02_netlist_with_power_rails.v` lists `VPWR`/`VGND` in the header, and so does
+B6's `build/puzzle.v`; only B7's differed. Fixed (the emitted ports are the reference's, then the
+supplies, in the list), regenerated, and **`check_stepB7.py` grew 39 → 40 checks**: a caller is
+generated that connects every port the netlist is *documented* to have, and it must compile. Falsified
+rather than assumed — the old header makes exactly three checks fail, the new one among them.
+
+**The limit this step measured.** C2's power measurement negates each model the design instantiates
+(16 of 18) and re-runs the sweep: **15 caught**, 1 silent (`clkbuf_16`). Of the models C1 is blind
+to, **the warm-up instantiates 3 and C2 catches all 3** — the second oracle earning its place. But
+the same analysis found, and this is the part worth carrying forward, that **26 of the 66 models are
+reached by neither behavioural oracle**: they are the ones C1 cannot see *and* the warm-up never
+places, so no stimulus in either design excites them. Union coverage: **C1 37 + C2 3 = 40 of 66**,
+named in `recon/derived/c2_power.json`. For the other 26 the evidence stops at B6's truth tables,
+which check our Verilog against our *reading of the family names* rather than against the silicon.
+**E1 is where that can change** — the same two stages can be re-run against the winning vector, which
+is the cheapest remaining coverage win in the project and needs no new machinery.
+
 **C3 — Structural decomposition.**
 *Method:* analyse the netlist graph — sequential elements, their clocks/resets, feedback cycles,
 comparators against constants, and the ROM block. Label blocks by function using evidence (e.g. a

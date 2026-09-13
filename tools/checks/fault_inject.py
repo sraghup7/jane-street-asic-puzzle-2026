@@ -73,6 +73,7 @@ GATES = [
     ('stepB6', 'tools/checks/check_stepB6.py'),
     ('stepB7', 'tools/checks/check_stepB7.py'),
     ('stepC1', 'tools/checks/check_stepC1.py'),
+    ('stepC2', 'tools/checks/check_stepC2.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -96,8 +97,12 @@ WARMREP = 'recon/derived/warmup_b7.json'
 REPLAYV = 'build/replay_tb.v'
 REPLAY = 'recon/derived/vcd_replay.json'
 POWER = 'recon/derived/c1_power.json'
+# C2's: the warm-up harness, the equivalence report, and its own power measurement.
+EQTB = 'build/warmup_equiv_tb.v'
+EQREP = 'recon/derived/warmup_equiv.json'
+WUPOW = 'recon/derived/c2_power.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
-             PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER]
+             PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -486,6 +491,48 @@ def m_pw_consumer_visible(d):
     rec['caught'], rec['cycles_wrong'] = True, 18
 
 
+# --- C2: the warm-up harness and the two reports --------------------------------------
+def m_eq_tb_short(text):
+    """Sweep less than the whole space: an incomplete sweep must not pass as exhaustive."""
+    return text.replace('localparam integer LIMIT = 256;', 'localparam integer LIMIT = 255;')
+
+
+def m_eq_tb_off_by_one(text):
+    """Shift one bit fewer per operand: every pair then carries the wrong value."""
+    return text.replace('for (bit_i = WIDTH - 1;', 'for (bit_i = WIDTH - 2;')
+
+
+def m_eq_ref_width(d):
+    """Misstate the protocol width: the gate re-derives it from the source."""
+    d['reference']['width'] = 7
+
+
+def m_eq_sweep_claim(d):
+    """Claim one pair fewer was visited."""
+    d['sweep']['checked'] = 65535
+
+
+def m_eq_mismatch(d):
+    """Claim mismatches the sweep does not have (and vice versa)."""
+    d['comparison']['ours_vs_reference_mismatches'] = 3
+
+
+def m_eq_rename(d):
+    """Name the wrong top module: the rename is re-derived from the source."""
+    d['reference']['top'] = 'shift_register'
+
+
+def m_eq_pw_totals(d):
+    """Fake the caught count: the per-model records must add up to it."""
+    d['totals']['caught'] = 12
+
+
+def m_eq_pw_sample(d):
+    """Mark a caught model silent: the gate re-measures that exact model."""
+    rec = next(r for r in d['per_model'] if r['model'] == 'sky130_fd_sc_hd__and2_2')
+    rec['caught'], rec['pairs_wrong'] = False, 0
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -557,6 +604,14 @@ MUTATIONS = [
     ('c1_power: the caught count faked', POWER, m_pw_totals),
     ('c1_power: the F1 break called silent', POWER, m_pw_f1_silent),
     ('c1_power: an undriven-net consumer called visible', POWER, m_pw_consumer_visible),
+    ('warmup_equiv_tb: sweeps less than the whole space', EQTB, m_eq_tb_short),
+    ('warmup_equiv_tb: shifts one bit too few', EQTB, m_eq_tb_off_by_one),
+    ('warmup_equiv: the protocol width misstated', EQREP, m_eq_ref_width),
+    ('warmup_equiv: a shorter sweep claimed', EQREP, m_eq_sweep_claim),
+    ('warmup_equiv: mismatches claimed', EQREP, m_eq_mismatch),
+    ('warmup_equiv: the wrong top module named', EQREP, m_eq_rename),
+    ('c2_power: the caught count faked', WUPOW, m_eq_pw_totals),
+    ('c2_power: a caught model called silent', WUPOW, m_eq_pw_sample),
 ]
 
 

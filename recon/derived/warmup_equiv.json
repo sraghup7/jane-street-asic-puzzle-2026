@@ -1,0 +1,155 @@
+{
+  "generated_by": "tools/puzzle/equiv.py::stage_warmup_equiv",
+  "reference": {
+    "path": "asic-puzzle-2026/warmup/00_source.v",
+    "sha256": "b6868174730656f505432ea76929b3fccfa6049db4f53d20bbafec40a21a5c45",
+    "modules": [
+      "adder8",
+      "adder_demo",
+      "comparator496",
+      "shift_register"
+    ],
+    "top": "adder_demo",
+    "ports": [
+      "input  wire clk",
+      "input  wire rst_n",
+      "input  wire A",
+      "input  wire B",
+      "output wire S",
+      "input  wire en"
+    ],
+    "width": 8,
+    "target": 496,
+    "shift": "parallel_out <= {parallel_out[6:0], serial_in}",
+    "serial_order": "MSB first: each cycle shifts the register up and feeds the new bit in at bit 0, so the bit fed in first ends up at bit width-1"
+  },
+  "sut": {
+    "path": "build/warmup.v",
+    "sha256": "a4bfea60dabe8ec2d9579cd7aa17ea3861d93c3217125ee6d6567fd2262823d0",
+    "module": "adder_demo",
+    "masters": 18,
+    "emitted_by": "tools/puzzle/warmup.py (B7)"
+  },
+  "method": {
+    "harness": "both designs instantiated in one testbench and driven by one stimulus, so the primary comparison is against the reference RTL and not against a formula restated in Python",
+    "protocol": "8 serial bits per operand, MSB first, one bit per enabled rising edge; S is combinational, sampled one time step after the last capture",
+    "renamed_reference": "adder_demo -> adder_demo_ref in a scratch copy, regenerated from upstream, never committed; upstream differs on 1 line",
+    "exhaustive": true,
+    "checks_function_not_timing": true,
+    "testbench": "build/warmup_equiv_tb.v"
+  },
+  "sweep": {
+    "pairs": 65536,
+    "checked": 65536,
+    "equating_pairs": 15,
+    "reference_high": 15,
+    "ours_high": 15
+  },
+  "comparison": {
+    "ours_vs_reference_mismatches": 0,
+    "reference_vs_function_mismatches": 0,
+    "ours_vs_function_mismatches": 0,
+    "examples": [],
+    "equivalent": true
+  },
+  "cross_oracle": {
+    "available": true,
+    "warmup_masters": 18,
+    "c1_mutated": 66,
+    "c1_caught": [
+      "sky130_fd_sc_hd__a21boi_2",
+      "sky130_fd_sc_hd__a21o_2",
+      "sky130_fd_sc_hd__a31o_2",
+      "sky130_fd_sc_hd__and3_2",
+      "sky130_fd_sc_hd__and4bb_2",
+      "sky130_fd_sc_hd__clkbuf_16",
+      "sky130_fd_sc_hd__dfrtp_2",
+      "sky130_fd_sc_hd__mux2_1",
+      "sky130_fd_sc_hd__nand2_2",
+      "sky130_fd_sc_hd__nor2_2",
+      "sky130_fd_sc_hd__or2_2",
+      "sky130_fd_sc_hd__xnor2_2",
+      "sky130_fd_sc_hd__xor2_2"
+    ],
+    "c1_silent": [
+      "sky130_fd_sc_hd__a21bo_2",
+      "sky130_fd_sc_hd__and2_2",
+      "sky130_fd_sc_hd__o21bai_2"
+    ],
+    "neither_oracle": [
+      "sky130_fd_sc_hd__a2111oi_2",
+      "sky130_fd_sc_hd__a221o_2",
+      "sky130_fd_sc_hd__a22o_2",
+      "sky130_fd_sc_hd__a22oi_2",
+      "sky130_fd_sc_hd__a311o_2",
+      "sky130_fd_sc_hd__a31oi_2",
+      "sky130_fd_sc_hd__and3b_2",
+      "sky130_fd_sc_hd__buf_2",
+      "sky130_fd_sc_hd__clkbuf_4",
+      "sky130_fd_sc_hd__conb_1",
+      "sky130_fd_sc_hd__dfstp_2",
+      "sky130_fd_sc_hd__nand2b_2",
+      "sky130_fd_sc_hd__nor4_2",
+      "sky130_fd_sc_hd__o211ai_2",
+      "sky130_fd_sc_hd__o21a_2",
+      "sky130_fd_sc_hd__o21ai_2",
+      "sky130_fd_sc_hd__o221a_2",
+      "sky130_fd_sc_hd__o22ai_2",
+      "sky130_fd_sc_hd__o2bb2a_2",
+      "sky130_fd_sc_hd__o31ai_2",
+      "sky130_fd_sc_hd__o32a_2",
+      "sky130_fd_sc_hd__o32ai_2",
+      "sky130_fd_sc_hd__or3b_2",
+      "sky130_fd_sc_hd__or4_2",
+      "sky130_fd_sc_hd__or4b_2",
+      "sky130_fd_sc_hd__or4bb_2"
+    ],
+    "note": "C1 is blind to 29 of the 66 models it negated; this oracle instantiates 3 of them, so 26 models are reached by neither behavioural oracle and rest on the B6 truth tables plus the reading of family names that they encode."
+  },
+  "compiler": {
+    "iverilog_rc": 0,
+    "vvp_rc": 0
+  },
+  "checks": [
+    {
+      "check": "the source parses: a shifter, a comparator, and a top that instantiates them",
+      "passed": true
+    },
+    {
+      "check": "the reference differs from upstream on exactly one line, the module name",
+      "passed": true
+    },
+    {
+      "check": "the sweep is exhaustive over the whole input space",
+      "passed": true
+    },
+    {
+      "check": "the reference implements a + b == target on every pair",
+      "passed": true
+    },
+    {
+      "check": "and asserts on exactly the pairs that equate",
+      "passed": true
+    },
+    {
+      "check": "our netlist agrees with the reference on every pair",
+      "passed": true
+    },
+    {
+      "check": "and implements the same function on every pair",
+      "passed": true
+    },
+    {
+      "check": "our S is not stuck: it is high on the same number of pairs",
+      "passed": true
+    },
+    {
+      "check": "the equating pairs are a real minority, so the sweep is not trivial",
+      "passed": true
+    },
+    {
+      "check": "the cross-oracle overlap was computed from C1 s per-model measurement",
+      "passed": true
+    }
+  ]
+}

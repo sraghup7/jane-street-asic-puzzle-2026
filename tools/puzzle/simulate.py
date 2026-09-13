@@ -396,26 +396,41 @@ def emit_testbench(ref_data: dict, probes: list[dict], out_path: Path) -> str:
     return text
 
 
-def run_simulation(tb: Path, vvp: Path, force: int | None = None) -> tuple[list[dict], int, int]:
-    """Compile and run the harness. Returns (per-cycle readings, compile rc, sim rc)."""
+def compile_and_run(tb: Path, vvp: Path, sources: list[Path] | None = None,
+                    plusargs: tuple[str, ...] = ()) -> tuple[str, int, int]:
+    """Compile a harness against a file set, run it, and hand back its raw stdout.
+
+    One path for both stages: C1's harness and C2's drive different designs and print different
+    lines, but the compile, the plusargs and the failure modes are the same, and a second
+    implementation of "compile and run iverilog" would be a second thing to get wrong.
+    """
     for tool in ('iverilog', 'vvp'):
         if shutil.which(tool) is None:
-            raise RuntimeError(f'{tool} is not on PATH; C1 needs Icarus Verilog 12')
+            raise RuntimeError(f'{tool} is not on PATH; the simulation stages need Icarus '
+                               f'Verilog 12')
+    files = [tb, *(sources if sources is not None else [EMITTED, CELLS])]
     vvp.parent.mkdir(parents=True, exist_ok=True)
-    cmd = ['iverilog', '-g2012', '-o', vvp.as_posix(), tb.as_posix(),
-           EMITTED.as_posix(), CELLS.as_posix()]
+    cmd = ['iverilog', '-g2012', '-o', vvp.as_posix(), *[f.as_posix() for f in files]]
     comp = subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT)
     if comp.returncode != 0:
         raise RuntimeError(f'iverilog failed ({comp.returncode}):\n{comp.stdout}{comp.stderr}')
-    run = subprocess.run(['vvp', vvp.as_posix()] + ([f'+force={force}'] if force is not None else []),
+    run = subprocess.run(['vvp', vvp.as_posix(), *plusargs],
                          capture_output=True, text=True, cwd=ROOT)
+    return run.stdout, comp.returncode, run.returncode
+
+
+def run_simulation(tb: Path, vvp: Path, force: int | None = None,
+                   sources: list[Path] | None = None) -> tuple[list[dict], int, int]:
+    """C1's harness: returns (per-cycle readings, compile rc, sim rc)."""
+    stdout, comp_rc, sim_rc = compile_and_run(
+        tb, vvp, sources, (f'+force={force}',) if force is not None else ())
     rows = []
-    for line in run.stdout.splitlines():
+    for line in stdout.splitlines():
         f = line.split()
         if f and f[0] == 'C':
             rows.append({'cycle': int(f[1]), 'rst_n': f[2], 'enable': f[3], 'I': f[4],
                          'O': f[5], 'success': f[6], 'probes': f[7:]})
-    return rows, comp.returncode, run.returncode
+    return rows, comp_rc, sim_rc
 
 
 # ---------------------------------------------------------------------------------
