@@ -112,7 +112,7 @@ tools/
     netlist.py        # B4/B5  net<->(instance,pin) model + integrity checks
     emit.py           # B6     structural Verilog emitter
     cells.py          # B6     OUR behavioural cell models (Δ2-grounded semantics)
-    analyse.py        # C3     structural decomposition
+    analyse.py        # C3     behavioural decomposition (amended 2026-09-12)
     regions.py        # C4     symbolic region-LUT decode (Δ5)
     solve.py          # D1/D2  our constraint solver + independent enumerator (Δ4)
     simulate.py       # C1/E    iverilog harness
@@ -676,15 +676,37 @@ which check our Verilog against our *reading of the family names* rather than ag
 **E1 is where that can change** — the same two stages can be re-run against the winning vector, which
 is the cheapest remaining coverage win in the project and needs no new machinery.
 
-**C3 — Structural decomposition.**
-*Method:* analyse the netlist graph — sequential elements, their clocks/resets, feedback cycles,
-comparators against constants, and the ROM block. Label blocks by function using evidence (e.g. a
-counter is a register whose next-state is an increment of its own value).
+**C3 — Decomposition.**
+*Method* — **amended 2026-09-12 after recon; the acceptance criteria are unchanged.** The original
+method ("analyse the netlist graph … a counter is a register whose next-state is an increment of its
+own value") was **measured to be unavailable on this design, not merely hard**. Recon result:
+connectivity yields **no partition at all** — `0` flops whose `D` is another flop's `Q` directly,
+and the transitive cone of every one of the 92 flops reaches **90 of the other 91**, so the
+flop-dependency graph is **one component**. Synthesis inserted logic on every flop-to-flop edge, so
+none of it can be read off graph shape.
+*Amended method:* **behavioural identification on the real stimulus**, with spatial clustering as the
+independent cross-check. Instrument the B6 netlist, dump every flop's `Q` across C1's 312-cycle
+`example_inputs.vcd` replay, and classify each flop by its temporal signature — a counter bit toggles
+with period 2^(k+1); a shift-register bit moves one position per enabled cycle; a comparator bit is
+high exactly when its input bundle equals the constant. Blocks are then *named from the waveforms
+they produce*. This is strictly better evidence than the original: it is the chip's **own behaviour
+on the real waveform**, and it reuses C1's harness (`simulate.py`) instead of new machinery. The
+plan's original cross-check (spatial clustering) becomes the corroborating axis — measured, the 92
+flops form **8 x-clusters**: 5, 1, 3, 24, 27, 17, 14, 1.
+*Recon findings carried into the step:* the design is **single-clock** — the 16 nets that look like
+clock phases are all leaves of one distribution tree (`n695` → `clkbuf_16` → 16 × `clkbuf_8`); the 92
+flops are 84 `dfrtp_2` + 4 `dfstp_2` + 4 `dfxtp_2`; `rst_n` reaches 88 of them (absent on the 4
+`dfxtp_2`); **6 `conb_1` constant cells** each feed a comparison gate (`a22o_2`/`a221o_2`/`or3_2`),
+consistent with "a total-ones counter comparing against 22".
 *Artifact:* `recon/derived/blocks.json` + `docs/steps/C3.md`.
 ***Verify:*** all 92 flops are assigned to a named block; a 121-period counter, an 11-period
 counter, a total-ones counter comparing against 22, and a shift register are each *found* (not
-asserted); the block regions agree with the Step 1 spatial clustering and with `layout.png`'s
-"output generator" box.
+asserted); the block regions agree with Step 1 and with `layout.png`'s "output generator" box.
+*Note on that last clause:* the phrase "the Step 1 spatial clustering" has **no numbered artifact
+behind it** — Step 1's dossier records the geometry (173 sites/row, every other row used, cells over
+x 10.1–190 µm / y 10.9–288.3 µm) and the `layout.png` hatched box labelled "output generator", but no
+clustering. The cross-check is therefore against those recorded facts plus the measured x-clusters;
+the plan is amended to say so rather than inventing an artifact to match a phrase.
 *If it fails:* report which structural expectation is unmet rather than forcing a label.
 
 **C4 — Symbolic region-map decode (Δ5, the headline differentiator).**
