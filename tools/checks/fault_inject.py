@@ -54,6 +54,7 @@ GATES = [
     ('stepA5', 'tools/checks/check_stepA5.py'),
     ('recompute', 'tools/checks/check_recompute.py'),
     ('stepB1', 'tools/checks/check_stepB1.py'),
+    ('stepB2', 'tools/checks/check_stepB2.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -62,8 +63,9 @@ NAMES = 'recon/derived/pin_names.json'
 GEOM = 'recon/derived/pinmodel.json'
 COV = 'recon/derived/pin_coverage.json'
 INST = 'recon/derived/instances.json'
+WNET = 'recon/derived/warmup_netlist.json'
 INV = 'recon/inventory.json'
-ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, INV]
+ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, INV]
 
 NAND2 = 'sky130_fd_sc_hd__nand2_2'
 
@@ -181,6 +183,37 @@ def m_inst_def_oracle(d):
     d['def_oracle']['matched'] = 229
 
 
+def m_net_equivalent(d):
+    d['comparison']['equivalent'] = False
+
+
+def m_net_probed(d):
+    d['totals']['pins_probed'] += 1
+
+
+def m_net_unconnected(d):
+    d['totals']['pins_unconnected_by_engine'] = 1
+
+
+def m_net_move_terminal(d):
+    """Move one terminal into a different net's terminal set."""
+    first = min(d['our_partition'], key=lambda k: len(d['our_partition'][k]))
+    t = d['our_partition'][first].pop()
+    if not d['our_partition'][first]:
+        del d['our_partition'][first]
+    other = next(k for k in d['our_partition'] if k != first)
+    d['our_partition'][other].append(t)
+
+
+def m_net_drop_net(d):
+    biggest = max(d['our_partition'], key=lambda k: len(d['our_partition'][k]))
+    del d['our_partition'][biggest]
+
+
+def m_net_engine(d):
+    d['engine']['conductors'] = d['engine']['conductors'][:-1]
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -209,6 +242,12 @@ MUTATIONS = [
     ('instances: a placement deleted', INST, m_inst_delete),
     ('instances: a footprint shifted a row', INST, m_inst_footprint),
     ('instances: DEF oracle match count faked', INST, m_inst_def_oracle),
+    ('netlist: equivalence flag inverted', WNET, m_net_equivalent),
+    ('netlist: probed pin count +1', WNET, m_net_probed),
+    ('netlist: an unconnected pin reported', WNET, m_net_unconnected),
+    ('netlist: a terminal moved to another net', WNET, m_net_move_terminal),
+    ('netlist: a whole net dropped', WNET, m_net_drop_net),
+    ('netlist: a conductor layer removed', WNET, m_net_engine),
 ]
 
 

@@ -330,6 +330,25 @@ renaming (compare as a graph isomorphism on the bipartite instance-pin/net struc
 extractor, §6.5) and repeat this same verification. Record the outcome either way — this is exactly
 the question the published work left open, so "it doesn't work, and here is why" is a result.
 
+***Outcome (executed): IT WORKS — B2′ is NOT needed.*** The engine, configured *only* from A1's
+conductor roles and A2's proved rule set, with terminals taken from A4's pin model, reproduces
+`01_netlist.v` exactly: 230 instances mapped, 285 pins probed with 0 unconnected and 0 probe
+errors, **84 nets and 285 terminals on both sides, 0 differing net signatures, 100 % of the
+reference compared**. The two partitions are equal as sets of terminal-sets, so no net renaming
+is even required. Full record: `docs/spikes/connectivity_engine.md`; gate
+`check_stepB2.py` → 24/24.
+
+Two things the spike established that the plan should carry forward:
+
+* **Probe points must come from pin *label* positions, never from the centre of A4's `rect`.** A4
+  stores the *bounding box* of each shape, and some pins are combs: `clkbuf_16.X` is a 68-point
+  polygon whose bounding-rect centre lies inside no polygon, so a centre probe silently finds
+  nothing (32 pins were lost this way before the fix).
+* **A partition comparison must assert coverage, not just equality.** With instances
+  mis-identified, this comparison ran over 4 nets and 6 terminals and reported PASS. Every
+  comparison in this project now carries an explicit coverage floor — the third instance of the
+  same class of bug (see `docs/verification.md` §4).
+
 **B3 — Full connectivity on `puzzle.gds`.**
 *Method:* same path, full design, using the derived layer stack and pin model.
 *Artifact:* `recon/derived/nets.json`.
