@@ -1,0 +1,4116 @@
+{
+  "generated_by": "tools/puzzle/verdict.py::stage_rejections",
+  "method": {
+    "boards": "random 2-switches away from the winning pattern (two rows exchange their columns, which preserves the row and column counts by construction), keeping only moves that leave the pattern adjacency-free -- so every board satisfies 22 ones, two per row, two per column and no 8-neighbour adjacency",
+    "decision": "the design is asked and its own message is read off O; no internal signal is interpreted",
+    "instrument": "tools/puzzle/verdict.py, re-validated against example_inputs.vcd on every gate run"
+  },
+  "window_cycles": 140,
+  "boards": [
+    {
+      "seed": 0,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 1,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 2,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 3,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 4,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 5,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 6,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 7,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 8,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 9,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 10,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 11,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 12,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 13,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 14,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 16,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 17,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 18,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 19,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 20,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 21,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 22,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 23,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 24,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 25,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 26,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 27,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 28,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 29,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 30,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 31,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 32,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 33,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 34,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 35,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 36,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 37,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 38,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    },
+    {
+      "seed": 39,
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "distinct": true,
+      "rows_ok": true,
+      "cols_ok": true,
+      "no_adjacency": true,
+      "all_ok": true,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "success_any": false,
+      "unknown_bits": 0
+    }
+  ],
+  "generated": 40,
+  "accepted": 0,
+  "rejected": 39,
+  "reference_replay": {
+    "cycles": 140,
+    "output_comparisons": 1260,
+    "mismatches": 0,
+    "unknown_bits": 0,
+    "first_mismatch": null
+  }
+}

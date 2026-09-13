@@ -631,3 +631,134 @@ from the log rather than inferred from a count. Two of the six are mutations tha
 well-formed JSON (a flop dropped from a block list, the reported peak inflated); both are caught,
 and they are caught by the checks that exist *because* the first version of this artifact had exactly
 those defects.
+
+---
+
+## 14. C4/C5/E1 close-out — three steps that had no gate (2026-09-13)
+
+**Why this section exists.** Auditing the plan against the working tree found two things at once:
+three executed steps (C4, C5, E1) whose evidence lived **only in `recon/scratch/`** — which is
+gitignored, so a fresh clone could not reproduce any of it — and one round of C4 work (15:53–15:59,
+the trigger-set partition) that was on disk but in no document and no commit. Neither is a wrong
+result; both are results that could not survive the machine they were made on. `AGENTS.md` rule 5
+("verification is mandatory and executable") was not met for the project's headline negative finding,
+which is the finding the writeup will lean on hardest.
+
+### What was built
+
+| Piece | What it is |
+|---|---|
+| `tools/puzzle/verdict.py` | the **simulation-free evaluator** promoted out of `recon/scratch/symb.py`, plus the board generators, the exact-cover search, the solution counter and the three stages |
+| `python -m tools.puzzle region-map` | C4 → `recon/derived/c4_partition.json` (~100 s) |
+| `python -m tools.puzzle rejections` | C5 → `recon/derived/c5_rejections.json` (~30 s) |
+| `python -m tools.puzzle winning` | E1 → `recon/derived/e1_messages.json` (~8 s) |
+| `check_stepC4.py` 31/31 · `check_stepC5.py` 14/14 · `check_stepE1.py` 20/20 | the gates; discovered by `run_all.py` like every other one — **24 gates total, all PASS** |
+
+The instrument is not taken on trust: **every one of the three gates re-validates it against
+`example_inputs.vcd` before doing anything else** (312 cycles, 2808 output comparisons, 0 mismatches,
+0 unknown bits). Every negative claim in C4 rests on "the evaluator's silence about a signal is
+evidence", so that premise is re-established on each run rather than cited.
+
+### What the gates re-derive, rather than read
+
+The project's rule for gates is that they assert values; the rule added here (plan §9) is that a gate
+says whether it is **re-deriving** a number or **reading** it. What is re-derived on every run:
+
+* C4: the cone of `i1594.D` — **104 nets / 57 flops**, with the block census 27 `column_counter_bit` /
+  18 `winning_only_bit` / 6 `ones_counter` / 5 `unclassified` / 1 `message_counter`;
+* C4: `success` is flop `i1594`'s own Q output (the port net *is* that net — the first version of the
+  check looked for a gate driver and failed, which is exactly the kind of assumption a gate is for);
+* C4: between the accepted board and 20 boards that satisfy every visible rule, **exactly two** flops
+  in that cone differ at the decision cycle — `i0455` (1 → 0) and `i0798` (0 → 1) — the hidden
+  condition isolated to two latches;
+* C4: the candidate partition is a **cover** of all 121 cells by 11 disjoint classes, two of the
+  answer's stars each, re-derived live at 13 sampled cells (a stale artifact fails);
+* C4: the exhaustive counts — the partition + visible rules = **1 solution, the accepted board**
+  (715 877 nodes); visible rules alone = thousands (cap hit);
+* C4: **both controls**, including control A re-derived live (200 look-alike partitions × 39 boards);
+* C5: the boards are **regenerated** and the design asked about each one through its own message —
+  **39 boards, 0 accepted**, every board validated against the four visible rules first, plus equality
+  with the committed artifact;
+* E1: the offset table (only **4** of 4..8 accepts, at **cycle 126**) and the message table (4 of 5
+  classes), with the fifth asserted to be the *measured* `TRY AGAIN` and named as blocked on the map.
+
+### The controls are part of the result, not a footnote
+
+This is the finding of the close-out. The obvious test of a candidate map — "does it reject the boards
+the chip rejects?" — **has almost no power**: 188 of 200 random same-shape look-alike partitions also
+reject every board (class sizes run to 28 cells, so a valid board overloads a big class by
+construction). The test that does bite is uniqueness — the partition plus the visible rules has
+exactly one solution, the accepted board — and **2 of 40** look-alikes pass that too, so it is strong
+evidence and not a fingerprint. Recorded in the artifact, re-measured by the gate, and written into
+plan §11 so the eventual writeup cannot upgrade "candidate, every test passed, each test's power
+measured" into "the map".
+
+### Defects found while closing out (all fixed)
+
+1. **A generator that depended on set iteration order.** `probe_c5b.py` chose which star to move with
+   `next(...)` over a **set**; copied into the pipeline with the same cells in a copied set, the same
+   code produced **0 usable boards instead of 39** (`set()` reorders). C5's boards are now generated
+   deterministically and re-measured, so C5's conclusion is established on our own boards.
+2. **Order-sensitive and transposed comparisons**, twice: the column reference table was built as
+   *rows*, and covers were compared by `sorted(frozenset(...))` — which is not a sort, because
+   `frozenset` is only partially ordered, so it returns the input order whenever nothing is
+   comparable. Together they announced a second candidate map that was the visible column rule. Both
+   now go through one canonical predicate (`verdict.is_columns_cover`), and regenerating the artifact
+   after the fix reproduced it **byte for byte** (sha256 unchanged), so the classification was right
+   and the test around it was wrong.
+3. **A gate check that assumed a gate driver** for `success` (it is the flop's Q net directly).
+4. **The artifact may not contain a clock** (B3's lesson) — the stages print runtimes, never store
+   them.
+
+### The reproduction gap this closed, and what remains
+
+* Closed: C4/C5/E1 now have gates, committed artifacts and documented commands
+  (`docs/steps/C4.md` R19–R20, `C5.md`, `E1.md`).
+* Still open, and stated plainly: **the ~40 probe scripts under `recon/scratch/` are untracked.** They
+  are the working record (R1–R20 are written up in `docs/steps/C4.md` from them, with their commands
+  and raw outputs named), but a fresh clone cannot re-run them. The gates are the durable replacement
+  for the three steps that matter; the exploratory probes remain scratch by design.
+* One acceptance sub-item is open by measurement, not by omission: `TWO NOT TOUCH` cannot be
+  constructed without the region map, so E1 reproduces **4 of 5** message classes and says so.
+
+### Fault injection
+
+The rule from C1–C3 is that a new step's artifacts get mutations, so that "the gate fires" is
+evidence rather than an assumption. Ten were added: four for `c4_partition.json` (a class loses a
+cell; the solution count faked; **the rejection test called powerful**, which is the claim R20 exists
+to prevent; a trigger set dropped from the total), three for `c5_rejections.json` (a board claimed
+accepted; a board dropped; the recorded replay faulted) and three for `e1_messages.json` (the rising
+cycle moved; a decoded message changed; **the open item deleted**). Focused sweep:
+
+```
+.venv/Scripts/python tools/checks/fault_inject.py --only "(c4_partition|c5_rejections|e1_messages):"
+```
+
+RESULT (`recon/scratch/fault_c4c5e1.txt`): **10 of 94 mutations in the focused sweep, 0 escaped,
+0 hermeticity violations, `artifacts restored: True`, PASS.**
+
+```
+injected fault                                     | ... stepC4  stepC5  stepE1
+c4_partition: a class loses a cell                 | ...   FAIL       .       .   -> stepC4
+c4_partition: the solution count faked             | ...   FAIL       .       .   -> stepC4
+c4_partition: the rejection test called powerful   | ...   FAIL    FAIL       .   -> stepC4,stepC5
+c4_partition: a trigger set dropped from the total | ...   FAIL       .       .   -> stepC4
+c5_rejections: a board claimed accepted            | ...   FAIL    FAIL       .   -> stepC4,stepC5
+c5_rejections: a board dropped                     | ...      .    FAIL       .   -> stepC5
+c5_rejections: the recorded replay faulted         | ...      .    FAIL       .   -> stepC5
+e1_messages: the rising cycle moved                | ...      .       .    FAIL   -> stepE1
+e1_messages: a decoded message changed             | ...      .       .    FAIL   -> stepE1
+e1_messages: the open item deleted                 | ...      .       .    FAIL   -> stepE1
+```
+
+Read the way C1–C3's sweeps are read: every fault was caught, none by an older gate covering for a
+new one, and no gate rewrote the tree. Two mutations fire **two** gates, and that is the intended
+shape rather than a leak: `c4_partition: the rejection test called powerful` and `c5_rejections: a
+board claimed accepted` both touch the *claim C5's gate exists to police* — that a rejection is
+evidence for a map — so `check_stepC5` reads the C4 artifact's recorded controls and fails if that
+power is overstated, and `check_stepC4` reads C5's board list for the same control. The dependency is
+deliberate and now measured: neither gate can be softened without the other noticing.
+
+The 21 other gates that never fired in this sweep are the ones whose artifacts these mutations do
+not touch — the same list the earlier focused sweeps produced, and the reason `--only` is legitimate
+for a step being closed out.

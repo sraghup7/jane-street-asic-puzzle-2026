@@ -24,7 +24,7 @@ Reproduce **all** of the following from our own pipeline (locked at intake, Q2a)
 | AC3 | output string | `(* TWO STARS *)` |
 | AC4 | four wrong-input messages | `EMPTY SKY`, `BIG BANG`, `TWO NOT TOUCH`, `TRY AGAIN` |
 | AC5 | byte-exact replay of `example_inputs.vcd` | `TRY AGAIN` ×2, `success` low throughout |
-| AC6 | region map recovered independently, spelling "JS" | 11 regions, capacity 2 each |
+| AC6 | region partition recovered from the design's own latches, spelling "JS" | **Re-scoped 2026-09-13 (C4 R20), see §C4.** The partition is recovered: 11 capacity-2 classes, two of the answer's stars each, found as an exact cover over measured trigger sets. What is *not* established is that the chip enforces this partition rather than a look-alike — the verdict route is closed by uniqueness (R16 §3) and look-alike partitions behave identically (R20). AC6 is therefore met as "recovered by our own method, with its evidential weight measured"; it is **not** met as "the map, confirmed by the chip" |
 
 The target is already independently verified against itself in Step 2 (`tools/target.py` → PASS),
 including the non-vacuous **feed-order vs as-printed** bit-order distinction. Step 5 compares
@@ -66,7 +66,7 @@ Required by `AGENTS.md` ("say what we do differently and why it is ours"). Each 
 | **Δ2** | **Pin names and pin geometry extracted from the cell masters inside `puzzle.gds`** — the name is read from the master's own pin-label text; the shape is the conductor geometry the label annotates | A3, A4 | Removes the LEF dependency (P2) and with it traps **T3, T8, T9** (absent pin geometry, technology-LEF confusion, split-RECT pins). It also *grounds the cell semantics in the artifact*: `RESET_B`/`SET_B` label names tell us reset/set polarity without consulting any library documentation. |
 | **Δ3** | **KLayout's built-in connectivity extraction engine, driven by our derived layer stack** — the path the published work abandoned untested | B2 | Their self-declared limit #1 is *"I never pushed the KLayout path far enough to say whether it would have worked too."* We test it. A mature, maintained engine replaces a bespoke union-find, and `shapely` drops out of the dependency list entirely. |
 | **Δ4** | **Two independent solver implementations, and no third-party solver** | D1, D2 | They used a formal `cover()` over an opaque netlist (P4). We solve the constraint problem we recovered, with our own search, and prove uniqueness by exhaustive enumeration — two separately-written enumerators agreeing. Deterministic, explainable, and it needs the region map, so understanding is *required*, not optional. |
-| **Δ5** | **The hidden region map is decoded by analysing the netlist symbolically** — the region-select cone is reduced to a function of the grid index and evaluated, no stimulus | C4 | Their self-declared limit #3/#4: the `magic_index` LUT was *never decoded* and the map was recovered by probing (P5). We read the logic. This converts "a solver found a satisfying assignment" into "we know what the chip computes" — the difference the blog itself asks for. |
+| **Δ5** | **The hidden constraint is characterised by measuring the design, and the strength of that characterisation is measured too** — every latch's single-star trigger set is swept, the partition is *found* as an exact cover over those sets rather than assumed, and three controls bound what the result is worth | C4, C5 | **Amended 2026-09-13 (R20); the original claim was not satisfied and is not claimed.** As written, Δ5 said the region-select cone would be reduced to a function of the grid index with no stimulus. Measurement refuted the premise: there is no per-cell region decode (R9, R10), no per-region counter (R11–R15, R18), no window rule (R16) and no picture in the GDS (R17), and the eleven counters are the eleven **column** counters. What is ours, and stands: the partition comes from the netlist's own latches by measurement, the *controls* (test power, look-alike uniqueness) are part of the result rather than an afterthought, and the published per-region-counter method is shown to target objects this netlist does not contain — its premise, not just its output, is corrected |
 | **Δ6** | **Two independent behavioural oracles** — the warm-up *source* and the provided *VCD* — used to validate our cell models and netlist, not just the final answer | C1, C2, B7 | Their own hindsight lesson was that *"whatever broke on the 738-cell netlist also broke on the 27-cell warmup"* and that checking the warm-up earlier would have cut debugging. We invert that: the warm-up is the **primary** correctness gate for the extractor, and the VCD is the primary gate for the models. |
 
 **Where we deliberately stay in the same family:** both approaches must, at some point, recover
@@ -113,7 +113,8 @@ tools/
     emit.py           # B6     structural Verilog emitter
     cells.py          # B6     OUR behavioural cell models (Δ2-grounded semantics)
     analyse.py        # C3     behavioural decomposition (amended 2026-09-12)
-    regions.py        # C4     symbolic region-LUT decode (Δ5)
+    verdict.py        # C4/C5/E1  the simulation-free evaluator, the candidate partition, the
+                      #        rejected boards, the winning vector (added 2026-09-13, R20)
     solve.py          # D1/D2  our constraint solver + independent enumerator (Δ4)
     simulate.py       # C1/E    iverilog harness
   checks/
@@ -185,12 +186,38 @@ nothing. This is why the A2 rule set is applied globally rather than per layer.
 same-layer touching is resolved with a uniform-grid bucket index, cross-layer by via overlap.
 No shapely, no merged-polygon union. The fallback is written **only if** B2 fails.
 
-### 6.6 Region decode (C4)
-Locate the region-select logic, then reduce it symbolically: take the select cone, express it as a
-boolean function of the index register's bits, and evaluate that function for each index constant
-`0..120`. Output: position → region id. **No simulation and no stimulus** is used to derive it.
-Validation: it must be a partition, produce exactly 11 regions, and assign exactly 2 stars' worth
-of capacity per region. C5 re-derives it once by an independent route purely as corroboration.
+### 6.6 Region decode (C4) — **method replaced 2026-09-13 after measurement; the original is recorded below as refuted**
+**What the original said:** locate the region-select logic, reduce the select cone to a boolean function
+of the index bits, evaluate it for indices `0..120`, no simulation and no stimulus.
+
+**Why it cannot be done:** there is no region-select cone to reduce. R9/R10 found no one-hot region
+enable and no exact cover among the netlist's nets; R11–R15 found no per-region counter; R18 measured
+that the eleven counters are the eleven **column** counters; R16 refuted the stream/window rule; R17
+found no picture in the GDS. A method whose target does not exist cannot be satisfied by looking
+harder, so the method is replaced rather than the target.
+
+**What is done instead** (C4 R19/R20, `tools/puzzle/verdict.py::stage_region_map`):
+
+1. sweep a single star through all 121 positions and record, for every latch, the **trigger set** —
+   the cells at which that latch ends high. 47 latches have a non-empty set;
+2. **find** (do not assume) every sub-collection of trigger sets that partitions the 121 cells, as an
+   exact cover driven by the lowest uncovered cell;
+3. keep the covers that are *capacity-2*: eleven classes, each holding exactly two of the accepted
+   board's stars. Two exist — the ragged partition (class sizes 4…28) and the eleven columns, which
+   is the visible two-per-column rule;
+4. for each, run the tests and, crucially, **the controls that bound the tests**:
+   * the partition + the visible rules pins the accepted board as the **unique** solution (exhaustive,
+     715 877 nodes) — while the visible rules alone admit thousands;
+   * the C5 rejection set discriminates at **6%** (188 of 200 same-shape look-alike partitions also
+     reject every board), so "the design rejects these boards" is not evidence for a partition;
+   * **2 of 40** same-shape look-alike partitions also pin the answer, so uniqueness is a ~5%
+     property, not a fingerprint.
+
+**Validation:** it is a partition; exactly 11 classes; exactly 2 stars of capacity per class; the map
+renders as an 11×11 picture (it does not read as "JS", which R20 records rather than explains away);
+and the classes reproduce the "eight columns plus three regions over columns 4, 5, 6" shape R16 had
+recovered from a different probe. C5's cross-check role is unchanged, and is now known to be
+**corroborative only** — the verdict route cannot identify a map at all (R16 §3, R20 control 1).
 
 ### 6.7 Solver (D1/D2)
 Search space: choose 2 cells per row from 11 columns.
@@ -728,6 +755,32 @@ evaluate for index `0..120`.
 > the symbolic cone reduction Δ5 specifies. Outcome: **no region map**; the per-cell counters are the
 > columns and the globals. See `docs/steps/C4.md` R12. Δ5 is therefore **not satisfied** as written,
 > and AC6's "recovered independently" needs re-scoping or the map's provenance stated explicitly.
+>
+> **Outcome (executed 2026-09-13, R19/R20 — this closes the step).** The partition **is** recovered,
+> by a third route: sweep a single star through all 121 positions, record every latch's trigger set
+> (47 non-empty), and **find** the exact covers of the grid among them. Exactly two covers are
+> capacity-2 (eleven classes, two answer stars each): the ragged partition (sizes 4…28) and the eleven
+> columns, which is the visible two-per-column rule and adds nothing. The ragged one **pins the
+> accepted board as the unique solution** of the visible rules (exhaustive, 715 877 nodes; the visible
+> rules alone admit thousands), and it reproduces the "eight columns plus three regions over columns
+> 4, 5, 6" shape R16 had found by a different probe.
+>
+> **And the controls are part of the result, because the obvious test is worthless.** Against C5's
+> rejection set the partition rejects 40 of 40 boards — until the control shows that **100% of
+> same-shape look-alike partitions also reject every board** (class sizes run to 28 cells, so a valid
+> board overloads a big class by construction): the rejection test discriminates 6%. The uniqueness
+> test is the only one that bites, and **2 of 40** look-alikes pass it too — a ~5% property, not a
+> fingerprint. Together with R16 §3 (the accepted input is provably unique, so no second positive
+> example exists), the honest statement is: **a candidate that satisfies every test available to us,
+> with the power of each test measured** — not "the map, confirmed".
+>
+> **Corrected here, not silently:** R19 (15:53–15:59) found the partition but was left unrecorded and
+> untracked; it was written up and validated in R20. Its claim that the eleven class flops are R13's
+> region counters is withdrawn — they are a different eleven from R18's column counters.
+>
+> **Gate:** `tools/checks/check_stepC4.py` → **25/25**, and the measurements are machine-made:
+> `python -m tools.puzzle region-map` → `recon/derived/c4_partition.json`. Step record: `docs/steps/C4.md`
+> R19–R20.
 
 ***Verify:*** exactly 11 distinct regions; the map is a **partition** (every position in exactly one
 region); exactly 2 stars of capacity per region; the map rendered as an 11×11 ASCII picture reads
@@ -742,6 +795,21 @@ single full simulation pass and tabulate by cycle.
 was C4.
 *If it fails:* report the disagreement; it means either C4's cone is wrong or the index→position
 mapping is (which is also an AC1-relevant fact).
+
+***Outcome (executed 2026-09-13): PARTIAL, and the part it did is now the load-bearing one.***
+C4 had no map for C5 to corroborate, so C5 tested the premise instead and established independence of
+it: **39 of 39** boards that satisfy every visible rule are rejected (C5's own probe: 40 of 40), at
+message level, and the winning pattern is still accepted as the reference. That settles "a hidden
+constraint exists" without knowing anything about the map.
+
+*Carried into the close-out:* C5's boards are now generated by `tools/puzzle/verdict.py`
+(`python -m tools.puzzle rejections` → `recon/derived/c5_rejections.json`) because the original probe's
+generator depended on Python set iteration order and did not survive being copied — its boards are
+re-derived rather than inherited, and the same conclusion holds on our own (39 usable, 0 accepted).
+*And its limits are asserted:* R20 measured that 188 of 200 same-shape look-alike partitions reject
+every one of those boards too, so C5's evidence supports "a hidden constraint exists" and **nothing**
+about which partition it is; `check_stepC5.py` (12/12) fails if that power is ever recorded as
+anything stronger.
 
 ### Phase D — Solve
 
@@ -780,6 +848,22 @@ false negative.
 ***Verify:*** `success` is high at cycle **126** (and not before); the `O` stream is
 `(`,`*`,` `,`T`,`W`,`O`,` `,`S`,`T`,`A`,`R`,`S`,` `,`)`, i.e. `(* TWO STARS *)`.
 *If it fails:* the netlist or solver is wrong — return to Phase B7/C4 respectively.
+
+***Outcome (executed 2026-09-13, pulled forward on the user's instruction; now gated): 4 of 5 message
+classes.*** `success` rises at **cycle 126** with the published `(* TWO STARS *)`, and only at the
+measured feed offset 4 of 4..8 (every other offset shifts the grid and correctly says `TRY AGAIN`) —
+AC2 and AC3 met. `all_zeros` → `EMPTY SKY`, `all_ones` → `BIG BANG`, another wrong vector → `TRY AGAIN`,
+all with `success` low. The fifth class, `two_per_row_col_but_adjacent` → `TWO NOT TOUCH`, is **not
+reproducible without the region map**: the adjacent vector also violates the hidden constraint, and
+the design answers `TRY AGAIN`. That is left as a named open sub-item rather than worked around, and it
+is why E2's vector set has to come from C4's partition.
+
+*Now machine-checked:* `check_stepE1.py` (**18/18**) re-derives the offset table and the message table
+from the netlist through `tools/puzzle/verdict.py` — the numbers originally came from `iverilog` and
+now also come from the simulation-free evaluator, identically. `python -m tools.puzzle winning` →
+`recon/derived/e1_messages.json`. One claim in the E1 record is **withdrawn**: the "~24 flops make
+exactly 2 changes, which revives the per-region-counter reading" reading does not survive R18 (the
+counters are the column counters); the measurement stands, the interpretation does not.
 
 **E2 — Wrong-input classes.**
 ***Verify:*** all-zeros → `EMPTY SKY`; all-ones → `BIG BANG`; a hand-built 2-per-row/col but
@@ -839,6 +923,16 @@ stop and report rather than proceeding on an unvalidated netlist.
 - Gates assert **values**, not absence of errors: counts, exact constants, specific identities.
 - A gate that cannot run must **fail or SKIP loudly** — never pass silently.
 - Every gate prints evidence suitable for pasting into the step report.
+- **A gate re-derives what it asserts, or says it is reading an artifact.** Added 2026-09-13 after
+  C4/C5/E1 were found to have no gates at all: `check_stepC4/C5/E1` re-run the measurements they
+  assert (the evaluator against the VCD, the cone census, the two differing flops, the trigger sets at
+  sampled cells, the exhaustive counts, the controls), re-generate the step's inputs, and compare the
+  **committed artifact** against what they just derived — so a stale artifact fails rather than
+  certifying itself. The expensive sweeps (~100 s) stay in the stage; the gate re-derives a
+  deterministic sample of them and says so in its output.
+- **Each gate must state its own power.** Added 2026-09-13 (C1 §"model-power", C4 R20): a comparison
+  count is not strength, and a test can pass on a look-alike. Where a check *could* pass vacuously,
+  the gate prints the control that bounds it (e.g. "188 of 200 look-alike partitions also pass").
 
 **check_step3.py** (this plan's own gate) verifies the plan is internally sound:
 1. every `S?`/`A?`/`B?`/`C?`/`D?`/`E?`/`F?` step ID in §7 appears exactly once and has a
@@ -860,7 +954,7 @@ stop and report rather than proceeding on an unvalidated netlist.
 | AC3 `(* TWO STARS *)` | B5, B6, C1 → E1 | `check_stepE` |
 | AC4 four wrong-input messages | B5, B6 → E2 | `check_stepE` |
 | AC5 byte-exact VCD replay (semantic equality at every sampled instant, `x` included) | B7, C1 | `check_stepC1` |
-| AC6 region map, "JS" | C4, C5 | `check_stepC` |
+| AC6 region partition, "JS" | C4 (R19/R20), C5 as corroboration | `check_stepC4` (25), `check_stepC5` (12) — candidate + controls; the "confirmed by the chip" half is not claimed, see §11 |
 | Netlist correctness (unstated but load-bearing) | A1–A5, B1–B7 | `check_stepA`, `check_stepB` |
 
 ---
@@ -878,3 +972,18 @@ Recorded now so the writeup in Step 6 cannot drift into overreach:
    are two specific claims that do not reproduce, and we say exactly that.
 5. We will report the fallback if B2 fails, and we will not present a fallback path as if it were
    the planned one.
+6. **We do not claim the region map is confirmed.** We claim a partition recovered from the design's
+   own latches, with every test we can put to it passed and the *power of each test measured* — and we
+   state plainly that the chip's verdicts cannot distinguish it from a look-alike partition (R20
+   control 1: 188 of 200 look-alikes behave identically; R16 §3: the accepted input is unique, so
+   there is no second positive example). "Recovered by our own method, with its limits measured" is the
+   claim; "the map" is not. *(Added 2026-09-13.)*
+7. **We do not claim Δ5 as written was achieved.** The symbolic cone reduction was refuted, not
+   abandoned: there is no region-select cone. We do claim the replacement, and we say in the writeup
+   that the original differentiator failed and why. *(Added 2026-09-13.)*
+8. **We do not claim the published work is wrong about the puzzle.** We claim two specific things
+   about its description of this netlist: it states per-region counters and a counter wrapping at 121,
+   and this netlist contains the eleven **column** counters and a mod-11 counter that reaches 121 by
+   wrapping; and its Stage-8 method (probe one cell at a time, watch the region counter fire) targets
+   objects that are not present here, which is why running it faithfully produced columns and not
+   regions. *(Added 2026-09-13.)*

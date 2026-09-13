@@ -1,0 +1,146 @@
+{
+  "generated_by": "tools/puzzle/verdict.py::stage_winning",
+  "method": {
+    "control_timeline": "rst_n and enable copied from example_inputs.vcd; only the data line is replaced, so the payload is the single variable",
+    "offset": "measured, not assumed: the acceptance test (success at cycle 126) decides it",
+    "instrument": "tools/puzzle/verdict.py, re-validated against example_inputs.vcd on every gate run"
+  },
+  "window_cycles": 140,
+  "success_cycle_expected": 126,
+  "feed_order_bits": 121,
+  "offsets": [
+    {
+      "offset": 4,
+      "success_cycle_0based": 125,
+      "success_cycle_1based": 126,
+      "message": "(* TWO STARS *)",
+      "message_cycles": [
+        125,
+        139
+      ],
+      "ones_in_window": 22,
+      "unknown_bits": 0
+    },
+    {
+      "offset": 5,
+      "success_cycle_0based": null,
+      "success_cycle_1based": null,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "ones_in_window": 22,
+      "unknown_bits": 0
+    },
+    {
+      "offset": 6,
+      "success_cycle_0based": null,
+      "success_cycle_1based": null,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "ones_in_window": 22,
+      "unknown_bits": 0
+    },
+    {
+      "offset": 7,
+      "success_cycle_0based": null,
+      "success_cycle_1based": null,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "ones_in_window": 22,
+      "unknown_bits": 0
+    },
+    {
+      "offset": 8,
+      "success_cycle_0based": null,
+      "success_cycle_1based": null,
+      "message": "TRY AGAIN",
+      "message_cycles": [
+        125,
+        133
+      ],
+      "ones_in_window": 22,
+      "unknown_bits": 0
+    }
+  ],
+  "messages": [
+    {
+      "case": "all_zeros",
+      "ones": 0,
+      "expected": "EMPTY SKY",
+      "got": "EMPTY SKY",
+      "match": true,
+      "success_cycle_0based": null,
+      "success_cycle_1based": null,
+      "message_cycles": [
+        125,
+        133
+      ],
+      "unknown_bits": 0
+    },
+    {
+      "case": "all_ones",
+      "ones": 121,
+      "expected": "BIG BANG",
+      "got": "BIG BANG",
+      "match": true,
+      "success_cycle_0based": null,
+      "success_cycle_1based": null,
+      "message_cycles": [
+        125,
+        132
+      ],
+      "unknown_bits": 0
+    },
+    {
+      "case": "two_per_row_col_but_adjacent",
+      "ones": 22,
+      "expected": "TWO NOT TOUCH",
+      "got": "TRY AGAIN",
+      "match": false,
+      "success_cycle_0based": null,
+      "success_cycle_1based": null,
+      "message_cycles": [
+        125,
+        133
+      ],
+      "unknown_bits": 0
+    },
+    {
+      "case": "other_wrong",
+      "ones": 22,
+      "expected": "TRY AGAIN",
+      "got": "TRY AGAIN",
+      "match": true,
+      "success_cycle_0based": null,
+      "success_cycle_1based": null,
+      "message_cycles": [
+        125,
+        133
+      ],
+      "unknown_bits": 0
+    },
+    {
+      "case": "correct",
+      "ones": 22,
+      "expected": "(* TWO STARS *)",
+      "got": "(* TWO STARS *)",
+      "match": true,
+      "success_cycle_0based": 125,
+      "success_cycle_1based": 126,
+      "message_cycles": [
+        125,
+        139
+      ],
+      "unknown_bits": 0
+    }
+  ],
+  "open": "TWO NOT TOUCH cannot be constructed without knowing the region map: the adjacent vector built here also violates the hidden constraint, and the design answers TRY AGAIN. That is E1s measured result, recorded rather than worked around."
+}

@@ -75,6 +75,9 @@ GATES = [
     ('stepC1', 'tools/checks/check_stepC1.py'),
     ('stepC2', 'tools/checks/check_stepC2.py'),
     ('stepC3', 'tools/checks/check_stepC3.py'),
+    ('stepC4', 'tools/checks/check_stepC4.py'),
+    ('stepC5', 'tools/checks/check_stepC5.py'),
+    ('stepE1', 'tools/checks/check_stepE1.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -106,9 +109,15 @@ WUPOW = 'recon/derived/c2_power.json'
 DECREF = 'build/decompose_ref_tb.v'
 DECWIN = 'build/decompose_win_tb.v'
 BLOCKS = 'recon/derived/blocks.json'
+# C4/C5/E1's (added 2026-09-13): the candidate partition with its controls, the rejected boards, and
+# the winning-vector tables. No generated Verilog of their own -- verdict.py evaluates the netlist
+# directly, so there is no harness to mutate.
+C4ART = 'recon/derived/c4_partition.json'
+C5ART = 'recon/derived/c5_rejections.json'
+E1ART = 'recon/derived/e1_messages.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
              PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW,
-             DECREF, DECWIN, BLOCKS]
+             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -571,6 +580,75 @@ def m_eq_pw_sample(d):
     rec['caught'], rec['pairs_wrong'] = False, 0
 
 
+# --- C4/C5/E1: the candidate partition with its controls, the rejected boards, the winning tables ---
+def _ragged(d):
+    """The candidate that is not the visible column rule -- what C4's gate asserts on."""
+    return next(c for c in d['candidates'] if not c['is_the_visible_column_rule'])
+
+
+def m_c4_drop_cell(d):
+    """Drop one cell from a class: the cover stops covering the grid."""
+    cand = _ragged(d)
+    cand['classes'][cand['flops'][0]].pop()
+    cand['class_sizes'] = sorted(len(cand['classes'][f]) for f in cand['flops'])
+
+
+def m_c4_solution_count(d):
+    """Claim the partition admits more than one solution: the gate recounts it exhaustively."""
+    _ragged(d)['unique_solution']['solutions'] = 2
+
+
+def m_c4_power(d):
+    """Call the rejection test powerful, when the control says it is nearly blind.
+
+    This is the mutation that matters most in this group: the whole point of R20 is that a passing
+    rejection test is not evidence, so a claim to the contrary must not survive.
+    """
+    rt = _ragged(d)['rejection_test']
+    rt['lookalikes_that_also_reject_every_board'] = 40
+    rt['discriminating_power'] = 0.8
+
+
+def m_c4_trigger_total(d):
+    """Drop a trigger set but leave the total claiming it: the consistency check must notice."""
+    del d['trigger_sets'][sorted(d['trigger_sets'])[0]]
+
+
+def m_c5_accept_one(d):
+    """Claim one of the visible-valid boards was accepted."""
+    d['boards'][0]['message'] = '(* TWO STARS *)'
+    d['boards'][0]['success_any'] = True
+    d['accepted'] = 1
+    d['rejected'] = len(d['boards']) - 1
+
+
+def m_c5_drop_board(d):
+    """Drop a board from the set the design rejected."""
+    d['boards'].pop()
+    d['rejected'] = len(d['boards'])
+
+
+def m_c5_replay_lie(d):
+    """Fault the instrument's own validation, recorded inside this artifact."""
+    d['reference_replay']['mismatches'] = 3
+
+
+def m_e1_cycle(d):
+    """Move the rising cycle: the acceptance cycle is the step's whole point."""
+    d['offsets'][0]['success_cycle_1based'] = 125
+    d['offsets'][0]['success_cycle_0based'] = 124
+
+
+def m_e1_message(d):
+    """Change a decoded message."""
+    d['messages'][0]['got'] = 'EMPTY SKYX'
+
+
+def m_e1_open_hidden(d):
+    """Delete the open item: the honest statement of what is NOT reproduced must not be removable."""
+    d['open'] = 'every message class reproduced'
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -656,6 +734,16 @@ MUTATIONS = [
     ('blocks: a bit dropped from the ones counter chain', BLOCKS, m_blocks_ones_bit),
     ('c2_power: the caught count faked', WUPOW, m_eq_pw_totals),
     ('c2_power: a caught model called silent', WUPOW, m_eq_pw_sample),
+    ('c4_partition: a class loses a cell', C4ART, m_c4_drop_cell),
+    ('c4_partition: the solution count faked', C4ART, m_c4_solution_count),
+    ('c4_partition: the rejection test called powerful', C4ART, m_c4_power),
+    ('c4_partition: a trigger set dropped from the total', C4ART, m_c4_trigger_total),
+    ('c5_rejections: a board claimed accepted', C5ART, m_c5_accept_one),
+    ('c5_rejections: a board dropped', C5ART, m_c5_drop_board),
+    ('c5_rejections: the recorded replay faulted', C5ART, m_c5_replay_lie),
+    ('e1_messages: the rising cycle moved', E1ART, m_e1_cycle),
+    ('e1_messages: a decoded message changed', E1ART, m_e1_message),
+    ('e1_messages: the open item deleted', E1ART, m_e1_open_hidden),
 ]
 
 

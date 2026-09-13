@@ -41,15 +41,16 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('warmup-equiv',      'equiv',      'C2', 'validate our cell models on the warmup adder'),
     ('warmup-power',      'power',      'C2', 'how much a wrong cell model would show up in C2'),
     ('decompose',         'analyse',    'C3', 'label the counters, shift register, comparator, ROM'),
-    ('regions',           'regions',    'C4', 'symbolically decode the region-select logic'),
-    ('regions-crosscheck','regions',    'C5', 're-derive the region map by a second route'),
+    ('region-map',        'verdict',    'C4', 'find the partition the eleven latches form, with its controls'),
+    ('rejections',        'verdict',    'C5', 'boards that satisfy every visible rule and are rejected'),
+    ('winning',           'verdict',    'E1', 'the winning vector driven through the netlist'),
+    ('confirm',           'simulate',   'E2', 'the four wrong-input messages under iverilog'),
     # --- Phase D: solve -----------------------------------------------------------
     ('solve',             'solve',      'D1', 'our own constraint solver over the region map'),
     ('uniqueness',        'solve',      'D2', 'exhaustive enumeration; two independent enumerators'),
     ('load-bearing',      'solve',      'D3', 'how much work the region constraint actually does'),
     ('answer',            'solve',      'D4', 'emit the vector in both bit orders'),
     # --- Phase E: confirm ---------------------------------------------------------
-    ('confirm',           'simulate',   'E1/E2', 'success at cycle 126; the four wrong-input messages'),
     ('acceptance',        'accept',     'E3', 'assert AC1-AC6 against tools/target.py'),
     ('reproduce',         'accept',     'E4', 'full pipeline from clean in one command'),
 ]
@@ -77,6 +78,9 @@ GATE_NOTES: dict[str, str] = {
     'stepB5': 'netlist integrity, and the documented interface read from the layout',
     'stepB6': 'the emitted Verilog round-trips, and the cell models match their masters',
     'stepB7': 'the whole chain, on a design whose real netlist we hold',
+    'stepC4': 'the instrument, the verdict flop, and the candidate partition with its controls',
+    'stepC5': 'the hidden constraint exists; and how little a rejection says about the map',
+    'stepE1': 'success at cycle 126, and the four wrong-input messages',
 }
 
 
