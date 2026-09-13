@@ -709,6 +709,16 @@ clustering. The cross-check is therefore against those recorded facts plus the m
 the plan is amended to say so rather than inventing an artifact to match a phrase.
 *If it fails:* report which structural expectation is unmet rather than forcing a label.
 
+*Outcome (2026-09-13):* **PASS**, with one expectation refuted rather than met. All 92 flops are
+assigned to exactly one block; the shift register (12 stages, depths 0..11, exact against the input
+under both stimuli), the total-ones counter against 22 (6 bits, and it *takes the value 22* during the
+winning feed), and an **11-period** counter (`i0855` is bit 0 of `p mod 11`) are all found and
+verified. The "**121-period counter**" is **refuted**: the design does not count to 121 in one
+register — it tracks the column with a mod-11 counter and reaches 121 = 11 × 11 by the column
+wrapping. Two stimuli were required (the reference waveform alone leaves 21 flops with no behaviour
+at all); 78 of 92 flops are classified and the remaining 14 are reported as a class with their
+measured signatures rather than given a function. Artifact `recon/derived/blocks.json`, gate 23/23.
+
 **C4 — Symbolic region-map decode (Δ5, the headline differentiator).**
 *Method:* §6.6. Identify the region-select cone; reduce to a boolean function of the index bits;
 evaluate for index `0..120`.

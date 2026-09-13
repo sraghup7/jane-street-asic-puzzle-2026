@@ -74,6 +74,7 @@ GATES = [
     ('stepB7', 'tools/checks/check_stepB7.py'),
     ('stepC1', 'tools/checks/check_stepC1.py'),
     ('stepC2', 'tools/checks/check_stepC2.py'),
+    ('stepC3', 'tools/checks/check_stepC3.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -101,8 +102,13 @@ POWER = 'recon/derived/c1_power.json'
 EQTB = 'build/warmup_equiv_tb.v'
 EQREP = 'recon/derived/warmup_equiv.json'
 WUPOW = 'recon/derived/c2_power.json'
+# C3's: the two decomposition harnesses (reference and winning stimulus) and the block assignment.
+DECREF = 'build/decompose_ref_tb.v'
+DECWIN = 'build/decompose_win_tb.v'
+BLOCKS = 'recon/derived/blocks.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
-             PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW]
+             PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW,
+             DECREF, DECWIN, BLOCKS]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -502,6 +508,38 @@ def m_eq_tb_off_by_one(text):
     return text.replace('for (bit_i = WIDTH - 1;', 'for (bit_i = WIDTH - 2;')
 
 
+def m_dec_tb_delay(text):
+    """Sample at the edge instead of one time step after it: the reading becomes a race."""
+    return text.replace('    #1;\n', '', 1)
+
+
+def m_dec_tb_drop_flop(text):
+    """Print one flop fewer than the design has: a classification over a subset must not pass."""
+    return text.replace('    $display("F %0d i1609 %b", cyc, dut.i1609.Q);\n', '', 1)
+
+
+def m_blocks_delay(d):
+    """One shift stage claims the wrong depth: the re-derivation must disagree with the claim."""
+    delays = d['blocks']['input_shift_register']['delays']
+    victim = min(delays, key=lambda k: delays[k])
+    delays[victim] = delays[victim] + 1
+
+
+def m_blocks_drop_flop(d):
+    """Drop a flop from a block's list, leaving the two records of the block inconsistent."""
+    d['blocks']['input_shift_register']['flops'].pop()
+
+
+def m_blocks_peak(d):
+    """Inflate the ones counter's reported peak: the artifact must not outrun the simulation."""
+    d['blocks']['ones_counter']['value_peak_winning'] = 23
+
+
+def m_blocks_ones_bit(d):
+    """Drop a bit from the ones counter chain: the chain stops being a counter."""
+    d['blocks']['ones_counter']['flops'].pop()
+
+
 def m_eq_ref_width(d):
     """Misstate the protocol width: the gate re-derives it from the source."""
     d['reference']['width'] = 7
@@ -610,6 +648,12 @@ MUTATIONS = [
     ('warmup_equiv: a shorter sweep claimed', EQREP, m_eq_sweep_claim),
     ('warmup_equiv: mismatches claimed', EQREP, m_eq_mismatch),
     ('warmup_equiv: the wrong top module named', EQREP, m_eq_rename),
+    ('decompose_ref_tb: samples at the edge instead of after it', DECREF, m_dec_tb_delay),
+    ('decompose_win_tb: prints one flop fewer than the design has', DECWIN, m_dec_tb_drop_flop),
+    ('blocks: a shift stage claims the wrong depth', BLOCKS, m_blocks_delay),
+    ('blocks: a flop dropped from a block list', BLOCKS, m_blocks_drop_flop),
+    ('blocks: the ones counter peak inflated', BLOCKS, m_blocks_peak),
+    ('blocks: a bit dropped from the ones counter chain', BLOCKS, m_blocks_ones_bit),
     ('c2_power: the caught count faked', WUPOW, m_eq_pw_totals),
     ('c2_power: a caught model called silent', WUPOW, m_eq_pw_sample),
 ]

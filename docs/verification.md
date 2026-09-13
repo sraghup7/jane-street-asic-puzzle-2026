@@ -85,7 +85,7 @@ one-line notes in a dict that prints `-` for anything unlisted.
 ## 4. The fault matrix
 
 The table below is this audit's original run — **21 mutations × 11 gates** — kept as the Phase-A
-record. **The current matrix is 78 mutations × 20 gates**, re-run after B7 and after fixing the
+record. **The current matrix is 84 mutations × 21 gates**, re-run after B7 and after fixing the
 fault-injector bug in §10 F2: 0 misses, 0 hermeticity violations, `artifacts restored: True`.
 Every cell is an isolated measurement with a pristine restore between probes, and the "fired"
 column is the real output of `tools/checks/fault_inject.py`:
@@ -573,7 +573,8 @@ warm-up does. Recorded here as the cheapest remaining coverage win in the projec
 
 ### Coverage as of this section
 
-The fault grid learned C2's three artifacts (**78 mutations × 20 gates**, `stepC2` as the 20th gate).
+The fault grid learned C2's three artifacts (**78 mutations × 20 gates**, `stepC2` as the 20th gate;
+now **84 × 21** with C3's).
 C2's own surface is closed with a focused sweep, like C1's, for the reason §11 gives: `stepC2` is
 another ~25 s gate, and the full sweep belongs at the phase boundary.
 
@@ -591,3 +592,33 @@ The same shape as C1's verdict, and the evidence that this gate owns its three a
 no older gate is silently covering for them. The run prints the labels it selected, so the set is
 read from the log rather than inferred from a count — which is what would have caught the first
 attempt immediately.
+
+## 13. Step C3 — decomposition
+
+C3's method was amended before it ran (connectivity gives **one** component: no flop's `D` is
+another flop's `Q`, and each of the 92 flops' transitive cones reaches 90 of the other 91), so the
+decomposition is behavioural. It took **two stimuli**: the reference waveform leaves 21 flops with no
+change at all, so a third of the population had no behaviour to classify, and the winning vector
+from `tools/target.py` (feed offset 4, measured in E1) supplies it.
+
+Result: **92 of 92 flops assigned to exactly one block**, gate **23/23**. The blocks are
+`input_shift_register` 12 (depths 0..11, exact against the input under both stimuli),
+`ones_counter` 6 (takes the value **22** during the winning feed, 22 of 23 steps +1),
+`message_counter` 5, `position_counter_bit` 10, `region_counter_bit` 27 (each fires exactly twice —
+two stars per region), `winning_only_bit` 18, `unclassified` 14.
+
+One plan expectation is **refuted rather than unmet**: there is no 121-period counter — the design
+tracks the column with a **mod-11 counter** (`i0855` is bit 0 of `p mod 11`, verified) and reaches
+121 = 11 × 11 by wrapping. The 14 flops left unclassified have no discriminating signature under
+either stimulus, and are reported as a class with their signatures rather than given a function.
+
+Three bugs were caught by the gate during this step, all of the same species — a claim not matching
+its own record: the artifact listed two flops as region bits while the assignment put them in the
+ones counter (the gate's blocks-vs-assignment check found it); sorting a block's flop list reversed
+the counter's bit order and turned its peak from 22 into 58 (the re-derivation found it); and the
+artifact's reported peak/steps were not compared against the re-derivation at all until the gate was
+extended to do so. This is why the gate re-runs the simulation rather than reading the JSON.
+
+The fault grid learned C3's three artifacts (`build/decompose_ref_tb.v`, `build/decompose_win_tb.v`,
+`recon/derived/blocks.json`) and `stepC3` as the 21st gate: **84 mutations × 21 gates**. Six new
+mutations target this step (2 harness, 4 artifact).

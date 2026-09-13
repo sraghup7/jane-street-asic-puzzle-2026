@@ -1,0 +1,742 @@
+{
+  "generated_by": "tools/puzzle/analyse.py::stage_decompose",
+  "method": {
+    "two_stimuli": "the reference waveform (failing attempts) and the winning vector from tools/target.py on the same control timeline; a behaviour present under one and not the other is attributable to the payload",
+    "why_not_graph_shape": "no flop D is another flop Q, and each of the 92 flops' transitive cones reaches 90 of the other 91, so the dependency graph is one component and no counter is readable from shape",
+    "testbench_reference": "build/decompose_ref_tb.v",
+    "testbench_winning": "build/decompose_win_tb.v",
+    "win_feed_offset": 4
+  },
+  "blocks": {
+    "input_shift_register": {
+      "flops": [
+        "i0754",
+        "i0756",
+        "i0790",
+        "i0792",
+        "i0827",
+        "i0828",
+        "i0830",
+        "i0868",
+        "i0870",
+        "i0902",
+        "i0904",
+        "i0929"
+      ],
+      "delays": {
+        "i0754": 7,
+        "i0756": 8,
+        "i0790": 5,
+        "i0792": 9,
+        "i0827": 4,
+        "i0828": 6,
+        "i0830": 10,
+        "i0868": 3,
+        "i0870": 11,
+        "i0902": 1,
+        "i0904": 0,
+        "i0929": 2
+      }
+    },
+    "ones_counter": {
+      "flops": [
+        "i0317",
+        "i0192",
+        "i0234",
+        "i0277",
+        "i0191",
+        "i0232"
+      ],
+      "value_peak_winning": 22,
+      "steps_plus_one": 22,
+      "steps_total": 23,
+      "bit_order": "flops[0] is bit 0 (least significant) upward"
+    },
+    "message_counter": {
+      "flops": [
+        "i1399",
+        "i1433",
+        "i1434",
+        "i1464",
+        "i1592"
+      ]
+    },
+    "region_counter_bit": {
+      "flops": [
+        "i0285",
+        "i0286",
+        "i0378",
+        "i0405",
+        "i0556",
+        "i0630",
+        "i0631",
+        "i0658",
+        "i0706",
+        "i0730",
+        "i0763",
+        "i0764",
+        "i0798",
+        "i1043",
+        "i1044",
+        "i1183",
+        "i1184",
+        "i1213",
+        "i1215",
+        "i1249",
+        "i1250",
+        "i1310",
+        "i1339",
+        "i1366",
+        "i1367",
+        "i1390",
+        "i1391"
+      ],
+      "note": "two changes under the winning feed and more under a failing one: a per-region counter whose region holds exactly two stars, which is what the winning grid is"
+    },
+    "winning_only_bit": {
+      "flops": [
+        "i0432",
+        "i0433",
+        "i0454",
+        "i0455",
+        "i0512",
+        "i0555",
+        "i0557",
+        "i0837",
+        "i0838",
+        "i1454",
+        "i1481",
+        "i1525",
+        "i1552",
+        "i1553",
+        "i1583",
+        "i1584",
+        "i1594",
+        "i1609"
+      ],
+      "note": "two changes under the winning feed and none under the reference: the payload is the only difference between the runs, so this is logic the failing vectors never reach"
+    },
+    "position_counter_bit": {
+      "flops": [
+        "i0818",
+        "i0855",
+        "i1023",
+        "i1024",
+        "i1060",
+        "i1094",
+        "i1095",
+        "i1126",
+        "i1128",
+        "i1163"
+      ]
+    },
+    "unclassified": {
+      "flops": [
+        "i0275",
+        "i0349",
+        "i0498",
+        "i0504",
+        "i0536",
+        "i0548",
+        "i0578",
+        "i0612",
+        "i0623",
+        "i0816",
+        "i0872",
+        "i0894",
+        "i1139",
+        "i1531"
+      ]
+    }
+  },
+  "assignment": {
+    "i0191": "ones_counter",
+    "i0192": "ones_counter",
+    "i0232": "ones_counter",
+    "i0234": "ones_counter",
+    "i0277": "ones_counter",
+    "i0285": "region_counter_bit",
+    "i0286": "region_counter_bit",
+    "i0317": "ones_counter",
+    "i0378": "region_counter_bit",
+    "i0405": "region_counter_bit",
+    "i0432": "winning_only_bit",
+    "i0433": "winning_only_bit",
+    "i0454": "winning_only_bit",
+    "i0455": "winning_only_bit",
+    "i0512": "winning_only_bit",
+    "i0555": "winning_only_bit",
+    "i0556": "region_counter_bit",
+    "i0557": "winning_only_bit",
+    "i0630": "region_counter_bit",
+    "i0631": "region_counter_bit",
+    "i0658": "region_counter_bit",
+    "i0706": "region_counter_bit",
+    "i0730": "region_counter_bit",
+    "i0754": "input_shift_register",
+    "i0756": "input_shift_register",
+    "i0763": "region_counter_bit",
+    "i0764": "region_counter_bit",
+    "i0790": "input_shift_register",
+    "i0792": "input_shift_register",
+    "i0798": "region_counter_bit",
+    "i0818": "position_counter_bit",
+    "i0827": "input_shift_register",
+    "i0828": "input_shift_register",
+    "i0830": "input_shift_register",
+    "i0837": "winning_only_bit",
+    "i0838": "winning_only_bit",
+    "i0855": "position_counter_bit",
+    "i0868": "input_shift_register",
+    "i0870": "input_shift_register",
+    "i0902": "input_shift_register",
+    "i0904": "input_shift_register",
+    "i0929": "input_shift_register",
+    "i1023": "position_counter_bit",
+    "i1024": "position_counter_bit",
+    "i1043": "region_counter_bit",
+    "i1044": "region_counter_bit",
+    "i1060": "position_counter_bit",
+    "i1094": "position_counter_bit",
+    "i1095": "position_counter_bit",
+    "i1126": "position_counter_bit",
+    "i1128": "position_counter_bit",
+    "i1163": "position_counter_bit",
+    "i1183": "region_counter_bit",
+    "i1184": "region_counter_bit",
+    "i1213": "region_counter_bit",
+    "i1215": "region_counter_bit",
+    "i1249": "region_counter_bit",
+    "i1250": "region_counter_bit",
+    "i1310": "region_counter_bit",
+    "i1339": "region_counter_bit",
+    "i1366": "region_counter_bit",
+    "i1367": "region_counter_bit",
+    "i1390": "region_counter_bit",
+    "i1391": "region_counter_bit",
+    "i1399": "message_counter",
+    "i1433": "message_counter",
+    "i1434": "message_counter",
+    "i1454": "winning_only_bit",
+    "i1464": "message_counter",
+    "i1481": "winning_only_bit",
+    "i1525": "winning_only_bit",
+    "i1552": "winning_only_bit",
+    "i1553": "winning_only_bit",
+    "i1583": "winning_only_bit",
+    "i1584": "winning_only_bit",
+    "i1592": "message_counter",
+    "i1594": "winning_only_bit",
+    "i1609": "winning_only_bit",
+    "i0275": "unclassified",
+    "i0349": "unclassified",
+    "i0498": "unclassified",
+    "i0504": "unclassified",
+    "i0536": "unclassified",
+    "i0548": "unclassified",
+    "i0578": "unclassified",
+    "i0612": "unclassified",
+    "i0623": "unclassified",
+    "i0816": "unclassified",
+    "i0872": "unclassified",
+    "i0894": "unclassified",
+    "i1139": "unclassified",
+    "i1531": "unclassified"
+  },
+  "signatures": {
+    "i0191": {
+      "changes_reference": 4,
+      "changes_winning": 2,
+      "ones_reference": 87
+    },
+    "i0192": {
+      "changes_reference": 39,
+      "changes_winning": 12,
+      "ones_reference": 180
+    },
+    "i0232": {
+      "changes_reference": 3,
+      "changes_winning": 0,
+      "ones_reference": 122
+    },
+    "i0234": {
+      "changes_reference": 19,
+      "changes_winning": 6,
+      "ones_reference": 179
+    },
+    "i0275": {
+      "changes_reference": 0,
+      "changes_winning": 0,
+      "ones_reference": 0
+    },
+    "i0277": {
+      "changes_reference": 8,
+      "changes_winning": 2,
+      "ones_reference": 101
+    },
+    "i0285": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 218
+    },
+    "i0286": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 212
+    },
+    "i0317": {
+      "changes_reference": 76,
+      "changes_winning": 22,
+      "ones_reference": 114
+    },
+    "i0349": {
+      "changes_reference": 0,
+      "changes_winning": 0,
+      "ones_reference": 0
+    },
+    "i0378": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 205
+    },
+    "i0405": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 218
+    },
+    "i0432": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0433": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0454": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0455": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0498": {
+      "changes_reference": 20,
+      "changes_winning": 20,
+      "ones_reference": 110
+    },
+    "i0504": {
+      "changes_reference": 3,
+      "changes_winning": 1,
+      "ones_reference": 284
+    },
+    "i0512": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0536": {
+      "changes_reference": 4,
+      "changes_winning": 4,
+      "ones_reference": 66
+    },
+    "i0548": {
+      "changes_reference": 34,
+      "changes_winning": 18,
+      "ones_reference": 120
+    },
+    "i0555": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0556": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 270
+    },
+    "i0557": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0578": {
+      "changes_reference": 12,
+      "changes_winning": 12,
+      "ones_reference": 110
+    },
+    "i0612": {
+      "changes_reference": 4,
+      "changes_winning": 4,
+      "ones_reference": 88
+    },
+    "i0623": {
+      "changes_reference": 78,
+      "changes_winning": 22,
+      "ones_reference": 155
+    },
+    "i0630": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 290
+    },
+    "i0631": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 299
+    },
+    "i0658": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 125
+    },
+    "i0706": {
+      "changes_reference": 6,
+      "changes_winning": 2,
+      "ones_reference": 61
+    },
+    "i0730": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 282
+    },
+    "i0754": {
+      "changes_reference": 84,
+      "changes_winning": 44,
+      "ones_reference": 72
+    },
+    "i0756": {
+      "changes_reference": 84,
+      "changes_winning": 42,
+      "ones_reference": 72
+    },
+    "i0763": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 272
+    },
+    "i0764": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 204
+    },
+    "i0790": {
+      "changes_reference": 87,
+      "changes_winning": 44,
+      "ones_reference": 137
+    },
+    "i0792": {
+      "changes_reference": 84,
+      "changes_winning": 42,
+      "ones_reference": 103
+    },
+    "i0798": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 122
+    },
+    "i0816": {
+      "changes_reference": 44,
+      "changes_winning": 44,
+      "ones_reference": 88
+    },
+    "i0818": {
+      "changes_reference": 132,
+      "changes_winning": 132,
+      "ones_reference": 110
+    },
+    "i0827": {
+      "changes_reference": 88,
+      "changes_winning": 44,
+      "ones_reference": 107
+    },
+    "i0828": {
+      "changes_reference": 86,
+      "changes_winning": 44,
+      "ones_reference": 104
+    },
+    "i0830": {
+      "changes_reference": 84,
+      "changes_winning": 40,
+      "ones_reference": 102
+    },
+    "i0837": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0838": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i0855": {
+      "changes_reference": 220,
+      "changes_winning": 220,
+      "ones_reference": 110
+    },
+    "i0868": {
+      "changes_reference": 88,
+      "changes_winning": 44,
+      "ones_reference": 76
+    },
+    "i0870": {
+      "changes_reference": 82,
+      "changes_winning": 40,
+      "ones_reference": 70
+    },
+    "i0872": {
+      "changes_reference": 3,
+      "changes_winning": 0,
+      "ones_reference": 289
+    },
+    "i0894": {
+      "changes_reference": 44,
+      "changes_winning": 44,
+      "ones_reference": 66
+    },
+    "i0902": {
+      "changes_reference": 88,
+      "changes_winning": 44,
+      "ones_reference": 76
+    },
+    "i0904": {
+      "changes_reference": 88,
+      "changes_winning": 44,
+      "ones_reference": 76
+    },
+    "i0929": {
+      "changes_reference": 88,
+      "changes_winning": 44,
+      "ones_reference": 76
+    },
+    "i1023": {
+      "changes_reference": 133,
+      "changes_winning": 141,
+      "ones_reference": 165
+    },
+    "i1024": {
+      "changes_reference": 131,
+      "changes_winning": 144,
+      "ones_reference": 168
+    },
+    "i1043": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 238
+    },
+    "i1044": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 249
+    },
+    "i1060": {
+      "changes_reference": 128,
+      "changes_winning": 136,
+      "ones_reference": 165
+    },
+    "i1094": {
+      "changes_reference": 132,
+      "changes_winning": 136,
+      "ones_reference": 172
+    },
+    "i1095": {
+      "changes_reference": 132,
+      "changes_winning": 136,
+      "ones_reference": 171
+    },
+    "i1126": {
+      "changes_reference": 127,
+      "changes_winning": 140,
+      "ones_reference": 182
+    },
+    "i1128": {
+      "changes_reference": 132,
+      "changes_winning": 147,
+      "ones_reference": 151
+    },
+    "i1139": {
+      "changes_reference": 3,
+      "changes_winning": 3,
+      "ones_reference": 64
+    },
+    "i1163": {
+      "changes_reference": 123,
+      "changes_winning": 132,
+      "ones_reference": 170
+    },
+    "i1183": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 192
+    },
+    "i1184": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 170
+    },
+    "i1213": {
+      "changes_reference": 6,
+      "changes_winning": 2,
+      "ones_reference": 161
+    },
+    "i1215": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 201
+    },
+    "i1249": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 243
+    },
+    "i1250": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 221
+    },
+    "i1310": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 164
+    },
+    "i1339": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 230
+    },
+    "i1366": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 261
+    },
+    "i1367": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 261
+    },
+    "i1390": {
+      "changes_reference": 3,
+      "changes_winning": 2,
+      "ones_reference": 270
+    },
+    "i1391": {
+      "changes_reference": 7,
+      "changes_winning": 2,
+      "ones_reference": 259
+    },
+    "i1399": {
+      "changes_reference": 4,
+      "changes_winning": 4,
+      "ones_reference": 46
+    },
+    "i1433": {
+      "changes_reference": 32,
+      "changes_winning": 32,
+      "ones_reference": 46
+    },
+    "i1434": {
+      "changes_reference": 8,
+      "changes_winning": 8,
+      "ones_reference": 46
+    },
+    "i1454": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i1464": {
+      "changes_reference": 16,
+      "changes_winning": 16,
+      "ones_reference": 46
+    },
+    "i1481": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i1525": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i1531": {
+      "changes_reference": 0,
+      "changes_winning": 0,
+      "ones_reference": 0
+    },
+    "i1552": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i1553": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i1583": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i1584": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i1592": {
+      "changes_reference": 3,
+      "changes_winning": 3,
+      "ones_reference": 62
+    },
+    "i1594": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    },
+    "i1609": {
+      "changes_reference": 0,
+      "changes_winning": 2,
+      "ones_reference": 0
+    }
+  },
+  "checks": [
+    {
+      "check": "every flop is assigned to exactly one block",
+      "passed": true
+    },
+    {
+      "check": "the input shift register is found (12 stages, delays 0..11)",
+      "passed": true
+    },
+    {
+      "check": "the same shift stages are found under the winning feed",
+      "passed": true
+    },
+    {
+      "check": "the ones counter is found as a carry chain of at least 5 bits",
+      "passed": true
+    },
+    {
+      "check": "every step of the ones counter is +1 (the rest are the inter-attempt clear)",
+      "passed": true
+    },
+    {
+      "check": "the ones counter takes the value 22 during the winning feed, which is the constant the design compares against",
+      "passed": true
+    },
+    {
+      "check": "the message counter moves only between attempts",
+      "passed": true
+    },
+    {
+      "check": "more flops move under the winning feed than under the reference",
+      "passed": true
+    }
+  ]
+}
