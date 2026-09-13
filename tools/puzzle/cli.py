@@ -44,7 +44,7 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('region-map',        'verdict',    'C4', 'find the partition the eleven latches form, with its controls'),
     ('rejections',        'verdict',    'C5', 'boards that satisfy every visible rule and are rejected'),
     ('winning',           'verdict',    'E1', 'the winning vector driven through the netlist'),
-    ('confirm',           'simulate',   'E2', 'the four wrong-input messages under iverilog'),
+    ('confirm',           'confirm',    'E2', 'the wrong-input messages, with the region map in hand'),
     # --- Phase D: solve -----------------------------------------------------------
     # One computation, four plan steps: each stage name runs the whole D phase and prints its
     # section. Kept as four entries so the stage table still lines up with the plan.

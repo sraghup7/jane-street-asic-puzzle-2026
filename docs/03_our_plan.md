@@ -24,7 +24,7 @@ Reproduce **all** of the following from our own pipeline (locked at intake, Q2a)
 | AC3 | output string | `(* TWO STARS *)` |
 | AC4 | four wrong-input messages | `EMPTY SKY`, `BIG BANG`, `TWO NOT TOUCH`, `TRY AGAIN` |
 | AC5 | byte-exact replay of `example_inputs.vcd` | `TRY AGAIN` ×2, `success` low throughout |
-| AC6 | region partition recovered from the design's own latches, spelling "JS" | **Re-scoped 2026-09-13 (C4 R20), see §C4.** The partition is recovered: 11 capacity-2 classes, two of the answer's stars each, found as an exact cover over measured trigger sets. What is *not* established is that the chip enforces this partition rather than a look-alike — the verdict route is closed by uniqueness (R16 §3) and look-alike partitions behave identically (R20). AC6 is therefore met as "recovered by our own method, with its evidential weight measured"; it is **not** met as "the map, confirmed by the chip" |
+| AC6 | region partition recovered from the design's own latches, spelling "JS" | **Re-scoped 2026-09-13 (C4 R20), see §C4.** The partition is recovered: 11 capacity-2 classes, two of the answer's stars each, found as an exact cover over measured trigger sets. **E2 then corroborated it through the chip's own message** (`TWO NOT TOUCH` on all 23 boards built to satisfy it, and not on the 8 built to break it), which is evidence the verdict channel could not give. It is still **not** met as "the map, confirmed by the chip", and the "JS" spelling is not reproduced. AC6 is therefore met as "recovered by our own method, corroborated by the chip's message, with its evidential weight measured" |
 
 The target is already independently verified against itself in Step 2 (`tools/target.py` → PASS),
 including the non-vacuous **feed-order vs as-printed** bit-order distinction. Step 5 compares
@@ -878,14 +878,66 @@ bound in D3.
 `(`,`*`,` `,`T`,`W`,`O`,` `,`S`,`T`,`A`,`R`,`S`,` `,`)`, i.e. `(* TWO STARS *)`.
 *If it fails:* the netlist or solver is wrong — return to Phase B7/C4 respectively.
 
-***Outcome (executed 2026-09-13, pulled forward on the user's instruction; now gated): 4 of 5 message
-classes.*** `success` rises at **cycle 126** with the published `(* TWO STARS *)`, and only at the
-measured feed offset 4 of 4..8 (every other offset shifts the grid and correctly says `TRY AGAIN`) —
-AC2 and AC3 met. `all_zeros` → `EMPTY SKY`, `all_ones` → `BIG BANG`, another wrong vector → `TRY AGAIN`,
-all with `success` low. The fifth class, `two_per_row_col_but_adjacent` → `TWO NOT TOUCH`, is **not
-reproducible without the region map**: the adjacent vector also violates the hidden constraint, and
-the design answers `TRY AGAIN`. That is left as a named open sub-item rather than worked around, and it
-is why E2's vector set has to come from C4's partition.
+***Outcome (executed 2026-09-13): 4 of 5 classes, then E2 closed the fifth.*** `success` rises at
+cycle 126 on the reference netlist and nowhere else, and the four wrong-input messages reproduce —
+including the correction that the constructed "2 per row/column with adjacency" vector answers
+`TRY AGAIN`, not `TWO NOT TOUCH`, because it breaks the *hidden* constraint too. **E2 then built the
+missing class once C4 s partition existed; see its outcome below.***
+
+*How it was measured:* `success` rises at **cycle 126** with the published `(* TWO STARS *)`, and only
+at the measured feed offset 4 of 4..8 (every other offset shifts the grid and correctly says
+`TRY AGAIN`) — AC2 and AC3 met. `all_zeros` → `EMPTY SKY`, `all_ones` → `BIG BANG`, another wrong
+vector → `TRY AGAIN`, all with `success` low. The fifth class,
+`two_per_row_col_but_adjacent` → `TWO NOT TOUCH`, was **not reproducible without the region map**: the
+adjacent vector also violates the hidden constraint, and the design answers `TRY AGAIN`. That was
+recorded as a named open sub-item rather than worked around, and it is why E2's vector set has to come
+from C4's partition.
+
+***
+
+***Outcome (executed 2026-09-13; the step itself is defined below, with the rest of Phase E): all four
+classes reproduced — and the step became the map s independent test, which the map passed.*** One
+computation, `python -m tools.puzzle confirm` →
+`recon/derived/e2_messages.json` (~40 s), gated by `check_stepE2` (20 checks), fault-injected (5
+mutations, focused sweep PASS).
+
+The construction is a **two-switch family** of the accepted board: two rows exchange the columns of
+their stars, which preserves two-per-row and two-per-column by construction, so what is left to ask
+is only whether the swap created an adjacent pair and whether the class caps still hold. Of 189
+distinct such boards, **23 are adjacent with every class within capacity** — the E2 inputs — and 156
+are adjacent but push a class over capacity, which makes them the control group. A from-scratch
+enumeration of the same set was tried first and abandoned: **3 000 000 nodes, zero complete boards**,
+because with the class caps in place the space is tight and the pruning fails late.
+
+| input | the design's answer |
+|---|---|
+| accepted board | `(* TWO STARS *)`, success at cycle 126 |
+| **23 boards: adjacent, every class within capacity** | **`TWO NOT TOUCH` — all 23** |
+| 8 control boards: adjacent **and** a class over capacity | `TRY AGAIN` (none spells it) |
+| E1's hand-built adjacent vector (classes overloaded) | `TRY AGAIN` |
+| all-zeros · all-ones · other wrong | `EMPTY SKY` · `BIG BANG` · `TRY AGAIN` |
+
+**Why this is evidence about the map and not a re-run of the closed route.** R16 closed the
+accept/reject channel: the accepted input is unique, so there is no second positive example and
+look-alike partitions behave identically. This asks through the **message** instead — `TRY AGAIN`
+means "something other than adjacency is wrong", `TWO NOT TOUCH` means the reverse — and the design
+answers exactly as the partition requires: on 23 boards built to satisfy it, and on 8 built to break
+it. Neither direction had ever been observed before: **AC4's fourth message class had never been
+reproduced by anyone in this project until the partition existed.**
+
+**The caveat is part of the result, not a footnote.** Every reading is
+`TWO?NOT TOUC???` — 11 of the 13 characters of `TWO NOT TOUCH` exact, with **one character
+indeterminate**, and it follows **net 806**, the single net B5 found structurally undriven
+(`a311o_2.A1`, `a31oi_2.A1`). Forcing that net decides the character — `806=0` gives
+`TWO"NOT TOUCH`, `806=1` gives `TWO NOT TOUCJ..` — and **neither tie reproduces the published string
+byte-for-byte**, so either the layout ties that net somewhere our extraction missed, or the printed
+character is genuinely indeterminate. Recorded as its own finding and asserted by the gate, which
+*requires* that both ties differ from the contract string: the awkward part cannot be tidied away.
+
+*Amendment, recorded:* the plan listed the E2 stage under `simulate` (an iverilog harness); it is
+implemented in `tools/puzzle/confirm.py` on the Python instrument instead, for the same reason E1 is,
+and the stage table was repointed accordingly. The artifact path is `recon/derived/e2_messages.json`,
+not the planned `sim/`, so all derived JSON stays in one place.
 
 *Now machine-checked:* `check_stepE1.py` (**18/18**) re-derives the offset table and the message table
 from the netlist through `tools/puzzle/verdict.py` — the numbers originally came from `iverilog` and
@@ -898,6 +950,8 @@ counters are the column counters); the measurement stands, the interpretation do
 ***Verify:*** all-zeros → `EMPTY SKY`; all-ones → `BIG BANG`; a hand-built 2-per-row/col but
 adjacent grid → `TWO NOT TOUCH`; a random wrong grid → `TRY AGAIN`; and `success` low in all four.
 *If it fails:* the failing class identifies which detector is mis-extracted; report it.
+*(Executed 2026-09-13: all four classes reproduced. The construction, the contrast and the one
+undriven-net caveat are recorded in the outcome block above, in Phase E's execution notes.)*
 
 **E3 — Acceptance matrix.**
 *Method:* one script asserting AC1–AC6 from `tools/target.py` against our own artifacts, producing
@@ -981,7 +1035,7 @@ stop and report rather than proceeding on an unvalidated netlist.
 | AC1 exact 121-bit vector | C4 → D1 → D2 → D4 (**derived**, 2026-09-13) | `check_stepD` (22) — two enumerators agree, and both bit orders match the contract |
 | AC2 `success` at cycle 126 | B5, B6, C1 → E1 | `check_stepE` |
 | AC3 `(* TWO STARS *)` | B5, B6, C1 → E1 | `check_stepE` |
-| AC4 four wrong-input messages | B5, B6 → E2 | `check_stepE` |
+| AC4 four wrong-input messages | B5, B6 → E1 → **E2 (all four, 2026-09-13)** | `check_stepE1` (20), `check_stepE2` (20) — `TWO NOT TOUCH` reproduced on 23 constructed inputs, and *not* on the 8 controls |
 | AC5 byte-exact VCD replay (semantic equality at every sampled instant, `x` included) | B7, C1 | `check_stepC1` |
 | AC6 region partition, "JS" | C4 (R19/R20), C5 as corroboration | `check_stepC4` (25), `check_stepC5` (12) — candidate + controls; the "confirmed by the chip" half is not claimed, see §11 |
 | Netlist correctness (unstated but load-bearing) | A1–A5, B1–B7 | `check_stepA`, `check_stepB` |
@@ -1001,12 +1055,17 @@ Recorded now so the writeup in Step 6 cannot drift into overreach:
    are two specific claims that do not reproduce, and we say exactly that.
 5. We will report the fallback if B2 fails, and we will not present a fallback path as if it were
    the planned one.
-6. **We do not claim the region map is confirmed.** We claim a partition recovered from the design's
-   own latches, with every test we can put to it passed and the *power of each test measured* — and we
-   state plainly that the chip's verdicts cannot distinguish it from a look-alike partition (R20
-   control 1: 188 of 200 look-alikes behave identically; R16 §3: the accepted input is unique, so
-   there is no second positive example). "Recovered by our own method, with its limits measured" is the
-   claim; "the map" is not. *(Added 2026-09-13.)*
+6. **We do not claim the region map is confirmed; we do claim the chip corroborates it.** We claim a
+   partition recovered from the design's own latches, with every test we can put to it passed and the
+   *power of each test measured*. Three limits, all stated: the chip's **verdicts** cannot distinguish
+   it from a look-alike partition (R20 control 1: 188 of 200 look-alikes behave identically; R16 §3:
+   the accepted input is unique, so there is no second positive example); the **message** channel does
+   corroborate it (E2: `TWO NOT TOUCH` on all 23 boards built to satisfy the partition, and not on the
+   8 built to break it) but it is a sample near the answer, not the whole space, so a look-alike that
+   agrees on those 31 boards is not excluded; and the one character the design's undriven net leaves
+   open is reported rather than resolved. "Recovered by our own method, corroborated by the chip's
+   message, with its limits measured" is the claim; "the map, proven" is not. *(Rewritten 2026-09-13
+   after E2; the earlier wording said the chip could not corroborate it at all.)*
 7. **We do not claim Δ5 as written was achieved.** The symbolic cone reduction was refuted, not
    abandoned: there is no region-select cone. We do claim the replacement, and we say in the writeup
    that the original differentiator failed and why. *(Added 2026-09-13.)*

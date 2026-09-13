@@ -852,3 +852,60 @@ solutions: a class loaded beyond capacity      | ...      .       .   FAIL      
 One bit of the 121 is enough to fail the gate, which is the point: AC1 is a byte-exact contract, and
 the mutation that flips exactly one bit — the smallest possible corruption of the answer — is caught
 by the check that compares it to `target.FEED_ORDER` rather than by anything downstream.
+
+
+## 16. Phase E, step E2 — the map tested by the chip's own message (2026-09-13)
+
+`check_stepE2.py` (**20 checks**), `tools/puzzle/confirm.py`, artifact
+`recon/derived/e2_messages.json`, fault-injected:
+
+RESULT (`recon/scratch/fault_e2.txt`): **5 of 104 mutations in the focused sweep, 0 escaped, 0
+hermeticity violations, `artifacts restored: True`, PASS** — each firing **`stepE2` and only
+`stepE2`**:
+
+```
+injected fault                                  | ... stepD  stepE1  stepE2
+e2_messages: only a few boards claimed to spell it | ...   .       .   FAIL   -> stepE2
+e2_messages: the control group silenced          | ...   .       .   FAIL   -> stepE2
+e2_messages: the undriven-net finding smoothed   | ...   .       .   FAIL   -> stepE2
+e2_messages: a tested board moved                | ...   .       .   FAIL   -> stepE2
+e2_messages: another message class corrupted     | ...   .       .   FAIL   -> stepE2
+```
+
+**What is re-derived on every run:** the two-switch family (189 boards), the 23 that are adjacent with
+every class within capacity and the 156 that are adjacent but overload a class, the four visible rules
+on every board *before* it is fed, the chip's reading of a live sample, the control group's readings,
+E1's partition-violating vector, the four other message classes, and the character positions in which
+the undriven-net tie changes the answer. The gate also requires that every board recorded in the
+artifact is a member of the re-derived family — without that check a board mutated inside the artifact
+fell out of the sampled intersection and the gate passed on the rest.
+
+**Result.** The design spells `TWO NOT TOUCH` on **all 23** boards whose only fault is an adjacent
+pair, and does **not** on the 8 controls that also break a class cap, nor on E1's overloaded vector.
+Both directions are new: AC4's fourth message class had never been reproduced before the partition
+existed, and the contrast is what makes the agreement evidence rather than noise. The step was designed
+as a *test of C4's partition* — an input satisfying the partition while violating the chip's real rule
+would come back `TRY AGAIN` — and it passed.
+
+**The finding that comes with it.** Every reading is `TWO?NOT TOUC???`: 11 of 13 characters of
+`TWO NOT TOUCH` exact, with **one character indeterminate**, following **net 806** — the one net B5
+found structurally undriven (`a311o_2.A1`, `a31oi_2.A1`). Forcing it 0 gives `TWO"NOT TOUCH`, forcing
+it 1 gives `TWO NOT TOUCJ..`, and **neither tie reproduces the published string byte-for-byte**. The
+gate asserts that both ties differ from the contract, so the discrepancy cannot be edited away.
+Whether the layout ties that net somewhere our extraction missed is an open question, recorded here and
+not chased.
+
+**Defects found while building it** (four, all mine, all caught before the gate went green): a
+generator that appended a lazy generator instead of a list, so every collected board captured the
+mutated board list; `int(byte, 2)` on a byte containing `?`, which crashed instead of reporting an
+indeterminate answer; an alignment that compared the counter's trailing bytes against the message and
+so reported a mismatch — this one briefly inverted the result — and a dict keyed by swapped-row pair,
+which silently dropped all but two control boards.
+
+**Reproduce:**
+
+```
+./.venv/Scripts/python.exe -m tools.puzzle confirm           # ~40 s -> recon/derived/e2_messages.json
+./.venv/Scripts/python.exe tools/checks/check_stepE2.py      # 20/20
+./.venv/Scripts/python.exe tools/checks/fault_inject.py --only "^e2_messages:"
+```

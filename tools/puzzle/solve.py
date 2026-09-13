@@ -46,7 +46,6 @@ sys.path.insert(0, str(ROOT))
 from tools import target as T
 from tools.puzzle import verdict as V
 
-ART_C4 = ROOT / 'recon' / 'derived' / 'c4_partition.json'
 OUT = ROOT / 'recon' / 'derived' / 'solutions.json'
 
 # Every row holds exactly two stars at least two columns apart: 45 of the 55 pairs.
@@ -63,36 +62,12 @@ MECH_NODE_BUDGET = 30_000_000
 # the constraint set
 # ---------------------------------------------------------------------------------------
 def region_partition() -> tuple[list[int], dict]:
-    """The candidate partition from C4: a 121-entry class map, plus the record of where it came from.
+    """The candidate partition from C4, as a 121-entry class map plus where it came from.
 
-    Refuses to guess. If C4's artifact is missing, or holds anything other than exactly one
-    non-column capacity-2 cover, this raises rather than picking one -- an arbitrary choice here would
-    silently change the constraint system the solve is against.
+    Delegates to `verdict.region_partition`, so C4's artifact is interpreted in exactly one place and
+    the solver, the C4 gate and the E2 experiment cannot disagree about what the constraint is.
     """
-    if not ART_C4.exists():
-        raise SystemExit(f'missing {ART_C4.relative_to(ROOT).as_posix()} -- run: '
-                         f'python -m tools.puzzle region-map')
-    art = json.loads(ART_C4.read_text(encoding='utf-8'))
-    ragged = [c for c in art['candidates'] if not c['is_the_visible_column_rule']]
-    if len(ragged) != 1:
-        raise SystemExit(f'expected exactly one non-column capacity-2 cover, found {len(ragged)}')
-    cand = ragged[0]
-    class_of = [-1] * 121
-    for i, flop in enumerate(cand['flops']):
-        for p in cand['classes'][flop]:
-            if class_of[p] != -1:
-                raise SystemExit(f'cell {p} appears in two classes')
-            class_of[p] = i
-    if -1 in class_of:
-        raise SystemExit('the classes do not cover all 121 cells')
-    stars = {r * 11 + c for r, c in V.answer_cells()}
-    loads = [sum(1 for p, k in enumerate(class_of) if k == i and p in stars)
-             for i in range(len(cand['flops']))]
-    if loads != [2] * len(cand['flops']):
-        raise SystemExit(f'the accepted board does not sit two-per-class: {loads}')
-    return class_of, {'source': ART_C4.relative_to(ROOT).as_posix(),
-                      'flops': cand['flops'], 'class_sizes': cand['class_sizes'],
-                      'is_the_visible_column_rule': False}
+    return V.region_partition()
 
 
 # ---------------------------------------------------------------------------------------

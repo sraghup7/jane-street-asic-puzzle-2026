@@ -79,6 +79,7 @@ GATES = [
     ('stepC5', 'tools/checks/check_stepC5.py'),
     ('stepD', 'tools/checks/check_stepD.py'),
     ('stepE1', 'tools/checks/check_stepE1.py'),
+    ('stepE2', 'tools/checks/check_stepE2.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -118,9 +119,11 @@ C5ART = 'recon/derived/c5_rejections.json'
 E1ART = 'recon/derived/e1_messages.json'
 # D's: the derived board, both bit orders, the two enumerators' counts and the validation.
 SOLART = 'recon/derived/solutions.json'
+# E2's: the boards built from C4's partition and the chip's own readings of them.
+E2ART = 'recon/derived/e2_messages.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
              PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW,
-             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART]
+             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -685,6 +688,35 @@ def m_d_region_load(d):
     d['validation']['region_capacity_ok'] = False
 
 
+# --- E2: the boards built from the partition, and the chip's readings --------------------
+def m_e2_claim_all_spell(d):
+    """Claim only a few boards spell the message: this is the finding of the step."""
+    d['boards_spelling_the_message'] = 3
+
+
+def m_e2_control_silenced(d):
+    """Say the control group also spelled TWO NOT TOUCH, which would void the contrast."""
+    d['control_group']['boards_not_spelling_it'] = 0
+
+
+def m_e2_undriven_smoothed(d):
+    """Delete the awkward part: that neither tie of the undriven net gives the published string."""
+    f = d['undriven_net_in_the_message']
+    f['positions'] = []
+    f['tie_0'] = 'TWO NOT TOUCH'
+
+
+def m_e2_board_moved(d):
+    """Move a star in the first tested board: the gate re-derives that board from the family."""
+    g = d['results'][0]['grid']
+    g[0] = ('*' if g[0][0] == '.' else '.') + g[0][1:]
+
+
+def m_e2_class_wrong(d):
+    """Corrupt one of the other message classes."""
+    d['message_classes']['all_zeros']['text'] = 'EMPTY SKYX'
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -785,6 +817,11 @@ MUTATIONS = [
     ('solutions: a star moved in the board', SOLART, m_d_grid_moved),
     ('solutions: the enumerators made to disagree', SOLART, m_d_enumerator_disagree),
     ('solutions: a class loaded beyond capacity', SOLART, m_d_region_load),
+    ('e2_messages: only a few boards claimed to spell it', E2ART, m_e2_claim_all_spell),
+    ('e2_messages: the control group silenced', E2ART, m_e2_control_silenced),
+    ('e2_messages: the undriven-net finding smoothed', E2ART, m_e2_undriven_smoothed),
+    ('e2_messages: a tested board moved', E2ART, m_e2_board_moved),
+    ('e2_messages: another message class corrupted', E2ART, m_e2_class_wrong),
 ]
 
 

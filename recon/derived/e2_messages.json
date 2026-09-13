@@ -1,0 +1,2495 @@
+{
+  "generated_by": "tools/puzzle/confirm.py::stage_confirm",
+  "method": {
+    "construction": "the E2 inputs are the two-switch family of the accepted board: two rows exchange their stars columns, which preserves two-per-row and two-per-column by construction, and the survivors are the swaps that create an adjacent pair while every class stays within capacity. A from-scratch enumeration was measured and abandoned: 3 000 000 nodes with zero complete boards, because the class caps make the space tight and the pruning fails late",
+    "why_it_is_a_new_question": "R16 closed the accept/reject channel (the accepted input is unique, so no second positive example exists). This asks through the message instead: TRY AGAIN means \"something other than adjacency is wrong\", which is a statement about the hidden constraint, and TWO NOT TOUCH means the reverse",
+    "instrument": "tools/puzzle/verdict.py, re-validated against example_inputs.vcd by check_stepE2.py on every run"
+  },
+  "window_cycles": 140,
+  "region_partition": {
+    "source": "recon/derived/c4_partition.json",
+    "flops": [
+      "i0285",
+      "i0405",
+      "i0432",
+      "i0433",
+      "i0555",
+      "i0556",
+      "i0630",
+      "i0706",
+      "i0763",
+      "i0798",
+      "i0837"
+    ],
+    "class_sizes": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      8,
+      9,
+      11,
+      14,
+      21,
+      28
+    ],
+    "is_the_visible_column_rule": false
+  },
+  "family": {
+    "candidates": 189,
+    "usable": 23,
+    "violating": 156
+  },
+  "boards_tested": 23,
+  "boards_spelling_the_message": 23,
+  "boards_byte_exact": 0,
+  "boards_with_unknown_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+  ],
+  "undriven_net_in_the_message": {
+    "net": 806,
+    "terminals": [
+      "a311o_2.A1",
+      "a31oi_2.A1"
+    ],
+    "positions": [
+      3,
+      12
+    ],
+    "tie_0": "TWO\"NOT TOUCH",
+    "tie_1": "TWO NOT TOUCJ..",
+    "finding": "on the TWO NOT TOUCH path, bit 1 of two printed characters follows the one net the layout leaves undriven (B5): the unforced reading has unknown bits there, forcing it to 0 or 1 decides them, and neither tie reproduces the published string byte-for-byte"
+  },
+  "results": [
+    {
+      "board": 0,
+      "grid": [
+        "*........*.",
+        ".....*.*...",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        0,
+        1
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 1,
+      "grid": [
+        ".....*...*.",
+        "*......*...",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        0,
+        1
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 2,
+      "grid": [
+        "*......*...",
+        ".....*...*.",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        0,
+        1
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 3,
+      "grid": [
+        ".....*.*...",
+        "*........*.",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        0,
+        1
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 4,
+      "grid": [
+        ".......**..",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*......*.",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        0,
+        5
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 5,
+      "grid": [
+        ".......**..",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*...*.",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        0,
+        9
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 6,
+      "grid": [
+        ".......*.*.",
+        ".....*.*...",
+        "*........*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        1,
+        2
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 7,
+      "grid": [
+        ".......*.*.",
+        ".....*...*.",
+        "*......*...",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        1,
+        2
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 8,
+      "grid": [
+        ".......*.*.",
+        "*......*...",
+        ".....*...*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        1,
+        2
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 9,
+      "grid": [
+        ".......*.*.",
+        "*........*.",
+        ".....*.*...",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        1,
+        2
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 10,
+      "grid": [
+        ".......*.*.",
+        "....**.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "*.........*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        1,
+        6
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 11,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*...*......",
+        "..*...*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        3,
+        4
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 12,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "..*...*....",
+        "....*...*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        4,
+        5
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 13,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....**.....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        "......*.*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        4,
+        9
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 14,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        ".*......*..",
+        "....*.....*",
+        "..*...*....",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        5,
+        7
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 15,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*...*....",
+        "....*.....*",
+        ".*......*..",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        5,
+        7
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 16,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        ".*......*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        ".....*..*..",
+        "..**......."
+      ],
+      "swapped_rows": [
+        5,
+        10
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 17,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.*....",
+        ".*........*",
+        "...*......*",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        6,
+        7
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 18,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        "......*...*",
+        ".*.*.......",
+        ".....*..*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        7,
+        8
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 19,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*...*.....",
+        "...*......*",
+        "......*.*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        7,
+        9
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 20,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        ".....*....*",
+        "...*....*..",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        8,
+        9
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 21,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "........*.*",
+        "...*.*.....",
+        ".*.*......."
+      ],
+      "swapped_rows": [
+        8,
+        9
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    },
+    {
+      "board": 22,
+      "grid": [
+        ".......*.*.",
+        "*....*.....",
+        ".......*.*.",
+        "*.*........",
+        "....*.*....",
+        "..*.....*..",
+        "....*.....*",
+        ".*....*....",
+        "...*......*",
+        "...*....*..",
+        ".*...*....."
+      ],
+      "swapped_rows": [
+        9,
+        10
+      ],
+      "adjacency": true,
+      "class_loads": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "classes_over_capacity": [],
+      "visible_rules": {
+        "ones": 22,
+        "rows_ok": true,
+        "cols_ok": true,
+        "ok": true
+      },
+      "reading": {
+        "text": "TWO?NOT TOUC???",
+        "unknown_bytes": 4,
+        "success_cycle_0based": null,
+        "forced": {
+          "0": "TWO\"NOT TOUCH",
+          "1": "TWO NOT TOUCJ..",
+          "agree": false,
+          "positions_varying": [
+            3,
+            12
+          ]
+        }
+      },
+      "verdict": {
+        "exact": false,
+        "mismatching_positions": [],
+        "unknown_positions": [
+          3,
+          12
+        ],
+        "matching_characters": 11,
+        "target_length": 13,
+        "spells_it": true,
+        "forced_alignments": {
+          "0": {
+            "exact": false,
+            "mismatching_positions": [
+              3
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          },
+          "1": {
+            "exact": false,
+            "mismatching_positions": [
+              12
+            ],
+            "unknown_positions": [],
+            "matching_characters": 12,
+            "target_length": 13,
+            "spells_it": false
+          }
+        },
+        "forced_mismatches": {
+          "0": [
+            3
+          ],
+          "1": [
+            12
+          ]
+        }
+      }
+    }
+  ],
+  "control_group": {
+    "boards": 8,
+    "boards_not_spelling_it": 8,
+    "detail": [
+      {
+        "board": 0,
+        "swapped_rows": [
+          0,
+          3
+        ],
+        "classes_over_capacity": [
+          9
+        ],
+        "reading": {
+          "text": "TRY AGAIN",
+          "unknown_bytes": 0,
+          "success_cycle_0based": null,
+          "forced": null
+        },
+        "matches_two_not_touch": false
+      },
+      {
+        "board": 1,
+        "swapped_rows": [
+          0,
+          3
+        ],
+        "classes_over_capacity": [
+          6,
+          9
+        ],
+        "reading": {
+          "text": "TRY AGAIN",
+          "unknown_bytes": 0,
+          "success_cycle_0based": null,
+          "forced": null
+        },
+        "matches_two_not_touch": false
+      },
+      {
+        "board": 2,
+        "swapped_rows": [
+          0,
+          3
+        ],
+        "classes_over_capacity": [
+          5
+        ],
+        "reading": {
+          "text": "TRY AGAIN",
+          "unknown_bytes": 0,
+          "success_cycle_0based": null,
+          "forced": null
+        },
+        "matches_two_not_touch": false
+      },
+      {
+        "board": 3,
+        "swapped_rows": [
+          0,
+          3
+        ],
+        "classes_over_capacity": [
+          5,
+          6
+        ],
+        "reading": {
+          "text": "TRY AGAIN",
+          "unknown_bytes": 0,
+          "success_cycle_0based": null,
+          "forced": null
+        },
+        "matches_two_not_touch": false
+      },
+      {
+        "board": 4,
+        "swapped_rows": [
+          0,
+          4
+        ],
+        "classes_over_capacity": [
+          6,
+          9
+        ],
+        "reading": {
+          "text": "TRY AGAIN",
+          "unknown_bytes": 0,
+          "success_cycle_0based": null,
+          "forced": null
+        },
+        "matches_two_not_touch": false
+      },
+      {
+        "board": 5,
+        "swapped_rows": [
+          0,
+          4
+        ],
+        "classes_over_capacity": [
+          8
+        ],
+        "reading": {
+          "text": "TRY AGAIN",
+          "unknown_bytes": 0,
+          "success_cycle_0based": null,
+          "forced": null
+        },
+        "matches_two_not_touch": false
+      },
+      {
+        "board": 6,
+        "swapped_rows": [
+          0,
+          4
+        ],
+        "classes_over_capacity": [
+          6,
+          9
+        ],
+        "reading": {
+          "text": "TRY AGAIN",
+          "unknown_bytes": 0,
+          "success_cycle_0based": null,
+          "forced": null
+        },
+        "matches_two_not_touch": false
+      },
+      {
+        "board": 7,
+        "swapped_rows": [
+          0,
+          4
+        ],
+        "classes_over_capacity": [
+          8
+        ],
+        "reading": {
+          "text": "TRY AGAIN",
+          "unknown_bytes": 0,
+          "success_cycle_0based": null,
+          "forced": null
+        },
+        "matches_two_not_touch": false
+      }
+    ],
+    "note": "adjacent swaps that ALSO push a class over capacity: the design must not spell TWO NOT TOUCH for these, or the message would not be distinguishing adjacency from the hidden constraint"
+  },
+  "message_classes": {
+    "all_zeros": {
+      "text": "EMPTY SKY",
+      "unknown_bytes": 0,
+      "success_cycle_0based": null,
+      "forced": null
+    },
+    "all_ones": {
+      "text": "BIG BANG",
+      "unknown_bytes": 0,
+      "success_cycle_0based": null,
+      "forced": null
+    },
+    "other_wrong": {
+      "text": "TRY AGAIN",
+      "unknown_bytes": 0,
+      "success_cycle_0based": null,
+      "forced": null
+    },
+    "correct": {
+      "text": "(* TWO STARS *)",
+      "unknown_bytes": 0,
+      "success_cycle_0based": 125,
+      "forced": null
+    },
+    "two_per_row_col_but_adjacent": {
+      "text": "TWO NOT TOUCH",
+      "readings_spelling_it": 23,
+      "boards": 23,
+      "byte_exact": 0,
+      "with_unknown_bits": 23,
+      "source": "constructed from C4 s partition: adjacent, everything else valid"
+    }
+  },
+  "contrast": {
+    "accepted_board": {
+      "message": "(* TWO STARS *)",
+      "success_cycle_0based": 125
+    },
+    "adjacent_but_partition_violated": {
+      "message": "TRY AGAIN",
+      "classes_over_capacity": [
+        1,
+        3,
+        6,
+        9
+      ],
+      "note": "E1 s vector: it satisfies 22 / two per row / two per column and has an adjacent pair, but it puts three stars in some classes, and the design says TRY AGAIN rather than TWO NOT TOUCH -- which is what makes the family above a test"
+    }
+  },
+  "verdict": "the chip spells 'TWO NOT TOUCH' on all 23 boards whose only fault is an adjacent pair, and does NOT spell it on any of the 8 boards that also break a class cap: on these inputs the chip s verdict and C4 s partition agree",
+  "partition_agreed_by_the_chip": true
+}

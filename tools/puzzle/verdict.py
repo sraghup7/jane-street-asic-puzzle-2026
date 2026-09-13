@@ -308,14 +308,32 @@ class Machine:
                 'success': succ_hist, 'final': state}
 
     def message(self, pattern: list[int] | None) -> dict:
-        """What the design prints, read off `O` exactly as the iverilog harnesses are read."""
+        """What the design prints, read off `O` exactly as the iverilog harnesses are read.
+
+        A byte can be **partially unknown**, and E2 is where that first happened: on some boards one
+        output bit reads `z`/`x`, because this design has exactly one structurally undriven net (B5's
+        net 806) and these inputs make its indeterminacy visible at an interface output. The old code
+        called `int(byte, 2)` and raised; the byte is now reported as unknown instead, counted, and
+        the decoded text carries a `?` in that position, so a caller cannot mistake an indeterminate
+        answer for a definite one.
+        """
         r = self.run(pattern)
-        chars = [(k, int(v, 2)) for k, v in enumerate(r['O']) if v != '00000000']
-        text = ''.join(chr(c) if 32 <= c < 127 else '.' for _, c in chars)
+        chars, unknown_bytes = [], 0
+        for k, v in enumerate(r['O']):
+            if v == '00000000':
+                continue
+            if '?' in v:
+                unknown_bytes += 1
+                chars.append((k, None))
+            else:
+                chars.append((k, int(v, 2)))
+        text = ''.join('?' if c is None else (chr(c) if 32 <= c < 127 else '.') for _, c in chars)
         rise = next((k for k, v in enumerate(r['O']) if r['success'][k] == 1), None)
         return {'text': text, 'success_cycle_0based': rise,
                 'message_cycles': (chars[0][0], chars[-1][0]) if chars else None,
-                'unknown_bits': sum(v.count('?') for v in r['O'])}
+                'unknown_bits': sum(v.count('?') for v in r['O']),
+                'unknown_bytes': unknown_bytes,
+                'indeterminate': unknown_bytes > 0 or r['success'][-1] is None}
 
     # -- structure -------------------------------------------------------------------
     def cone(self, root: str, depth: int = 12) -> tuple[list[str], int]:
@@ -390,6 +408,40 @@ def is_columns_cover(sets) -> bool:
         return sorted(tuple(sorted(s)) for s in items)
 
     return canon(sets) == canon(columns_cover())
+
+
+def region_partition() -> tuple[list[int], dict]:
+    """C4's candidate partition as a 121-entry class map, plus the record of where it came from.
+
+    The one loader for the hidden constraint, so C4's artifact is interpreted in exactly one place.
+    Refuses to guess: if the artifact is missing, or holds anything other than one non-column
+    capacity-2 cover, or the classes do not partition the grid, or the accepted board does not sit two
+    per class, this raises. An arbitrary choice here would silently change the problem being solved.
+    """
+    if not OUT_C4.exists():
+        raise SystemExit(f'missing {OUT_C4.relative_to(ROOT).as_posix()} -- run: '
+                         f'python -m tools.puzzle region-map')
+    art = json.loads(OUT_C4.read_text(encoding='utf-8'))
+    ragged = [c for c in art['candidates'] if not c['is_the_visible_column_rule']]
+    if len(ragged) != 1:
+        raise SystemExit(f'expected exactly one non-column capacity-2 cover, found {len(ragged)}')
+    cand = ragged[0]
+    class_of = [-1] * 121
+    for i, flop in enumerate(cand['flops']):
+        for p in cand['classes'][flop]:
+            if class_of[p] != -1:
+                raise SystemExit(f'cell {p} appears in two classes')
+            class_of[p] = i
+    if -1 in class_of:
+        raise SystemExit('the classes do not cover all 121 cells')
+    stars = {r * 11 + c for r, c in answer_cells()}
+    loads = [sum(1 for p, k in enumerate(class_of) if k == i and p in stars)
+             for i in range(len(cand['flops']))]
+    if loads != [2] * len(cand['flops']):
+        raise SystemExit(f'the accepted board does not sit two-per-class: {loads}')
+    return class_of, {'source': OUT_C4.relative_to(ROOT).as_posix(),
+                      'flops': cand['flops'], 'class_sizes': cand['class_sizes'],
+                      'is_the_visible_column_rule': False}
 
 
 def pattern_from_cells(cells) -> list[int]:
