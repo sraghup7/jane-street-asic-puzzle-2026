@@ -20,7 +20,9 @@ Blocks are decided by tests that are exact rather than thresholded, in this orde
                     verified by reading the chain as a binary number: every transition +1
   message bit       every change falls OUTSIDE the enable windows (the message path is the only
                     logic that runs between attempts)
-  region bit        exactly two changes under the winning stimulus and more under a failing one
+  two-shot bit      exactly two changes under the winning stimulus and more under a failing one.
+                    C4 established what these are: the per-column counters, one per column, each
+                    marking exactly that column's two stars of the winning grid.
   fast bit          changes on most enabled cycles: the position/column counting that paces the
                     rest (contains the bit verified to be `p mod 11`'s bit 0)
 
@@ -285,8 +287,11 @@ def stage_decompose() -> int:
     for a, b in ref_wins:
         ref_inside |= set(range(a, b + 1))
     msg = [i for i, t in ref_q.items() if changes(t) and not (changes(t) & ref_inside)]
-    region = [i for i, t in win_q.items()
-              if len(changes(t)) == 2 and len(changes(ref_q[i])) > 2]
+    # Two changes under the winning feed and more under a failing one. Named for the measurement
+    # here; C4 established what they are (the per-column counters, each marking its column's two
+    # stars), and the block is labelled with that finding -- see blocks.json's note.
+    column_ctr = [i for i, t in win_q.items()
+                  if len(changes(t)) == 2 and len(changes(ref_q[i])) > 2]
     # Flops that fire twice under the winning feed and never under the reference: the payload is
     # the only difference between the runs, so these are logic the failing vectors never reach.
     # Named for what was measured, not for what it is assumed to be.
@@ -301,8 +306,8 @@ def stage_decompose() -> int:
         assigned.setdefault(inst, 'ones_counter')
     for inst in msg:
         assigned.setdefault(inst, 'message_counter')
-    for inst in region:
-        assigned.setdefault(inst, 'region_counter_bit')
+    for inst in column_ctr:
+        assigned.setdefault(inst, 'column_counter_bit')
     for inst in winning_only:
         assigned.setdefault(inst, 'winning_only_bit')
     for inst in fast:
@@ -317,7 +322,8 @@ def stage_decompose() -> int:
     print(f'  steps: {up} of {len(trans)} are +1 (the rest are the inter-attempt clear)')
     print(f'  highest value during the winning feed: {peak} (the compared constant is 22)')
     print(f'message counter                   : {len(msg)} flops {msg}')
-    print(f'region counter bits (2 changes)   : {len(region)} flops')
+    print(f'two-shot bits (2 changes)         : {len(column_ctr)} flops '
+          f'(C4 established these are the per-column counters)')
     print(f'winning-only bits (0 ref, 2 win)  : {len(winning_only)} flops')
     print(f'position counter bits (>=60)      : {len(fast)} flops {sorted(fast)}')
 
@@ -386,10 +392,14 @@ def stage_decompose() -> int:
                              'steps_plus_one': up, 'steps_total': len(trans),
                              'bit_order': 'flops[0] is bit 0 (least significant) upward'},
             'message_counter': {'flops': block_flops('message_counter')},
-            'region_counter_bit': {'flops': block_flops('region_counter_bit'),
+            'column_counter_bit': {'flops': block_flops('column_counter_bit'),
                                    'note': 'two changes under the winning feed and more under a '
-                                           'failing one: a per-region counter whose region holds '
-                                           'exactly two stars, which is what the winning grid is'},
+                                           'failing one. Established afterwards (C4) to be the '
+                                           'per-COLUMN counters: every one of the 11 columns has such '
+                                           'a flop, and each flop\'s two marks are exactly that '
+                                           "column's two stars in the winning grid. The earlier "
+                                           'label `region_counter_bit` was wrong and is corrected '
+                                           'here rather than left standing'},
             'winning_only_bit': {'flops': block_flops('winning_only_bit'),
                                  'note': 'two changes under the winning feed and none under the '
                                          'reference: the payload is the only difference between the '

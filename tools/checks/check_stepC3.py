@@ -143,14 +143,14 @@ def main() -> int:
           f'artifact {claim.get("steps_plus_one")}/{claim.get("steps_total")} '
           f'vs re-derived {up}/{len(trans)}')
 
-    # ---- the region bits fire twice, which is the 2-stars-per-region fact -------------
-    region = blocks['region_counter_bit']['flops']
-    fires = {f: sum(1 for k in range(1, len(q[f])) if q[f][k] != q[f][k - 1]) for f in region}
-    check('every region-counter bit fires exactly twice under the winning feed',
+    # ---- the two-shot bits fire twice: the per-column counters ------------------------
+    column = blocks['column_counter_bit']['flops']
+    fires = {f: sum(1 for k in range(1, len(q[f])) if q[f][k] != q[f][k - 1]) for f in column}
+    check('every two-shot bit fires exactly twice under the winning feed',
           fires and all(v == 2 for v in fires.values()),
           f'{sum(1 for v in fires.values() if v == 2)} of {len(fires)} fire twice')
-    check('at least 22 bits fire exactly twice: two bits for each of 11 regions, each seeing its '
-          'two stars',
+    check('at least 22 bits fire exactly twice: the 11 per-column counters, each seeing its '
+          "column's two stars",
           len(fires) >= 22, f'{len(fires)} bits x 2 transitions = {sum(fires.values())} events')
 
     # ---- hermeticity: the harnesses must be reproducible from the stage --------------
