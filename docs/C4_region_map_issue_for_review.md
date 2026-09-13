@@ -1,5 +1,31 @@
 # The C4 issue: we cannot find the hidden region map, and the evidence says the chip may not compute one per cell
 
+## Postscript (same day) — part of §4 has been superseded
+
+Written after §4, and recorded rather than quietly edited in, because it changes the picture:
+
+A test that does **not** use single-star stimuli — remove one star at a time from the *accepted* board
+and compare each flop's full state trajectory (`probe_c4aq.py`) — recovers a **perfect matching of the
+22 stars into 11 pairs**, and it is exactly the grouping this project derived earlier and then withdrew.
+So the region mechanism **does exist as counters**; what made it invisible was that the single-star
+stimuli used in §4 and §5 put an **invalid** board on the wire (one star fails "2 per row" the moment
+row 0 ends), and the region counters evidently only run while the pattern is still on a valid path.
+
+That also means the published method as our notes describe it **cannot work on this design** — not
+because the method is wrong, but because its stimulus is an invalid board.
+
+Corrected state of the issue:
+
+* region **pairing** (which two stars share a region): **recovered**, confirmed by two independent routes;
+* region **extents** (which of the 121 cells belong to each region): **still not recovered** — but the
+  eleven region counters are now *identified flops*, so their enable cones are a known target, and
+  evaluating those cones over the 121 cells is the remaining step.
+
+Consequently §9's options shift: option 1 is now a well-posed step rather than "try pairs and hope", and
+options 2 and 3 (close as a negative / re-scope) are correspondingly less attractive. The §4 table's
+R11 and R12 rows remain literally true *for the stimuli they used*, and are superseded by this test.
+
+
 **What this document is.** A statement of one blocked item in a reverse-engineering project, written so
 that it can be reviewed without any other context: what the chip is, what we set out to recover, what
 we verified, exactly what we searched for and found, how strong each negative is, the one experiment
