@@ -495,3 +495,21 @@ must fail — and does.
 The fault grid learned C1's three new artifacts (**70 mutations × 19 gates**: `build/replay_tb.v`,
 `recon/derived/vcd_replay.json`, `recon/derived/c1_power.json`, and `stepC1` as the 19th gate), so
 C1's own evidence is subject to the same "can it fail?" question as everything before it.
+
+C1's own surface was closed with a **focused sweep** rather than the full grid, because the full
+grid has grown from ~16 minutes to ~90–120: `stepC1` re-simulates the design three times and
+rebuilds the whole cell library 66 times to measure itself, and the grid runs every gate for every
+mutation. `fault_inject.py --only REGEX` now filters mutations by label, so a step's new surface can
+be closed on its own and the whole grid is spent at a **phase boundary** instead. Measured:
+
+```
+--only 'replay_tb:|vcd_replay:|c1_power:': 10 of 70 mutations
+mutations with no gate firing : 0
+hermeticity violations        : 0
+artifacts restored            : True
+FAULT INJECTION: PASS
+```
+
+Every one of the 10 fired **`stepC1` and only `stepC1`** — which is also the evidence that the new
+gate owns its three artifacts, and that no older gate is silently covering for them. The full
+70 × 19 grid is scheduled for the end of Phase C.

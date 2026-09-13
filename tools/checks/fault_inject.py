@@ -5,7 +5,15 @@ Deliberately **not** named `check_*.py`, so `run_all.py` does not pick it up. It
 derived artifacts, so it is a diagnostic you run deliberately, not part of the routine
 suite:
 
-    .venv/Scripts/python tools/checks/fault_inject.py
+    .venv/Scripts/python tools/checks/fault_inject.py [--only REGEX]
+
+`--only` restricts the sweep to the mutations whose label matches REGEX, which is how a *new*
+step's coverage gets closed without paying for the whole grid. The cost matters: the grid runs
+every gate for every mutation, so a gate that takes 20 s to run (C1's, which re-simulates the
+design three times and rebuilds the whole cell library 66 times to measure itself) turns a
+16-minute grid into something closer to two hours. Use `--only` while a phase is in progress and
+the full grid at a phase boundary. The baseline check is unaffected -- all gates must still pass
+before any mutation is injected.
 
 **Run it alone.** It holds artifacts in a mutated state between two restores, so anything
 reading them concurrently can see a fault on purpose. Running `run_all.py` alongside it
@@ -623,6 +631,17 @@ def run_gate(rel: str) -> int:
 
 
 def main() -> int:
+    argv = sys.argv[1:]
+    only = None
+    if argv:
+        if len(argv) != 2 or argv[0] != '--only':
+            print('usage: fault_inject.py [--only REGEX]', file=sys.stderr)
+            return 2
+        only = re.compile(argv[1])
+    selected = [m for m in MUTATIONS if only is None or only.search(m[0])]
+    if not selected:
+        print(f'--only {argv[1]!r} matches no mutation label', file=sys.stderr)
+        return 2
     # A run that died between a mutation and its restore left the tree holding corrupted
     # artifacts. Detect that rather than starting on top of it -- otherwise the baseline
     # check below aborts with a misleading "baseline already failing", pointing the finger
@@ -654,12 +673,14 @@ def main() -> int:
     names = [n for n, _ in GATES]
     header = 'injected fault'.ljust(46) + '| ' + ' '.join(n.rjust(9) for n in names)
     print()
+    if only is not None:
+        print(f'--only {argv[1]!r}: {len(selected)} of {len(MUTATIONS)} mutations')
     print(header)
     print('-' * len(header))
 
     misses, nonhermetic, fired_any = [], [], set()
     try:
-        for label, art, mut in MUTATIONS:
+        for label, art, mut in selected:
             cells, fired = [], []
             for gname, grel in GATES:
                 restore(pristine)
@@ -695,6 +716,7 @@ def main() -> int:
     silent = [n for n, _ in GATES if n not in fired_any]
     left = drift(pristine)
     print()
+    print(f'mutations in this sweep       : {len(selected)} of {len(MUTATIONS)}')
     print(f'mutations with no gate firing : {len(misses)}')
     for m in misses:
         print('  -', m)
