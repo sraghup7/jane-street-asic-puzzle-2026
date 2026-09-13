@@ -762,3 +762,93 @@ deliberate and now measured: neither gate can be softened without the other noti
 The 21 other gates that never fired in this sweep are the ones whose artifacts these mutations do
 not touch — the same list the earlier focused sweeps produced, and the reason `--only` is legitimate
 for a step being closed out.
+
+---
+
+## 15. Phase D — the answer, derived rather than reproduced (2026-09-13)
+
+**Why this section exists.** Until now AC1 read honestly as *"our netlist reproduces the published
+vector"*: `tools/target.py` supplied the 121 bits, E1 drove them through the chip and the chip said
+`(* TWO STARS *)`. That is a strong statement about the *netlist* and no statement at all about the
+*puzzle* — the vector came from the answer key. D closes that: the constraint system we recovered is
+handed to our own search, and the vector falls out of it.
+
+### What was built
+
+`tools/puzzle/solve.py` — one stage (`python -m tools.puzzle solve`, ~20 s) covering D1–D4, writing
+`recon/derived/solutions.json`:
+
+* **two enumerators, written separately, both run to completion.** `solve_rows` works row by row over
+  the 45 legal column pairs with cell-set pruning; `enumerate_bitmask` works over 11-bit row masks with
+  an explicit stack, where the eight-neighbour rule between adjacent rows is one bitwise expression
+  (`next & (mask | mask << 1 | mask >> 1)`). Agreement between them is agreement between two programs,
+  not a re-run of one.
+* **the validator is not the solver.** All five constraints are recomputed from the finished grid by
+  `tools/target.py::check_constraints` — written in Step 1, before any solver existed — plus the
+  class loads counted from C4's partition.
+* **the region constraint is an input, not an assumption.** It is loaded from
+  `recon/derived/c4_partition.json`; `region_partition()` refuses to run if the artifact is missing or
+  if the number of non-column capacity-2 covers is anything but one, because an arbitrary choice there
+  would silently change the problem being solved.
+
+### The result
+
+| | |
+|---|---|
+| D1 solver | **exactly 1 solution**, search complete, 715 877 nodes |
+| D2 independent enumerator | **exactly 1 solution**, the same board, 32 214 420 nodes |
+| agreement | on the board **and** on the count |
+| recomputed validation | 22 stars · two per row · two per column · 0 adjacent pairs · class loads all 2 |
+| D4 | **== `target.FEED_ORDER`**, its reverse **== `target.WITNESS_AS_PRINTED`**, board **== published grid** |
+| D3 (bounded, honestly) | without the region constraint: **≥100 000** solutions, cap hit at 1 027 376 nodes |
+| the discriminator | with the **column** cover instead: **≥2** solutions |
+
+That last row is worth more than the uniqueness result itself. C4 produced *two* capacity-2 covers
+from the netlist's own latches: the ragged partition and the columns. The columns cover is the
+visible two-per-column rule, so as a "region constraint" it constrains nothing — and the count says
+so. Since the published design accepts exactly one input, **the column cover cannot be the hidden
+rule**, and the ragged partition is the one that is consistent with it. This does not prove the
+ragged partition is the rule (its own evidence is bounded in §14 — 2 of 40 look-alikes pin the answer
+too, and the chip's verdicts cannot separate them), but it eliminates the only competing candidate
+the netlist offers.
+
+### The honest limit, asserted rather than glossed
+
+Uniqueness is **relative to C4's candidate partition**. The artifact records which partition was used
+and where it came from; `check_stepD.py` (22/22) re-runs both enumerators live, validates through the
+Step-1 checker, asserts both bit orders, requires D3's bound to be recorded as a bound, and requires
+the column-cover discriminator to hold. The claim this supports is "the answer is derived by our own
+search over a constraint system we recovered, one of whose five constraints is a candidate" — which
+is strictly more than "reproduced", and strictly less than "solved the puzzle from first principles".
+
+### Defects found in this step (both mine, both fixed before the gate passed)
+
+1. A coverage check that assumed all classes are the same size (`sorted(class_of) == list(range(n))
+   * (121 // n)`) — it only holds when every class is 11 cells, which is exactly the *column* cover
+   and not the ragged one. Replaced with a multiplicity check against the recorded class sizes.
+2. Dead code left in the first draft of `stage_solve` (a `... if False else ...` grid conversion and
+   two discarded `solve_rows` calls, one of which would have re-run a half-million-solution search).
+   The gate did not exist yet; reading the file caught it.
+
+### Fault injection
+
+```
+.venv/Scripts/python tools/checks/fault_inject.py --only "^solutions:"
+```
+
+RESULT (`recon/scratch/fault_d.txt`): **5 of 99 mutations in the focused sweep, 0 escaped,
+0 hermeticity violations, `artifacts restored: True`, PASS** — and every one fired **`stepD` and only
+`stepD`**:
+
+```
+injected fault                                 | ... stepC4  stepC5  stepD  stepE1
+solutions: a second solution claimed           | ...      .       .   FAIL       .   -> stepD
+solutions: one bit of the vector flipped       | ...      .       .   FAIL       .   -> stepD
+solutions: a star moved in the board           | ...      .       .   FAIL       .   -> stepD
+solutions: the enumerators made to disagree    | ...      .       .   FAIL       .   -> stepD
+solutions: a class loaded beyond capacity      | ...      .       .   FAIL       .   -> stepD
+```
+
+One bit of the 121 is enough to fail the gate, which is the point: AC1 is a byte-exact contract, and
+the mutation that flips exactly one bit — the smallest possible corruption of the answer — is caught
+by the check that compares it to `target.FEED_ORDER` rather than by anything downstream.

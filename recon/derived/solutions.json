@@ -1,0 +1,242 @@
+{
+  "generated_by": "tools/puzzle/solve.py::stage_solve",
+  "method": {
+    "why": "AC1 asks for the 121-bit vector. Reproducing it from the published target proves nothing about our recovery, so it is derived here from the constraint system we recovered: four mechanical rules plus the hidden constraint as C4 recovered it",
+    "two_enumerators": "solve_rows (rows / column pairs / recursion / cell-set pruning) and enumerate_bitmask (11-bit row masks / explicit stack / one bitwise adjacency test) are written separately and must agree on both the solution and the count",
+    "validator": "tools/target.py::check_constraints recomputes the four mechanical rules from the grid -- an implementation from Step 1, independent of both enumerators -- and the fifth is counted from the partition",
+    "region_constraint": "the candidate partition from C4, not an assumption: it is what makes the count one, and it is a candidate (see C4 R20 for what that is worth)"
+  },
+  "constraints": {
+    "ones": 22,
+    "per_row": 2,
+    "per_col": 2,
+    "no_adjacency": true,
+    "per_region_max": 2
+  },
+  "region_partition": {
+    "source": "recon/derived/c4_partition.json",
+    "flops": [
+      "i0285",
+      "i0405",
+      "i0432",
+      "i0433",
+      "i0555",
+      "i0556",
+      "i0630",
+      "i0706",
+      "i0763",
+      "i0798",
+      "i0837"
+    ],
+    "class_sizes": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      8,
+      9,
+      11,
+      14,
+      21,
+      28
+    ],
+    "is_the_visible_column_rule": false
+  },
+  "solutions_found": 1,
+  "unique": true,
+  "solution": {
+    "grid": [
+      ".......*.*.",
+      "*....*.....",
+      ".......*.*.",
+      "*.*........",
+      "....*.*....",
+      "..*.....*..",
+      "....*.....*",
+      ".*....*....",
+      "...*......*",
+      ".....*..*..",
+      ".*.*......."
+    ],
+    "cells": [
+      [
+        0,
+        7
+      ],
+      [
+        0,
+        9
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        2,
+        9
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        8,
+        10
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        10,
+        3
+      ]
+    ],
+    "feed_order": "0000000101010000100000000000010101010000000000001010000001000001000000100000101000010000000100000010000010010001010000000",
+    "as_printed": "0000000101000100100000100000010000000100001010000010000001000001000000101000000000000101010100000000000010000101010000000",
+    "feed_order_bits": 121,
+    "ones": 22
+  },
+  "enumerators": {
+    "rows_dfs": {
+      "count": 1,
+      "nodes": 715877,
+      "complete": true
+    },
+    "bitmask_stack": {
+      "count": 1,
+      "nodes": 32214420,
+      "complete": true
+    },
+    "agree_on_solution": true,
+    "agree_on_count": true
+  },
+  "validation": {
+    "mechanical": {
+      "ones_total": 22,
+      "row_counts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "col_counts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "per_row_ok": true,
+      "per_col_ok": true,
+      "adjacent_pairs": [],
+      "no_adjacency": true,
+      "total_ok": true
+    },
+    "region_loads": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "region_capacity_ok": true,
+    "stars": 22,
+    "all_five_ok": true
+  },
+  "against_target": {
+    "feed_order_equals": true,
+    "as_printed_equals": true,
+    "board_equals": true
+  },
+  "load_bearing": {
+    "region_free": {
+      "solutions_seen": 100000,
+      "nodes": 1027376,
+      "bounded": true,
+      "cap": 100000,
+      "node_budget": 30000000
+    },
+    "column_cover": {
+      "solutions_seen": 2,
+      "cap": 2,
+      "note": "the other capacity-2 cover C4 found is the visible column rule, so it adds no constraint; the published uniqueness result (exactly one accepted input) therefore rules it out as the hidden rule"
+    }
+  }
+}

@@ -77,6 +77,7 @@ GATES = [
     ('stepC3', 'tools/checks/check_stepC3.py'),
     ('stepC4', 'tools/checks/check_stepC4.py'),
     ('stepC5', 'tools/checks/check_stepC5.py'),
+    ('stepD', 'tools/checks/check_stepD.py'),
     ('stepE1', 'tools/checks/check_stepE1.py'),
 ]
 
@@ -115,9 +116,11 @@ BLOCKS = 'recon/derived/blocks.json'
 C4ART = 'recon/derived/c4_partition.json'
 C5ART = 'recon/derived/c5_rejections.json'
 E1ART = 'recon/derived/e1_messages.json'
+# D's: the derived board, both bit orders, the two enumerators' counts and the validation.
+SOLART = 'recon/derived/solutions.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
              PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW,
-             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART]
+             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -649,6 +652,39 @@ def m_e1_open_hidden(d):
     d['open'] = 'every message class reproduced'
 
 
+# --- D: the derived board, both bit orders, the enumerators, the validation -------------
+def m_d_uniqueness_faked(d):
+    """Claim a second solution: the gate re-runs both searches and counts."""
+    d['unique'] = False
+    d['solutions_found'] = 2
+
+
+def m_d_vector_flipped(d):
+    """Flip one bit of the derived 121-bit vector: AC1 is exactly this string."""
+    bits = d['solution']['feed_order']
+    d['solution']['feed_order'] = ('0' if bits[0] == '1' else '1') + bits[1:]
+
+
+def m_d_grid_moved(d):
+    """Move a star in the recorded board, leaving the JSON well formed."""
+    row = d['solution']['grid'][0]
+    moved = ('*' if row[0] == '.' else '.') + row[1:]
+    d['solution']['grid'][0] = moved
+    d['validation']['mechanical']['row_counts'] = [row.count('*') for row in d['solution']['grid']]
+
+
+def m_d_enumerator_disagree(d):
+    """Make the two enumerators disagree, which is the one thing D2 exists to detect."""
+    d['enumerators']['bitmask_stack']['count'] = 2
+    d['enumerators']['agree_on_count'] = False
+
+
+def m_d_region_load(d):
+    """Overload a class on the recorded board: five constraints, not four."""
+    d['validation']['region_loads'][0] = 3
+    d['validation']['region_capacity_ok'] = False
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -744,6 +780,11 @@ MUTATIONS = [
     ('e1_messages: the rising cycle moved', E1ART, m_e1_cycle),
     ('e1_messages: a decoded message changed', E1ART, m_e1_message),
     ('e1_messages: the open item deleted', E1ART, m_e1_open_hidden),
+    ('solutions: a second solution claimed', SOLART, m_d_uniqueness_faked),
+    ('solutions: one bit of the vector flipped', SOLART, m_d_vector_flipped),
+    ('solutions: a star moved in the board', SOLART, m_d_grid_moved),
+    ('solutions: the enumerators made to disagree', SOLART, m_d_enumerator_disagree),
+    ('solutions: a class loaded beyond capacity', SOLART, m_d_region_load),
 ]
 
 

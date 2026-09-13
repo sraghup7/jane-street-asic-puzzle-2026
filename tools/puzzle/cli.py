@@ -46,10 +46,12 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('winning',           'verdict',    'E1', 'the winning vector driven through the netlist'),
     ('confirm',           'simulate',   'E2', 'the four wrong-input messages under iverilog'),
     # --- Phase D: solve -----------------------------------------------------------
-    ('solve',             'solve',      'D1', 'our own constraint solver over the region map'),
-    ('uniqueness',        'solve',      'D2', 'exhaustive enumeration; two independent enumerators'),
-    ('load-bearing',      'solve',      'D3', 'how much work the region constraint actually does'),
-    ('answer',            'solve',      'D4', 'emit the vector in both bit orders'),
+    # One computation, four plan steps: each stage name runs the whole D phase and prints its
+    # section. Kept as four entries so the stage table still lines up with the plan.
+    ('solve',             'solve',      'D1', 'our own solver over the five constraints (runs all of D)'),
+    ('uniqueness',        'solve',      'D2', 'two independent enumerations, run to completion'),
+    ('load-bearing',      'solve',      'D3', 'the bounded count without the region constraint'),
+    ('answer',            'solve',      'D4', 'the vector in both bit orders, against the contract'),
     # --- Phase E: confirm ---------------------------------------------------------
     ('acceptance',        'accept',     'E3', 'assert AC1-AC6 against tools/target.py'),
     ('reproduce',         'accept',     'E4', 'full pipeline from clean in one command'),
@@ -80,6 +82,7 @@ GATE_NOTES: dict[str, str] = {
     'stepB7': 'the whole chain, on a design whose real netlist we hold',
     'stepC4': 'the instrument, the verdict flop, and the candidate partition with its controls',
     'stepC5': 'the hidden constraint exists; and how little a rejection says about the map',
+    'stepD': 'the answer derived by us: two enumerators agree, and both bit orders match',
     'stepE1': 'success at cycle 126, and the four wrong-input messages',
 }
 

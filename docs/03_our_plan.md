@@ -842,6 +842,35 @@ member of that set.
 `target.WITNESS_AS_PRINTED` — the Step 2 ordering trap, asserted explicitly so it can never be a
 false negative.
 
+***Outcome (executed 2026-09-13): D1–D4 PASS — the answer is now derived by us, not reproduced.***
+One stage, `python -m tools.puzzle solve` → `recon/derived/solutions.json` (~20 s), because the four
+steps share one search and one artifact; the four stage names in the table all run it and print their
+section. *(Amendment: the plan named `solve/solutions.json` as D1's artifact; every other derived
+artifact lives in `recon/derived/`, which is where the gates and the fault-injection harness look, so
+the path is `recon/derived/solutions.json`.)*
+
+The result, for the five constraints (§6.7 plus C4's partition):
+
+| | |
+|---|---|
+| D1 solver (rows / column pairs / recursion) | **exactly 1 solution**, search complete, 715 877 nodes |
+| D2 enumerator (11-bit masks / explicit stack) | **exactly 1 solution**, same board, 32 214 420 nodes |
+| the two agree | on the board **and** on the count |
+| validation, recomputed from the grid | `tools/target.py`'s own checker: 22 stars, two per row, two per column, 0 adjacent pairs, plus class loads **all 2** |
+| D4 | derived vector **== `target.FEED_ORDER`**; its reverse **== `target.WITNESS_AS_PRINTED`**; the board **== the published grid** |
+| D3 (bounded) | without the region constraint: **≥100 000 solutions** (cap hit at 1 027 376 nodes) |
+| **the discriminator** | with the *column* cover instead: **≥2 solutions** — the visible rule adds nothing, so the published uniqueness result rules that cover out as the hidden rule |
+
+That last row is the sharpest statement the project has about C4's two candidate covers: of the two
+capacity-2 covers the netlist's own latches produce, one (the columns) cannot be the hidden rule,
+and the other (the ragged partition) is consistent with it — it is the constraint that makes the
+answer unique. Uniqueness is asserted **relative to that partition**, and the artifact records which
+partition and where it came from, because the partition is a candidate (C4 R20), not a certainty.
+
+*Gate:* `tools/checks/check_stepD.py` → **22/22**, re-running both enumerators live rather than
+reading their counts, validating through the Step-1 checker, and asserting both bit orders plus the
+bound in D3.
+
 ### Phase E — Confirm the answer
 
 **E1 — Simulate the solved vector.**
@@ -949,7 +978,7 @@ stop and report rather than proceeding on an unvalidated netlist.
 
 | Criterion | Steps responsible | Gate |
 |---|---|---|
-| AC1 exact 121-bit vector | C4 → D1 → D2 → D4 | `check_stepD` (equality with `target.FEED_ORDER`) |
+| AC1 exact 121-bit vector | C4 → D1 → D2 → D4 (**derived**, 2026-09-13) | `check_stepD` (22) — two enumerators agree, and both bit orders match the contract |
 | AC2 `success` at cycle 126 | B5, B6, C1 → E1 | `check_stepE` |
 | AC3 `(* TWO STARS *)` | B5, B6, C1 → E1 | `check_stepE` |
 | AC4 four wrong-input messages | B5, B6 → E2 | `check_stepE` |
