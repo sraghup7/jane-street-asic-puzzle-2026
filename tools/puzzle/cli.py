@@ -37,6 +37,7 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('warmup-regression', 'warmup',    'B7', 'reproduce warmup/01_netlist.v connectivity'),
     # --- Phase C: understand the chip ---------------------------------------------
     ('vcd-replay',        'simulate',   'C1', 'byte-exact replay of example_inputs.vcd'),
+    ('model-power',       'power',      'C1', 'how much a wrong cell model would show up in C1'),
     ('warmup-equiv',      'simulate',   'C2', 'validate our cell models on the warmup adder'),
     ('decompose',         'analyse',    'C3', 'label the counters, shift register, comparator, ROM'),
     ('regions',           'regions',    'C4', 'symbolically decode the region-select logic'),

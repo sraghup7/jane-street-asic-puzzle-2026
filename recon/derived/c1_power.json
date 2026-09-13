@@ -1,0 +1,630 @@
+{
+  "generated_by": "tools/puzzle/power.py::stage_model_power",
+  "purpose": "measure what the C1 replay can and cannot see, by negating each cell model in a scratch rebuild of build/cells.v and counting the output cycles that move. A model whose negation moves nothing is a model C1 cannot vouch for.",
+  "reference": {
+    "path": "asic-puzzle-2026/example_inputs.vcd",
+    "sha256": "2247ae1c1195322616e9ac81dbfccb5b84c9994b96c28f1a106c2100a7bcbe2e",
+    "cycles": 312,
+    "message_cycles": 18
+  },
+  "method": {
+    "mutation": "wrap the modelled output expression in a complement: assign <out> = ~(<expr>); or, for the sequential models, invert the data input",
+    "applied_to": "a scratch copy of build/cells.v; the tree is never modified",
+    "harness": "tools/puzzle/simulate.py::run_simulation against build/replay_tb.v and build/puzzle.v",
+    "metric": "cycles whose O or success differs from the reference, over 312"
+  },
+  "baseline": {
+    "cycles": 312,
+    "iverilog_rc": 0,
+    "output_bits_mismatched": 0
+  },
+  "totals": {
+    "modules": 69,
+    "mutated": 66,
+    "caught": 37,
+    "silent": 29,
+    "not_mutable": 3
+  },
+  "per_model": [
+    {
+      "model": "sky130_fd_sc_hd__a2111oi_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a211o_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 30,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a211oi_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 34,
+      "first_wrong_cycle": 103,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a21bo_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a21boi_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 36,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a21o_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 194,
+      "first_wrong_cycle": 37,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a21oi_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a221o_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a221oi_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 36,
+      "first_wrong_cycle": 37,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a22o_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a22oi_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a311o_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a31o_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 45,
+      "first_wrong_cycle": 4,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a31oi_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a32o_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 170,
+      "first_wrong_cycle": 3,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__a41oi_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and2_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and2b_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and3_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 312,
+      "first_wrong_cycle": null,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and3b_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and4_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and4b_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 26,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__and4bb_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 46,
+      "first_wrong_cycle": 15,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__buf_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__clkbuf_16",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 22,
+      "first_wrong_cycle": null,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__clkbuf_4",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__clkbuf_8",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 22,
+      "first_wrong_cycle": null,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__conb_1",
+      "mutation": "HI = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__decap_3",
+      "mutation": null,
+      "cycles_wrong": null,
+      "first_wrong_cycle": null,
+      "caught": null,
+      "note": "a physical-only master: no logic to negate"
+    },
+    {
+      "model": "sky130_fd_sc_hd__dfrtp_2",
+      "mutation": "<= D inverted",
+      "cycles_wrong": 316,
+      "first_wrong_cycle": 3,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__dfstp_2",
+      "mutation": "<= D inverted",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__dfxtp_2",
+      "mutation": "<= D inverted",
+      "cycles_wrong": 40,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__diode_2",
+      "mutation": null,
+      "cycles_wrong": null,
+      "first_wrong_cycle": null,
+      "caught": null,
+      "note": "a physical-only master: no logic to negate"
+    },
+    {
+      "model": "sky130_fd_sc_hd__inv_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__mux2_1",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nand2_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nand2b_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nand3_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nand3b_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 36,
+      "first_wrong_cycle": 15,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nand4_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nor2_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nor3_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 28,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nor3b_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 30,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nor4_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__nor4b_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o211a_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 48,
+      "first_wrong_cycle": 103,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o211ai_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o21a_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o21ai_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o21ba_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 30,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o21bai_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o221a_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o22a_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 30,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o22ai_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o2bb2a_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o311a_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 36,
+      "first_wrong_cycle": 37,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o31a_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 30,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o31ai_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o32a_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__o32ai_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__or2_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 140,
+      "first_wrong_cycle": 3,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__or3_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 30,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__or3b_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__or4_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__or4b_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__or4bb_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 0,
+      "first_wrong_cycle": null,
+      "caught": false,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+      "mutation": null,
+      "cycles_wrong": null,
+      "first_wrong_cycle": null,
+      "caught": null,
+      "note": "a physical-only master: no logic to negate"
+    },
+    {
+      "model": "sky130_fd_sc_hd__xnor2_2",
+      "mutation": "Y = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    },
+    {
+      "model": "sky130_fd_sc_hd__xor2_2",
+      "mutation": "X = ~(...)",
+      "cycles_wrong": 18,
+      "first_wrong_cycle": 125,
+      "caught": true,
+      "note": null
+    }
+  ],
+  "observations": [
+    {
+      "observation": "the F1 break is machine-checked here",
+      "detail": "negating sky130_fd_sc_hd__or2_2 moves 140 output cycles, starting at cycle 3. In the Phase B review the same break passed all 18 gates; C1 is the first oracle in the project that sees it."
+    },
+    {
+      "observation": "the undriven net s two consumers are silent",
+      "detail": "both a311o_2 and a31oi_2 -- the cells that read n806 -- move nothing when negated, which is the forced-run experiment s conclusion reached from the other direction. E1 re-checks it on the winning vector, where the design reads its inputs for real."
+    },
+    {
+      "observation": "a large comparison count is not strength",
+      "detail": "37 of 66 negations are visible and 29 are not. The 2808-bit figure counts comparisons; this counts what a wrong netlist could get away with."
+    }
+  ],
+  "checks": [
+    {
+      "check": "the baseline replay agrees with the reference before any mutation",
+      "passed": true
+    },
+    {
+      "check": "every mutable model was rebuilt with its function negated",
+      "passed": true
+    },
+    {
+      "check": "the physical-only masters are the only ones with no logic to negate",
+      "passed": true
+    },
+    {
+      "check": "every model is classified exactly once",
+      "passed": true
+    },
+    {
+      "check": "the F1 experiment s break (negated or2_2) is caught by C1",
+      "passed": true
+    },
+    {
+      "check": "and it is caught early, not merely somewhere",
+      "passed": true
+    },
+    {
+      "check": "C1 is partial by measurement, not by assumption: some models are silent",
+      "passed": true
+    },
+    {
+      "check": "both consumers of the chip s undriven net are silent here",
+      "passed": true
+    }
+  ]
+}

@@ -64,6 +64,7 @@ GATES = [
     ('stepB5', 'tools/checks/check_stepB5.py'),
     ('stepB6', 'tools/checks/check_stepB6.py'),
     ('stepB7', 'tools/checks/check_stepB7.py'),
+    ('stepC1', 'tools/checks/check_stepC1.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -82,8 +83,13 @@ PUZZLEV = 'build/puzzle.v'
 CELLSV = 'build/cells.v'
 WARMV = 'build/warmup.v'
 WARMREP = 'recon/derived/warmup_b7.json'
+# C1 added a generated harness (text) and two reports (JSON): the replay itself, and the
+# measurement of what the replay can see.
+REPLAYV = 'build/replay_tb.v'
+REPLAY = 'recon/derived/vcd_replay.json'
+POWER = 'recon/derived/c1_power.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
-             PUZZLEV, CELLSV, WARMV, WARMREP]
+             PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -412,6 +418,66 @@ def m_chk_infeasible(d):
     d['totals']['infeasible_nets'] = 7
 
 
+# --- C1: the generated harness, and the two C1 reports --------------------------------
+def m_v_replay_shift(text):
+    """Move the stimulus one clock period: the outputs must land somewhere else."""
+    lines = text.splitlines()
+    for i, ln in enumerate(lines):
+        m = re.match(r"^(\s*)#(\d+)(.*enable = 1'b0;.*)$", ln)
+        if m:
+            lines[i] = f'{m.group(1)}#{int(m.group(2)) + 10000}{m.group(3)}'
+            return '\n'.join(lines) + '\n'
+    raise AssertionError('the harness has no enable falling edge to move')
+
+
+def m_v_replay_short(text):
+    """Run one cycle short: a missing reading must not pass as a match."""
+    return text.replace('localparam integer CYCLES = 312;', 'localparam integer CYCLES = 311;')
+
+
+def m_v_replay_no_delay(text):
+    """Sample in the edge's own time step, before the flops update: the convention is pinned."""
+    return text.replace('localparam integer SAMPLE_DELAY_PS = 1;',
+                        'localparam integer SAMPLE_DELAY_PS = 0;')
+
+
+def m_rep_reference_value(d):
+    """Change one byte of the reference table: it must be checked against the file, not trusted."""
+    d['reference_values']['O'][125] = '00000000'
+
+
+def m_rep_stream_text(d):
+    """Change the decoded message: the ASCII reading is asserted, not assumed."""
+    d['decode']['streams'][0]['text'] = 'TRY AGAINX'
+
+
+def m_rep_probe_z(d):
+    """Claim the undriven net read 0: the probe reading is evidence, so it is checked."""
+    d['undriven_probe']['n806']['values_seen'] = ['0']
+
+
+def m_rep_forced_run(d):
+    """Claim a forced run moved outputs, when the same artifact says it moved none."""
+    d['forced_runs']['0']['moved_count'] = 3
+
+
+def m_pw_totals(d):
+    """Fake a total: the per-model records must add up to it."""
+    d['totals']['caught'] = 40
+
+
+def m_pw_f1_silent(d):
+    """Mark the F1 break invisible: the gate re-measures it and must disagree."""
+    rec = next(r for r in d['per_model'] if r['model'] == 'sky130_fd_sc_hd__or2_2')
+    rec['caught'], rec['cycles_wrong'] = False, 0
+
+
+def m_pw_consumer_visible(d):
+    """Call a consumer of the undriven net visible: it corroborates the forced-run result."""
+    rec = next(r for r in d['per_model'] if r['model'] == 'sky130_fd_sc_hd__a311o_2')
+    rec['caught'], rec['cycles_wrong'] = True, 18
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -473,6 +539,16 @@ MUTATIONS = [
     ('warmup_b7: equivalence claimed on half the coverage', WARMREP, m_b7_claim_equivalent),
     ('warmup_b7: the well ties claimed as assigned', WARMREP, m_b7_claim_vpb),
     ('warmup_b7: a located port dropped', WARMREP, m_b7_drop_port),
+    ('replay_tb: stimulus moved one clock period', REPLAYV, m_v_replay_shift),
+    ('replay_tb: one cycle short', REPLAYV, m_v_replay_short),
+    ('replay_tb: samples in the edge s time step', REPLAYV, m_v_replay_no_delay),
+    ('vcd_replay: a reference byte changed', REPLAY, m_rep_reference_value),
+    ('vcd_replay: the decoded message changed', REPLAY, m_rep_stream_text),
+    ('vcd_replay: the undriven probe reading changed', REPLAY, m_rep_probe_z),
+    ('vcd_replay: a forced run claimed to move outputs', REPLAY, m_rep_forced_run),
+    ('c1_power: the caught count faked', POWER, m_pw_totals),
+    ('c1_power: the F1 break called silent', POWER, m_pw_f1_silent),
+    ('c1_power: an undriven-net consumer called visible', POWER, m_pw_consumer_visible),
 ]
 
 

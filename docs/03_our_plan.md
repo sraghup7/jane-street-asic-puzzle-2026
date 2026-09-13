@@ -586,8 +586,10 @@ Three things worth carrying forward:
 * **Phase B is closed.** Every step in it is now verified against something outside itself — the
   A-phase numbers by `check_recompute.py`, B1–B5 by their gates, B6 by a parse-back round trip, B7 by
   an independent netlist for a design we did not author. `net 806` remains the chip's one undriven
-  net and the warm-up has none, so it is a property of this GDS rather than of the engine; C1 will
-  show it as X, and C2 — not B7 — is what makes the cell models trustworthy.
+  net and the warm-up has none, so it is a property of this GDS rather than of the engine; C1 reads
+  it as **`z`** (corrected from "X": 4-state simulation gives an undriven `wire` high impedance,
+  where `x` is what an unwritten `reg` reads), shows it cannot move an interface output under that
+  waveform, and *measures* which models it cannot vouch for — 29 of 66. C2 covers those.
 
 ### Phase C — Understand the chip
 
@@ -599,6 +601,42 @@ cycles (125…134, 281…290); `success` stays low for all 312 cycles.
 *If it fails:* this is the second oracle. A mismatch here with B7 passing means the *models* are
 wrong, not the netlist — bisect by comparing our `O[]` driver cones against the VCD's observed
 `O` transitions.
+
+***Outcome (executed): PASS.*** The reference is 625 clock edges at a uniform 5000 ps half period,
+312 cycles, with every change to `rst_n`/`enable`/`I` on a falling edge — so cycle *k* is *t* = 5000
++ 10000*k* ps: the register state after that rising edge, with the stimulus held across the cycle.
+The harness is **generated** from the file's own change list (95 timed lines), so it cannot drift
+from the waveform; the only thing asserted rather than transcribed is the clock. Driven by the real
+stimulus, our recovered netlist reproduces the real chip at every sampled instant: **312 × 9 = 2808
+output-bit comparisons, 0 mismatches**, plus 936 stimulus bits, with no `x`/`z` in our outputs. The
+waveform resolves to two 121-bit feeds (cycles 4…124, 160…280) that are *different vectors*, each
+answered nine cycles later by `TRY AGAIN` and then held at `0x00` (125…133, 281…289); `success`
+stays low on all 312 cycles. `recon/vcd_cycles.csv` — the Step-1 dossier's own table, written long
+before C1 and by different code — agrees with a fresh parse of the raw file on all 1872 fields.
+Gate `check_stepC1.py` → **83/83**; 19/19 gates.
+
+Three things this step settles, and one it deliberately does not:
+
+* **"Byte-exact" is defined as semantic equality, and said out loud.** No two simulators produce the
+  same VCD bytes — this reference emits one `$scope` block *per signal*, which no simulator we know
+  of does — so the target is every value of every signal at every sampled instant, `x` included. The
+  gate re-derives the table sampling at a *different* instant than the stage, which pins the
+  convention instead of restating it, and carries a **negative control**: the same harness with the
+  stimulus moved one cycle must fail the comparison, and does.
+* **`net 806` is characterised, narrowly and by experiment.** It reads `z` on all 312 cycles, and
+  forcing it to 0 and then to 1 both leave every interface output identical. Nothing observable
+  rests on it *under this stimulus* — and the claim stops there on purpose: its two consumers
+  (`a311o_2`, `a31oi_2`) mask it state-dependently, so **E1 re-probes it on the winning vector**.
+* **C1's own power is measured, because a large comparison count is not strength.** The reference is
+  294 idle cycles around 18 cycles of one constant message, so C1 constrains *timing* tightly and
+  *message content* weakly. `model-power` negates each cell model in a scratch rebuild of
+  `build/cells.v` and re-runs the replay: **37 of 66 caught, 29 silently pass, 3 physical-only**.
+  `or2_2` — F1's break, which passed all 18 gates in the Phase B review — moves 140 output cycles
+  starting at cycle 3. Those 29 models are C2's job, and the list is why C2 must be exhaustive
+  rather than sampled.
+
+*Not settled here:* *why* the net is undriven (only that it changes nothing on this waveform), and
+whether the models are right for the winning input. C2 and E1 close that.
 
 **C2 — Warm-up functional equivalence (validates the cell models independently).**
 *Method:* simulate our extracted warm-up netlist with our models, applying `warmup/00_source.v`
@@ -714,7 +752,7 @@ no commented-out code, no TODOs.
 |---|---|---|---|---|
 | R-1 | KLayout's connectivity engine cannot be driven to a usable netlist from the pip wheel | Blocks Phase B | B2 spike | Fallback B2′ (own shape-graph extractor). Either outcome is a documented result; the published work left this question open, so we answer it either way |
 | R-2 | In-master pin labels are insufficient (a pin with no label, or a label with no geometry) | Blocks Δ2 | A4/A5 | Report precisely which pins; supplement only for those, using the same geometry logic seeded from the cell's *name-derived* expected pin set — and record the exception |
-| R-3 | Our behavioural models are subtly wrong (polarity, edge) | C1/C2 fail or silently pass | C2 warm-up equivalence over many `(A,B)` | C2 exists specifically for this; D/E also cross-check |
+| R-3 | Our behavioural models are subtly wrong (polarity, edge) | C1 catches 37 of 66 by measurement; the other 29 pass silently | C2 warm-up equivalence, exhaustive over every input vector | C1 quantifies why C2 exists rather than asserting it; D/E also cross-check |
 | R-4 | Region-select cone is not a pure function of the index (depends on state) | C4 fails | C4 "function is total" check | Decode as a function of (index, state-bits) and report the extra dependence; still symbolic |
 | R-5 | The region constraint is not "2 per region" as published | D1 unsatisfiable or D2 count ≠ 1 | D1/D2 | Re-derive the constraint from our own C4 map and report **our** count — if our map says something different from the published prose, that is itself a finding |
 | R-6 | Simulation too slow in `iverilog` | E slow | E1 timing | 121-cycle runs are small; escalate to Verilator-in-WSL only if measured slow, and only as a simulator change |
@@ -752,7 +790,7 @@ stop and report rather than proceeding on an unvalidated netlist.
 | AC2 `success` at cycle 126 | B5, B6, C1 → E1 | `check_stepE` |
 | AC3 `(* TWO STARS *)` | B5, B6, C1 → E1 | `check_stepE` |
 | AC4 four wrong-input messages | B5, B6 → E2 | `check_stepE` |
-| AC5 byte-exact VCD replay | B7, C1 | `check_stepC` |
+| AC5 byte-exact VCD replay (semantic equality at every sampled instant, `x` included) | B7, C1 | `check_stepC1` |
 | AC6 region map, "JS" | C4, C5 | `check_stepC` |
 | Netlist correctness (unstated but load-bearing) | A1–A5, B1–B7 | `check_stepA`, `check_stepB` |
 

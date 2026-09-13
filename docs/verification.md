@@ -1,6 +1,6 @@
-# Verification audit — Phases A and B
+# Verification audit — Phases A, B and C
 
-**Date:** 2026-09-12 · **Scope:** every step executed up to and including B7
+**Date:** 2026-09-12 · **Scope:** every step executed up to and including C1
 **Question asked:** are the executed steps solid enough to build the remaining steps on?
 **Answer:** yes — after fixing three defects found in the Phase-A audit, a fourth found in B5, and
 the Phase-B review's findings (§10), which are coverage gaps rather than wrong data.
@@ -85,7 +85,7 @@ one-line notes in a dict that prints `-` for anything unlisted.
 ## 4. The fault matrix
 
 The table below is this audit's original run — **21 mutations × 11 gates** — kept as the Phase-A
-record. **The current matrix is 60 mutations × 18 gates**, re-run after B7 and after fixing the
+record. **The current matrix is 70 mutations × 19 gates**, re-run after B7 and after fixing the
 fault-injector bug in §10 F2: 0 misses, 0 hermeticity violations, `artifacts restored: True`.
 Every cell is an isolated measurement with a pristine restore between probes, and the "fired"
 column is the real output of `tools/checks/fault_inject.py`:
@@ -414,3 +414,84 @@ F3 also corrected the overstated `method` text inside `pin_net.json`, which is t
 byte that moved** — verified by regenerating the stage and confirming nothing downstream changed.
 F6 needed no change (already documented). Result: B4 58 → **61** checks, B5 52 → **54**, B6
 30 → **37**, the suite stays 18/18, and the 60 × 18 fault grid still passes with 0 misses.
+
+## 11. C1 — the replay oracle, and its power measured (2026-09-12)
+
+C1 is the project's second independent oracle: `example_inputs.vcd` is a simulation of the real
+chip, so its outputs are ground truth for our recovered netlist and our 69 name-derived models.
+This section records what C1 establishes, the two corrections it forced, and — because the number
+is easy to misread — how much the replay can actually see.
+
+### What it establishes
+
+* **312 cycles × 9 output bits = 2808 comparisons, 0 mismatches**, plus 936 stimulus bits, with no
+  `x` or `z` anywhere in our outputs. Our netlist, compiled with our models, reproduces the real
+  design cycle for cycle on the real stimulus.
+* The waveform's own facts, re-derived from the raw file: 625 clock edges at a uniform 5000 ps half
+  period, 312 cycles, every stimulus change on a falling edge, two 121-bit feeds (cycles 4…124,
+  160…280) that are *different* vectors, `TRY AGAIN` twice (125…133, 281…289), `success` low on all
+  312 cycles.
+* `recon/vcd_cycles.csv` — the Step-1 dossier's table, written long before C1 and by different code
+  — agrees with a fresh parse of the raw file on all 1872 fields.
+
+### Two corrections C1 forced
+
+**C1-1 — `net 806` reads `z`, not `x`, and the claim about it was too broad.** B7's §6 and the plan
+both predicted "X". An undriven `wire` is high impedance in 4-state simulation; `x` is what an
+unwritten `reg` reads. Measured: `z` on all 312 cycles. More usefully, forcing it to 0 and then to 1
+leaves every interface output identical — so nothing observable rests on it *under this waveform*,
+and that is where the claim now stops, because its two consumers (`a311o_2`, `a31oi_2`) mask it
+state-dependently and **E1 re-probes it on the winning vector**. Both documents are corrected.
+
+**C1-2 — "byte-exact VCD replay" needed defining (AC5).** No two simulators emit the same VCD bytes
+— this reference emits one `$scope` block *per signal*, which no simulator we know of does — so the
+target is every value of every signal at every sampled instant, `x` included, not a diff of two
+files. Verified to mean exactly that: the gate re-derives the table sampling at a *different*
+instant than the stage (at the edge vs 1 ps after it) and requires the tables to be identical,
+which pins the convention rather than restating it.
+
+### What the replay can see — the number that should not be misread
+
+2808 comparisons is a count, not a measure of strength: 294 of the 312 cycles are idle and the other
+18 carry one constant message, so C1 constrains *timing* tightly and *message content* weakly.
+`model-power` measures what it misses, by negating each cell model in a scratch rebuild of
+`build/cells.v` and re-running the replay (the tree is never touched):
+
+| | |
+|---|---|
+| models negated | 66 of 69 (3 physical-only: decap, diode, tapvpwrvgnd) |
+| **caught** | **37** |
+| **silently passed** | **29** — `a2111oi_2`, `a21bo_2`, `a221o_2`, `a22o_2`, `a22oi_2`, `a311o_2`, `a31oi_2`, `and2_2`, `and3b_2`, `buf_2`, `clkbuf_4`, `conb_1`, `dfstp_2`, `nand2b_2`, `nor4_2`, `o211ai_2`, `o21a_2`, `o21ai_2`, `o21bai_2`, `o221a_2`, `o22ai_2`, `o2bb2a_2`, `o31ai_2`, `o32a_2`, `o32ai_2`, `or3b_2`, `or4_2`, `or4b_2`, `or4bb_2` |
+
+Two things this settles. **F1's break** (`or2_2` negated) moves **140 output cycles starting at
+cycle 3** — C1 is the first oracle in the project that sees it, where the whole 18-gate suite did
+not. And C1's silence on those 29 models is the *specific, measured* reason C2 must be exhaustive
+rather than sampled: §10's open question ("whether our reading of `a21bo`'s family name is correct
+is C1's question") is answered as **not by C1, for 29 of the 66**. All 69 masters are instantiated
+in the chip, so no model is skipped as unused.
+
+A cross-check falls out for free: **both consumers of `n806` are in the silent list**, which is
+C1-1's forced-run conclusion reached from the other direction.
+
+### The gate's own control
+
+`check_stepC1.py` (83 checks) regenerates both C1 outputs hermetically, re-reads the waveform one
+identifier at a time straight from the raw text, re-runs the simulation three times from the
+committed netlist, re-measures four model negations itself (requiring the *exact* wrong-cycle
+counts: 140, 0, 18, 0), and asserts the shape of the evidence rather than letting a large count
+imply strength. It also carries a **negative control**, because a comparison that silently compares
+nothing looks exactly like a correct one: the same harness with the stimulus moved one clock period
+must fail — and does.
+
+### What C1 does not establish
+
+* Nothing about the **winning** vector: this waveform is the wrong-input path by the README's own
+  account, so a successful attempt's message content is untouched here.
+* Nothing about the **29 models the replay cannot see** — that is C2's list.
+* Nothing about *why* `net 806` is undriven, only that it changes nothing on this waveform.
+
+### Coverage as of this section
+
+The fault grid learned C1's three new artifacts (**70 mutations × 19 gates**: `build/replay_tb.v`,
+`recon/derived/vcd_replay.json`, `recon/derived/c1_power.json`, and `stepC1` as the 19th gate), so
+C1's own evidence is subject to the same "can it fail?" question as everything before it.
