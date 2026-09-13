@@ -723,6 +723,12 @@ measured signatures rather than given a function. Artifact `recon/derived/blocks
 *Method:* §6.6. Identify the region-select cone; reduce to a boolean function of the index bits;
 evaluate for index `0..120`.
 *Artifact:* `recon/derived/regions.json`.
+> **Deviation (2026-09-13, user instruction).** C4 was executed with the documented **published
+> method** — stimulus probing of per-cell counters (`docs/02_known_solution.md`, Stage 8) — instead of
+> the symbolic cone reduction Δ5 specifies. Outcome: **no region map**; the per-cell counters are the
+> columns and the globals. See `docs/steps/C4.md` R12. Δ5 is therefore **not satisfied** as written,
+> and AC6's "recovered independently" needs re-scoping or the map's provenance stated explicitly.
+
 ***Verify:*** exactly 11 distinct regions; the map is a **partition** (every position in exactly one
 region); exactly 2 stars of capacity per region; the map rendered as an 11×11 ASCII picture reads
 **"JS"**; and the function is *total* — no index value leaves a region undetermined or doubled.
