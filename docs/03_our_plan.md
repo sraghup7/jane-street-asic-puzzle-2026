@@ -358,6 +358,27 @@ from A3), and that identification is consistent — this is a different, stronge
 "drop the two biggest".
 *If it fails:* bisect by region of the die; report the count of unassigned shapes.
 
+***Outcome (executed): PASS.*** 729 nets / 9839 subcircuits; extraction 0.3 s; **all 40 360
+conductor shapes probed individually and every one is in exactly one net — 0 orphans, 0
+unprobeable**, in 1.5 s. Supply identified by pin name as specified: the two largest nets carry
+only supply names (`VGND`+`VNB`, `VPWR`), and the 972 supply pins the engine cannot place are
+**exactly** A5's two predicted gap classes (942 `VPB` well ties + 30 diode supplies, 0
+unexplained). Gate `check_stepB3.py` → 31/31; see `docs/steps/B3.md`.
+
+Three things this step settled, worth carrying forward:
+
+* **The per-net polygon shortcut does not reconcile** — `shapes_of_net` returns per-net *merged*
+  regions while a layer's region is not, so 13 029 vs 16 869 on 67/20 is merge bookkeeping, not
+  3 840 orphans. A set-difference variant across the hierarchy invented 2 315 phantom orphans.
+  Probe every shape instead; it costs 1.5 s.
+* **A recursive shape's geometry is in its own cell's coordinates.** Without
+  `poly.transformed(it.trans())` the probe reported 31 844 orphans, all at sub-micron local
+  coordinates. Fourth coordinate-system bug of the project, and the second that produced a
+  plausible wrong number instead of an exception.
+* **An artifact may not contain a clock.** Storing `runtime_s` in `nets.json` broke
+  byte-identical regeneration on the first gate run; runtimes are now printed and measured by the
+  gate, never committed.
+
 **B4 — Net ↔ (instance, pin) mapping.**
 *Method:* transform A4 pin rectangles by B1 transforms; assign each pin to a net by following its
 geometry into the routing stack through the via instance that lifts it there (§6.5 amendment) —

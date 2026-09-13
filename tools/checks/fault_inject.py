@@ -55,6 +55,7 @@ GATES = [
     ('recompute', 'tools/checks/check_recompute.py'),
     ('stepB1', 'tools/checks/check_stepB1.py'),
     ('stepB2', 'tools/checks/check_stepB2.py'),
+    ('stepB3', 'tools/checks/check_stepB3.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -64,8 +65,9 @@ GEOM = 'recon/derived/pinmodel.json'
 COV = 'recon/derived/pin_coverage.json'
 INST = 'recon/derived/instances.json'
 WNET = 'recon/derived/warmup_netlist.json'
+NETS = 'recon/derived/nets.json'
 INV = 'recon/inventory.json'
-ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, INV]
+ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, INV]
 
 NAND2 = 'sky130_fd_sc_hd__nand2_2'
 
@@ -214,6 +216,26 @@ def m_net_engine(d):
     d['engine']['conductors'] = d['engine']['conductors'][:-1]
 
 
+def m_nets_orphan(d):
+    d['totals']['orphan_shapes'] = 1
+
+
+def m_nets_unexplained(d):
+    d['totals']['supply_unassigned_unexplained'] = 5
+
+
+def m_nets_layer(d):
+    d['per_layer_shapes']['67/20']['assigned'] -= 1
+
+
+def m_nets_shapes(d):
+    d['totals']['conductor_shapes'] -= 1
+
+
+def m_nets_supply_claim(d):
+    d['supply_identification']['largest_two_are_supply'] = False
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -248,6 +270,11 @@ MUTATIONS = [
     ('netlist: a terminal moved to another net', WNET, m_net_move_terminal),
     ('netlist: a whole net dropped', WNET, m_net_drop_net),
     ('netlist: a conductor layer removed', WNET, m_net_engine),
+    ('nets: an orphan shape reported', NETS, m_nets_orphan),
+    ('nets: unexplained unassigned supplies', NETS, m_nets_unexplained),
+    ('nets: one layer short by a shape', NETS, m_nets_layer),
+    ('nets: total shape count -1', NETS, m_nets_shapes),
+    ('nets: supply claim weakened', NETS, m_nets_supply_claim),
 ]
 
 

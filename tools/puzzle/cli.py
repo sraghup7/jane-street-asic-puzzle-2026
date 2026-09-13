@@ -29,6 +29,7 @@ STAGES: list[tuple[str, str, str, str]] = [
     # --- Phase B: instances, connectivity, netlist --------------------------------
     ('instances',         'instances',  'B1', 'placement table with exact affine transforms'),
     ('connect',           'connect',    'B2/B3', 'connectivity extraction (spike on warmup first)'),
+    ('nets',              'connect',    'B3', 'full connectivity on the puzzle; no orphan polygons'),
     ('pins-to-nets',      'netlist',    'B4', 'map each instance pin onto a net'),
     ('netlist-check',     'netlist',    'B5', 'single-driver / floating / port integrity checks'),
     ('emit',              'emit',       'B6', 'write build/puzzle.v and build/cells.v'),

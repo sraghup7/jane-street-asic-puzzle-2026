@@ -1,0 +1,129 @@
+{
+  "generated_by": "tools/puzzle/connect.py::stage_nets",
+  "source": {
+    "path": "asic-puzzle-2026/puzzle.gds",
+    "sha256": "8913ea4be5367b484d5886c3c5f7608942b67544a0dbe364b17223503b8d851a"
+  },
+  "engine": {
+    "name": "klayout LayoutToNetlist",
+    "conductors": [
+      "67/20",
+      "68/20",
+      "69/20",
+      "70/20",
+      "71/20",
+      "72/20"
+    ],
+    "via_rules": 5,
+    "configured_from": [
+      "recon/derived/layers.json",
+      "recon/derived/via_pairs.json"
+    ]
+  },
+  "totals": {
+    "nets": 729,
+    "subcircuits": 9839,
+    "conductor_shapes": 40360,
+    "shapes_assigned_to_a_net": 40360,
+    "orphan_shapes": 0,
+    "shapes_without_interior_point": 0,
+    "every_shape_in_exactly_one_net": true,
+    "supply_pins_probed": 5120,
+    "supply_pins_unassigned": 972,
+    "supply_unassigned_by_pin": {
+      "VPB": 942,
+      "VGND": 10,
+      "VNB": 10,
+      "VPWR": 10
+    },
+    "supply_unassigned_in_known_gap_classes": 972,
+    "supply_unassigned_unexplained": 0
+  },
+  "per_layer_shapes": {
+    "67/20": {
+      "shapes": 13931,
+      "assigned": 13931
+    },
+    "68/20": {
+      "shapes": 14366,
+      "assigned": 14366
+    },
+    "69/20": {
+      "shapes": 8517,
+      "assigned": 8517
+    },
+    "70/20": {
+      "shapes": 2547,
+      "assigned": 2547
+    },
+    "71/20": {
+      "shapes": 855,
+      "assigned": 855
+    },
+    "72/20": {
+      "shapes": 144,
+      "assigned": 144
+    }
+  },
+  "orphan_examples": [],
+  "unprobeable_examples": [],
+  "largest_nets": [
+    {
+      "cluster": 3,
+      "subcircuit_pins": 2608,
+      "polygons": 7359,
+      "supply_pins": {
+        "VGND": 1608,
+        "VNB": 932
+      },
+      "only_supply_pins": true
+    },
+    {
+      "cluster": 2,
+      "subcircuit_pins": 2590,
+      "polygons": 7064,
+      "supply_pins": {
+        "VPWR": 1608
+      },
+      "only_supply_pins": true
+    },
+    {
+      "cluster": 934,
+      "subcircuit_pins": 289,
+      "polygons": 724,
+      "supply_pins": {},
+      "only_supply_pins": false
+    },
+    {
+      "cluster": 651,
+      "subcircuit_pins": 225,
+      "polygons": 824,
+      "supply_pins": {},
+      "only_supply_pins": false
+    },
+    {
+      "cluster": 972,
+      "subcircuit_pins": 167,
+      "polygons": 434,
+      "supply_pins": {},
+      "only_supply_pins": false
+    },
+    {
+      "cluster": 1351,
+      "subcircuit_pins": 146,
+      "polygons": 363,
+      "supply_pins": {},
+      "only_supply_pins": false
+    }
+  ],
+  "supply_identification": {
+    "method": "probe every supply pin of every instance and read the pin names the net carries, rather than dropping the two biggest nets",
+    "largest_two_are_supply": true,
+    "supply_pin_names": [
+      "VGND",
+      "VNB",
+      "VPWR"
+    ],
+    "nets_carrying_only_supply_pins": 2
+  }
+}
