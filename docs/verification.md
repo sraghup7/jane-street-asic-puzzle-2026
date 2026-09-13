@@ -1,8 +1,13 @@
-# Verification audit — Phase A (and everything before it)
+# Verification audit — Phases A and B
 
-**Date:** 2026-09-12 · **Scope:** every step executed up to and including A5
+**Date:** 2026-09-12 · **Scope:** every step executed up to and including B7
 **Question asked:** are the executed steps solid enough to build the remaining steps on?
-**Answer:** yes, after fixing three defects this audit found. Two were in the gates themselves.
+**Answer:** yes — after fixing three defects found in the Phase-A audit, a fourth found in B5, and
+the Phase-B review's findings (§10), which are coverage gaps rather than wrong data.
+
+§1–§7 are the Phase-A audit as first written. §8, §9 and §10 were added as later steps turned up
+further findings; §4's header now reflects the current matrix size while its table stays frozen as
+the Phase-A run.
 
 ---
 
@@ -79,12 +84,15 @@ one-line notes in a dict that prints `-` for anything unlisted.
 
 ## 4. The fault matrix
 
-21 mutations × 11 gates, each cell an isolated measurement with a pristine restore between
-every probe. The "fired" column is the real output of `tools/checks/fault_inject.py`:
+The table below is this audit's original run — **21 mutations × 11 gates** — kept as the Phase-A
+record. **The current matrix is 60 mutations × 18 gates**, re-run after B7 and after fixing the
+fault-injector bug in §10 F2: 0 misses, 0 hermeticity violations, `artifacts restored: True`.
+Every cell is an isolated measurement with a pristine restore between probes, and the "fired"
+column is the real output of `tools/checks/fault_inject.py`:
 
-> The matrix grows as steps land: after B2 it is **33 mutations × 13 gates**, still with 0
-> misses and 0 hermeticity violations (B1's six fire `stepB1`, B2's six fire `stepB2`). The table below
-> is this audit's run; run the tool for the current one.
+> The table below is frozen at the Phase-A run; the tool is the authority for the current grid.
+> It grew 21 × 11 → 33 × 13 at B2 → 54 × 17 at B6 → 60 × 18 at B7, and every increase has held at
+> 0 misses and 0 hermeticity violations.
 
 | injected fault | gates that fired |
 |---|---|
@@ -179,9 +187,11 @@ it is why the rule set is derived from the whole file rather than master by mast
    independently re-derives A3's per-layer label counts and the 803/73 split, but A3's 15
    internal checks themselves remain self-reported. Acceptable, and now partly backstopped —
    worth knowing when reading A3's gate output.
-2. **No end-to-end functional test exists yet.** Everything above is structural. The first
-   functional oracle is B7 (reproduce the warm-up netlist) and the second is C1 (replay the VCD).
-   Nothing here substitutes for them.
+2. **No end-to-end functional test exists yet.** Everything above is structural. B7 reproduces
+   the warm-up netlist and compiles the models against it, but it does **not** simulate: it
+   establishes structure and interfaces, not behaviour — and the earlier wording here, calling B7
+   "the first functional oracle", was wrong (§10 F1). The functional oracles are C1 (byte-exact
+   VCD replay) and C2 (the warm-up adder), and nothing here substitutes for them.
 3. **Phase B's hard problem is untouched by this audit.** Whether connectivity can be extracted
    at all is B2's spike, not something Phase A's gates speak to.
 
@@ -194,10 +204,14 @@ it is why the rule set is derived from the whole file rather than master by mast
    finding and should be amended before B3/B4.
 2. **B1 should use the warm-up DEF as a placement oracle.** 230 components with explicit
    orientations, agreeing with the GDS 230 and the netlist's 230 instances.
-3. **51 of 69 cell types have no independent functional oracle.** The warm-up exercises 18. C2
-   validates those 18 against `A + B == 496`; the other 51 are only covered indirectly by C1's
-   whole-chip VCD replay, where a single wrong model is hard to localise. This is the largest
-   residual risk in Phase C and should be planned for, not discovered.
+3. **51 of 69 cell types have no independent functional oracle — partly addressed since.** The
+   warm-up exercises 18, so C2 validates those 18 against the adder's own arithmetic; the other 51
+   are otherwise covered only indirectly by C1's whole-chip VCD replay, where a single wrong model
+   is hard to localise. The Phase-B review narrowed this (§10): a truth-table oracle now checks
+   **all 62 combinational models over every input vector** and all 3 sequential ones by directed
+   test, against a reference derived independently from the family names. That establishes the
+   *Verilog* says what we intended; it does not establish that our reading of a family name
+   matches real silicon, which stays C1's business.
 4. **`recon/scratch/` is not committed** (gitignored): it holds the audit's scratch output. F1
    removes it at the end like every other scratch directory.
 
@@ -302,3 +316,91 @@ the invariant is about*. Say which inputs are evidence, which are derived, and w
 and when an invariant has no evidence behind it, report the violation rather than resolving it. A
 check is only a check if it can fail — assert the absolute property ("no net has two drivers")
 instead of the condition your own solver has just arranged to hold.
+
+---
+
+## 10. Phase B review (2026-09-12)
+
+A requested full re-verification of Phase B. Same method as §1, plus one test this project had
+never run: **simulate the emitted cell models**.
+
+### What passed
+
+* All 18 gates, from a clean tree. Every Phase-B artifact regenerates byte-identically, and the
+  substantive claims re-derive from the raw GDS rather than from the artifact.
+* **The cell models are functionally correct.** `build/cells.v` was read back and every one of the
+  62 combinational models simulated over all 2^n input vectors against a reference derived
+  independently from family digits and pin names (first char = group operation, last char =
+  combining operation, digits = group sizes, `_N` = complemented input, trailing `i` = inverted
+  output): **62/62 exact, 0 mismatches**. Plus `conb` = HI 1 / LO 0 across 32 vectors, and the three
+  flops by directed testbench — edge capture, async active-low reset and set, and reset winning over
+  a simultaneous clock edge.
+* The output-label vocabulary `{X, Y, Q, HI, LO}` is **complete for this design**: all 69 placed
+  masters agree between the label-derived outputs and an independent reading of the SkyWater naming
+  convention, with no family falling through to the "no output" default. The one candidate for a
+  missed output, `S`, is the select **input** of `mux2_1`.
+
+### Findings
+
+**F1 — nothing verifies what a cell computes (high · coverage gap · open).** An `input`/`output`
+swap is caught by B6's gate and by `iverilog`; a wrong boolean operator is caught by nothing.
+Demonstrated rather than inferred: `or2_2` was changed to compute `A & B`, `build/cells.v` was
+regenerated from it, and the **complete suite passed 18/18**. Phase B's evidence for the models is
+"interface + compiles", and §6.2 of this document had wrongly called B7 a functional oracle. The
+oracle that closes the gap is described above and is proven to bite — pointed at the broken tree it
+reports the 6 or-family models — but it is **not yet wired into the gate set**.
+
+**F2 — the fault injector had never completed (high · fixed).** `fault_inject.py` did not import
+`re`, while the `m_v_warmup_repoint` mutation added with B7 calls `re.findall`. Every run since B7
+crashed at that mutation with `NameError`, so the "54 × 17" grid reported at B6 was the last one
+that ever finished; the 60 × 18 figure was an expectation, not a measurement. Fixed by adding the
+missing import. The re-run completes: 0 misses, 0 hermeticity violations, `artifacts restored:
+True`. Two things worth keeping: the crash left the stamp file behind with all artifacts intact —
+the stamp doing exactly its job — and the shell's exit code was useless as a signal, because the
+`cmd; echo "EXIT=$?"` wrapper exits 0 regardless.
+
+**F3 — an unasserted counter and an overstated claim in the artifact (medium · open).**
+`position_layer_fallbacks = 981` is referenced by no gate and by no stage PASS condition, and B4's
+own `method.position_layers` states the containment guarantee unconditionally ("so it cannot land
+on another net's wire"), which its data contradicts for those 981 probes. Re-derived event by
+event: 951 are `VPB`, 30 are `diode_2` supplies, and **all 981 are on pins B4 records as
+unassigned** — the path is degenerate, not a fallback (`VPB`'s only shape is on pair `64/16`, off
+the conductor set, so there is nothing to probe). No assignment rests on it, so no data is wrong;
+the defect is a guarantee that is asserted nowhere and stated too strongly. `docs/steps/B4.md` §4
+and §6.1 claimed the extra 9 positions "still resolved to a net", which is false, and both are now
+corrected.
+
+**F4 — checks that cannot fail (medium · open).** `check_stepB5.py` contains
+`check('each port net exists in B4', sorted(a), sorted(a))` — it compares a list to itself, so it
+passes for any input and never consults B4, while its label claims a property it does not test.
+`check_stepB6.py` has the same shape: `check('the bus O is declared 8 bits wide',
+nl['decls'].get('O'), 'output')` records `O`'s direction and discards the parsed range, so the
+width is never checked (compilation happens to catch that one). Both need rewriting. This is the
+sixth and seventh occurrence of the project's signature bug class, and the second time one has been
+found inside a check written to catch it.
+
+**F5 — `flatten` is exposed as an option (low · open).** `build_engine(..., flatten=True)` is
+documented as a *correctness requirement* — net identity is meaningless without it — yet no caller
+ever passes `False`. An unexercised branch on the one parameter that decides whether every net key
+is valid should not exist.
+
+**F6 — a measurement with nothing behind it (low · open).** `9839 subcircuits = 1618 cells + 8221
+via placements` is cited as evidence that the hierarchy is exactly one level deep, but no gate can
+recompute it once the layout is flattened.
+
+**F7 — B5's self-report is unasserted (low · open).** `netlist_check.json` carries 27 internal
+`checks` with `passed` flags. B7's gate asserts its report's checks; B5's gate re-derives the
+substantive claims but never iterates that list, so a self-check could begin failing unobserved.
+
+### What this review does not establish
+
+* **Nothing here validates a model against real silicon behaviour.** Exhaustive truth tables
+  against a derived reference prove the Verilog says what we intended; whether our reading of
+  `a21bo`'s family name is correct is C1's question.
+* `net 806` is still the chip's one undriven net — reported, asserted as an identity, expected to
+  appear as X in C1.
+* `target`, `hygiene`, `step2` and `step3` still never fire on an artifact mutation, by design: no
+  mutation targets their inputs.
+
+**Status of the fixes.** F2 is fixed. F1, F3, F4, F5, F6 and F7 are recorded here and **not yet
+applied** — they are gate and comment changes only, with no artifact bytes expected to move.
