@@ -1,0 +1,953 @@
+{
+  "generated_by": "tools/puzzle/netlist.py::stage_netlist_check",
+  "source": {
+    "path": "asic-puzzle-2026/puzzle.gds",
+    "sha256": "8913ea4be5367b484d5886c3c5f7608942b67544a0dbe364b17223503b8d851a"
+  },
+  "inputs": [
+    "recon/derived/pin_net.json",
+    "recon/derived/via_pairs.json",
+    "recon/derived/instances.json",
+    "recon/inventory.json"
+  ],
+  "method": {
+    "direction": "one unknown per (master,pin) class; one equation per net: the number of its terminals that are outputs = 1, because a well-formed net has exactly one driver. Solved by propagation, seeded only by the documented port directions and by terminals alone on their net.",
+    "limit": "the sum=1 equations are what make \"one driver per net\" true, so this establishes consistency and uniqueness of the assignment, not the absence of drivers by fiat; what it catches is infeasibility.",
+    "ports": "the documented interface (docs/01_problem.md sec.4.1), located in the layout by its 70/5 labels and checked against Step 1's positions",
+    "single_terminal": "classified, not assumed absent: B4 measured 30 and each is either an unused output or an input driven by a port"
+  },
+  "totals": {
+    "instances": 1618,
+    "pins": 7897,
+    "nets_with_terminals": 741,
+    "classes": 286,
+    "classes_resolved": 284,
+    "classes_undetermined": 2,
+    "output_classes": 67,
+    "input_classes": 217,
+    "infeasible_nets": 0,
+    "nets_with_two_drivers": 0,
+    "non_port_nets_without_a_driver": 0,
+    "undriven_nets_with_multiple_terminals": 0,
+    "output_pins_on_a_supply_net": 0,
+    "single_terminal_nets": 30,
+    "supply_nets": [
+      3,
+      27
+    ]
+  },
+  "ports": [
+    {
+      "port": "I",
+      "dir": "in",
+      "net": 520,
+      "instance_terminals": 45,
+      "output_terminals": 0,
+      "pin_names": [
+        "a21boi_2.A1",
+        "a21oi_2.A1",
+        "a31o_2.A1",
+        "a32o_2.A1",
+        "and3_2.B",
+        "mux2_1.A1",
+        "nand2_2.A",
+        "nand2_2.B",
+        "nand4_2.A",
+        "o21ai_2.A1",
+        "or2_2.B"
+      ]
+    },
+    {
+      "port": "O[0]",
+      "dir": "out",
+      "net": 2363,
+      "instance_terminals": 1,
+      "output_terminals": 1,
+      "pin_names": [
+        "and3_2.X"
+      ]
+    },
+    {
+      "port": "O[1]",
+      "dir": "out",
+      "net": 1697,
+      "instance_terminals": 1,
+      "output_terminals": 1,
+      "pin_names": [
+        "and3_2.X"
+      ]
+    },
+    {
+      "port": "O[2]",
+      "dir": "out",
+      "net": 1474,
+      "instance_terminals": 1,
+      "output_terminals": 1,
+      "pin_names": [
+        "and3_2.X"
+      ]
+    },
+    {
+      "port": "O[3]",
+      "dir": "out",
+      "net": 1155,
+      "instance_terminals": 1,
+      "output_terminals": 1,
+      "pin_names": [
+        "and3_2.X"
+      ]
+    },
+    {
+      "port": "O[4]",
+      "dir": "out",
+      "net": 1862,
+      "instance_terminals": 1,
+      "output_terminals": 1,
+      "pin_names": [
+        "and3_2.X"
+      ]
+    },
+    {
+      "port": "O[5]",
+      "dir": "out",
+      "net": 673,
+      "instance_terminals": 1,
+      "output_terminals": 1,
+      "pin_names": [
+        "and3_2.X"
+      ]
+    },
+    {
+      "port": "O[6]",
+      "dir": "out",
+      "net": 627,
+      "instance_terminals": 1,
+      "output_terminals": 1,
+      "pin_names": [
+        "and3_2.X"
+      ]
+    },
+    {
+      "port": "O[7]",
+      "dir": "out",
+      "net": 2361,
+      "instance_terminals": 1,
+      "output_terminals": 1,
+      "pin_names": [
+        "and3_2.X"
+      ]
+    },
+    {
+      "port": "clk",
+      "dir": "in",
+      "net": 1608,
+      "instance_terminals": 1,
+      "output_terminals": 0,
+      "pin_names": [
+        "clkbuf_16.A"
+      ]
+    },
+    {
+      "port": "enable",
+      "dir": "in",
+      "net": 1187,
+      "instance_terminals": 2,
+      "output_terminals": 0,
+      "pin_names": [
+        "and2b_2.B",
+        "diode_2.DIODE"
+      ]
+    },
+    {
+      "port": "rst_n",
+      "dir": "in",
+      "net": 322,
+      "instance_terminals": 88,
+      "output_terminals": 0,
+      "pin_names": [
+        "dfrtp_2.RESET_B",
+        "dfstp_2.SET_B"
+      ]
+    },
+    {
+      "port": "success",
+      "dir": "out",
+      "net": 2380,
+      "instance_terminals": 5,
+      "output_terminals": 1,
+      "pin_names": [
+        "a32o_2.B1",
+        "dfrtp_2.Q",
+        "inv_2.A",
+        "o21ba_2.A1",
+        "or4b_2.B"
+      ]
+    }
+  ],
+  "direction": {
+    "outputs": [
+      "sky130_fd_sc_hd__a2111oi_2::Y",
+      "sky130_fd_sc_hd__a211o_2::X",
+      "sky130_fd_sc_hd__a211oi_2::Y",
+      "sky130_fd_sc_hd__a21bo_2::X",
+      "sky130_fd_sc_hd__a21boi_2::Y",
+      "sky130_fd_sc_hd__a21o_2::X",
+      "sky130_fd_sc_hd__a21oi_2::Y",
+      "sky130_fd_sc_hd__a221o_2::X",
+      "sky130_fd_sc_hd__a221oi_2::Y",
+      "sky130_fd_sc_hd__a22o_2::X",
+      "sky130_fd_sc_hd__a22oi_2::Y",
+      "sky130_fd_sc_hd__a311o_2::X",
+      "sky130_fd_sc_hd__a31o_2::X",
+      "sky130_fd_sc_hd__a31oi_2::A1",
+      "sky130_fd_sc_hd__a32o_2::X",
+      "sky130_fd_sc_hd__a41oi_2::Y",
+      "sky130_fd_sc_hd__and2_2::X",
+      "sky130_fd_sc_hd__and2b_2::X",
+      "sky130_fd_sc_hd__and3_2::X",
+      "sky130_fd_sc_hd__and3b_2::X",
+      "sky130_fd_sc_hd__and4_2::X",
+      "sky130_fd_sc_hd__and4b_2::X",
+      "sky130_fd_sc_hd__and4bb_2::X",
+      "sky130_fd_sc_hd__buf_2::X",
+      "sky130_fd_sc_hd__clkbuf_16::X",
+      "sky130_fd_sc_hd__clkbuf_4::X",
+      "sky130_fd_sc_hd__clkbuf_8::X",
+      "sky130_fd_sc_hd__conb_1::HI",
+      "sky130_fd_sc_hd__conb_1::LO",
+      "sky130_fd_sc_hd__dfrtp_2::Q",
+      "sky130_fd_sc_hd__dfstp_2::Q",
+      "sky130_fd_sc_hd__dfxtp_2::Q",
+      "sky130_fd_sc_hd__inv_2::Y",
+      "sky130_fd_sc_hd__mux2_1::X",
+      "sky130_fd_sc_hd__nand2_2::Y",
+      "sky130_fd_sc_hd__nand2b_2::Y",
+      "sky130_fd_sc_hd__nand3_2::Y",
+      "sky130_fd_sc_hd__nand3b_2::Y",
+      "sky130_fd_sc_hd__nand4_2::Y",
+      "sky130_fd_sc_hd__nor2_2::Y",
+      "sky130_fd_sc_hd__nor3_2::Y",
+      "sky130_fd_sc_hd__nor3b_2::Y",
+      "sky130_fd_sc_hd__nor4_2::Y",
+      "sky130_fd_sc_hd__nor4b_2::Y",
+      "sky130_fd_sc_hd__o211a_2::X",
+      "sky130_fd_sc_hd__o211ai_2::Y",
+      "sky130_fd_sc_hd__o21a_2::X",
+      "sky130_fd_sc_hd__o21ai_2::Y",
+      "sky130_fd_sc_hd__o21ba_2::X",
+      "sky130_fd_sc_hd__o21bai_2::Y",
+      "sky130_fd_sc_hd__o221a_2::X",
+      "sky130_fd_sc_hd__o22a_2::X",
+      "sky130_fd_sc_hd__o22ai_2::Y",
+      "sky130_fd_sc_hd__o2bb2a_2::X",
+      "sky130_fd_sc_hd__o311a_2::X",
+      "sky130_fd_sc_hd__o31a_2::X",
+      "sky130_fd_sc_hd__o31ai_2::Y",
+      "sky130_fd_sc_hd__o32a_2::X",
+      "sky130_fd_sc_hd__o32ai_2::Y",
+      "sky130_fd_sc_hd__or2_2::X",
+      "sky130_fd_sc_hd__or3_2::X",
+      "sky130_fd_sc_hd__or3b_2::X",
+      "sky130_fd_sc_hd__or4_2::X",
+      "sky130_fd_sc_hd__or4b_2::X",
+      "sky130_fd_sc_hd__or4bb_2::X",
+      "sky130_fd_sc_hd__xnor2_2::Y",
+      "sky130_fd_sc_hd__xor2_2::X"
+    ],
+    "inputs": [
+      "sky130_fd_sc_hd__a2111oi_2::A1",
+      "sky130_fd_sc_hd__a2111oi_2::A2",
+      "sky130_fd_sc_hd__a2111oi_2::B1",
+      "sky130_fd_sc_hd__a2111oi_2::C1",
+      "sky130_fd_sc_hd__a2111oi_2::D1",
+      "sky130_fd_sc_hd__a211o_2::A1",
+      "sky130_fd_sc_hd__a211o_2::A2",
+      "sky130_fd_sc_hd__a211o_2::B1",
+      "sky130_fd_sc_hd__a211o_2::C1",
+      "sky130_fd_sc_hd__a211oi_2::A1",
+      "sky130_fd_sc_hd__a211oi_2::A2",
+      "sky130_fd_sc_hd__a211oi_2::B1",
+      "sky130_fd_sc_hd__a211oi_2::C1",
+      "sky130_fd_sc_hd__a21bo_2::A1",
+      "sky130_fd_sc_hd__a21bo_2::A2",
+      "sky130_fd_sc_hd__a21bo_2::B1_N",
+      "sky130_fd_sc_hd__a21boi_2::A1",
+      "sky130_fd_sc_hd__a21boi_2::A2",
+      "sky130_fd_sc_hd__a21boi_2::B1_N",
+      "sky130_fd_sc_hd__a21o_2::A1",
+      "sky130_fd_sc_hd__a21o_2::A2",
+      "sky130_fd_sc_hd__a21o_2::B1",
+      "sky130_fd_sc_hd__a21oi_2::A1",
+      "sky130_fd_sc_hd__a21oi_2::A2",
+      "sky130_fd_sc_hd__a21oi_2::B1",
+      "sky130_fd_sc_hd__a221o_2::A1",
+      "sky130_fd_sc_hd__a221o_2::A2",
+      "sky130_fd_sc_hd__a221o_2::B1",
+      "sky130_fd_sc_hd__a221o_2::B2",
+      "sky130_fd_sc_hd__a221o_2::C1",
+      "sky130_fd_sc_hd__a221oi_2::A1",
+      "sky130_fd_sc_hd__a221oi_2::A2",
+      "sky130_fd_sc_hd__a221oi_2::B1",
+      "sky130_fd_sc_hd__a221oi_2::B2",
+      "sky130_fd_sc_hd__a221oi_2::C1",
+      "sky130_fd_sc_hd__a22o_2::A1",
+      "sky130_fd_sc_hd__a22o_2::A2",
+      "sky130_fd_sc_hd__a22o_2::B1",
+      "sky130_fd_sc_hd__a22o_2::B2",
+      "sky130_fd_sc_hd__a22oi_2::A1",
+      "sky130_fd_sc_hd__a22oi_2::A2",
+      "sky130_fd_sc_hd__a22oi_2::B1",
+      "sky130_fd_sc_hd__a22oi_2::B2",
+      "sky130_fd_sc_hd__a311o_2::A1",
+      "sky130_fd_sc_hd__a311o_2::A2",
+      "sky130_fd_sc_hd__a311o_2::A3",
+      "sky130_fd_sc_hd__a311o_2::B1",
+      "sky130_fd_sc_hd__a311o_2::C1",
+      "sky130_fd_sc_hd__a31o_2::A1",
+      "sky130_fd_sc_hd__a31o_2::A2",
+      "sky130_fd_sc_hd__a31o_2::A3",
+      "sky130_fd_sc_hd__a31o_2::B1",
+      "sky130_fd_sc_hd__a31oi_2::A2",
+      "sky130_fd_sc_hd__a31oi_2::A3",
+      "sky130_fd_sc_hd__a31oi_2::B1",
+      "sky130_fd_sc_hd__a32o_2::A1",
+      "sky130_fd_sc_hd__a32o_2::A2",
+      "sky130_fd_sc_hd__a32o_2::A3",
+      "sky130_fd_sc_hd__a32o_2::B1",
+      "sky130_fd_sc_hd__a32o_2::B2",
+      "sky130_fd_sc_hd__a41oi_2::A1",
+      "sky130_fd_sc_hd__a41oi_2::A2",
+      "sky130_fd_sc_hd__a41oi_2::A3",
+      "sky130_fd_sc_hd__a41oi_2::A4",
+      "sky130_fd_sc_hd__a41oi_2::B1",
+      "sky130_fd_sc_hd__and2_2::A",
+      "sky130_fd_sc_hd__and2_2::B",
+      "sky130_fd_sc_hd__and2b_2::A_N",
+      "sky130_fd_sc_hd__and2b_2::B",
+      "sky130_fd_sc_hd__and3_2::A",
+      "sky130_fd_sc_hd__and3_2::B",
+      "sky130_fd_sc_hd__and3_2::C",
+      "sky130_fd_sc_hd__and3b_2::A_N",
+      "sky130_fd_sc_hd__and3b_2::B",
+      "sky130_fd_sc_hd__and3b_2::C",
+      "sky130_fd_sc_hd__and4_2::A",
+      "sky130_fd_sc_hd__and4_2::B",
+      "sky130_fd_sc_hd__and4_2::C",
+      "sky130_fd_sc_hd__and4_2::D",
+      "sky130_fd_sc_hd__and4b_2::A_N",
+      "sky130_fd_sc_hd__and4b_2::B",
+      "sky130_fd_sc_hd__and4b_2::C",
+      "sky130_fd_sc_hd__and4b_2::D",
+      "sky130_fd_sc_hd__and4bb_2::A_N",
+      "sky130_fd_sc_hd__and4bb_2::B_N",
+      "sky130_fd_sc_hd__and4bb_2::C",
+      "sky130_fd_sc_hd__and4bb_2::D",
+      "sky130_fd_sc_hd__buf_2::A",
+      "sky130_fd_sc_hd__clkbuf_16::A",
+      "sky130_fd_sc_hd__clkbuf_4::A",
+      "sky130_fd_sc_hd__clkbuf_8::A",
+      "sky130_fd_sc_hd__dfrtp_2::CLK",
+      "sky130_fd_sc_hd__dfrtp_2::D",
+      "sky130_fd_sc_hd__dfrtp_2::RESET_B",
+      "sky130_fd_sc_hd__dfstp_2::CLK",
+      "sky130_fd_sc_hd__dfstp_2::D",
+      "sky130_fd_sc_hd__dfstp_2::SET_B",
+      "sky130_fd_sc_hd__dfxtp_2::CLK",
+      "sky130_fd_sc_hd__dfxtp_2::D",
+      "sky130_fd_sc_hd__diode_2::DIODE",
+      "sky130_fd_sc_hd__inv_2::A",
+      "sky130_fd_sc_hd__mux2_1::A0",
+      "sky130_fd_sc_hd__mux2_1::A1",
+      "sky130_fd_sc_hd__mux2_1::S",
+      "sky130_fd_sc_hd__nand2_2::A",
+      "sky130_fd_sc_hd__nand2_2::B",
+      "sky130_fd_sc_hd__nand2b_2::A_N",
+      "sky130_fd_sc_hd__nand2b_2::B",
+      "sky130_fd_sc_hd__nand3_2::A",
+      "sky130_fd_sc_hd__nand3_2::B",
+      "sky130_fd_sc_hd__nand3_2::C",
+      "sky130_fd_sc_hd__nand3b_2::A_N",
+      "sky130_fd_sc_hd__nand3b_2::B",
+      "sky130_fd_sc_hd__nand3b_2::C",
+      "sky130_fd_sc_hd__nand4_2::A",
+      "sky130_fd_sc_hd__nand4_2::B",
+      "sky130_fd_sc_hd__nand4_2::C",
+      "sky130_fd_sc_hd__nand4_2::D",
+      "sky130_fd_sc_hd__nor2_2::A",
+      "sky130_fd_sc_hd__nor2_2::B",
+      "sky130_fd_sc_hd__nor3_2::A",
+      "sky130_fd_sc_hd__nor3_2::B",
+      "sky130_fd_sc_hd__nor3_2::C",
+      "sky130_fd_sc_hd__nor3b_2::A",
+      "sky130_fd_sc_hd__nor3b_2::B",
+      "sky130_fd_sc_hd__nor3b_2::C_N",
+      "sky130_fd_sc_hd__nor4_2::A",
+      "sky130_fd_sc_hd__nor4_2::B",
+      "sky130_fd_sc_hd__nor4_2::C",
+      "sky130_fd_sc_hd__nor4_2::D",
+      "sky130_fd_sc_hd__nor4b_2::A",
+      "sky130_fd_sc_hd__nor4b_2::B",
+      "sky130_fd_sc_hd__nor4b_2::C",
+      "sky130_fd_sc_hd__nor4b_2::D_N",
+      "sky130_fd_sc_hd__o211a_2::A1",
+      "sky130_fd_sc_hd__o211a_2::A2",
+      "sky130_fd_sc_hd__o211a_2::B1",
+      "sky130_fd_sc_hd__o211a_2::C1",
+      "sky130_fd_sc_hd__o211ai_2::A1",
+      "sky130_fd_sc_hd__o211ai_2::A2",
+      "sky130_fd_sc_hd__o211ai_2::B1",
+      "sky130_fd_sc_hd__o211ai_2::C1",
+      "sky130_fd_sc_hd__o21a_2::A1",
+      "sky130_fd_sc_hd__o21a_2::A2",
+      "sky130_fd_sc_hd__o21a_2::B1",
+      "sky130_fd_sc_hd__o21ai_2::A1",
+      "sky130_fd_sc_hd__o21ai_2::A2",
+      "sky130_fd_sc_hd__o21ai_2::B1",
+      "sky130_fd_sc_hd__o21ba_2::A1",
+      "sky130_fd_sc_hd__o21ba_2::A2",
+      "sky130_fd_sc_hd__o21ba_2::B1_N",
+      "sky130_fd_sc_hd__o21bai_2::A1",
+      "sky130_fd_sc_hd__o21bai_2::A2",
+      "sky130_fd_sc_hd__o21bai_2::B1_N",
+      "sky130_fd_sc_hd__o221a_2::A1",
+      "sky130_fd_sc_hd__o221a_2::A2",
+      "sky130_fd_sc_hd__o221a_2::B1",
+      "sky130_fd_sc_hd__o221a_2::B2",
+      "sky130_fd_sc_hd__o221a_2::C1",
+      "sky130_fd_sc_hd__o22a_2::A1",
+      "sky130_fd_sc_hd__o22a_2::A2",
+      "sky130_fd_sc_hd__o22a_2::B1",
+      "sky130_fd_sc_hd__o22a_2::B2",
+      "sky130_fd_sc_hd__o22ai_2::A1",
+      "sky130_fd_sc_hd__o22ai_2::A2",
+      "sky130_fd_sc_hd__o22ai_2::B1",
+      "sky130_fd_sc_hd__o22ai_2::B2",
+      "sky130_fd_sc_hd__o2bb2a_2::A1_N",
+      "sky130_fd_sc_hd__o2bb2a_2::A2_N",
+      "sky130_fd_sc_hd__o2bb2a_2::B1",
+      "sky130_fd_sc_hd__o2bb2a_2::B2",
+      "sky130_fd_sc_hd__o311a_2::A1",
+      "sky130_fd_sc_hd__o311a_2::A2",
+      "sky130_fd_sc_hd__o311a_2::A3",
+      "sky130_fd_sc_hd__o311a_2::B1",
+      "sky130_fd_sc_hd__o311a_2::C1",
+      "sky130_fd_sc_hd__o31a_2::A1",
+      "sky130_fd_sc_hd__o31a_2::A2",
+      "sky130_fd_sc_hd__o31a_2::A3",
+      "sky130_fd_sc_hd__o31a_2::B1",
+      "sky130_fd_sc_hd__o31ai_2::A1",
+      "sky130_fd_sc_hd__o31ai_2::A2",
+      "sky130_fd_sc_hd__o31ai_2::A3",
+      "sky130_fd_sc_hd__o31ai_2::B1",
+      "sky130_fd_sc_hd__o32a_2::A1",
+      "sky130_fd_sc_hd__o32a_2::A2",
+      "sky130_fd_sc_hd__o32a_2::A3",
+      "sky130_fd_sc_hd__o32a_2::B1",
+      "sky130_fd_sc_hd__o32a_2::B2",
+      "sky130_fd_sc_hd__o32ai_2::A1",
+      "sky130_fd_sc_hd__o32ai_2::A3",
+      "sky130_fd_sc_hd__o32ai_2::B1",
+      "sky130_fd_sc_hd__o32ai_2::B2",
+      "sky130_fd_sc_hd__or2_2::A",
+      "sky130_fd_sc_hd__or2_2::B",
+      "sky130_fd_sc_hd__or3_2::A",
+      "sky130_fd_sc_hd__or3_2::B",
+      "sky130_fd_sc_hd__or3_2::C",
+      "sky130_fd_sc_hd__or3b_2::A",
+      "sky130_fd_sc_hd__or3b_2::B",
+      "sky130_fd_sc_hd__or3b_2::C_N",
+      "sky130_fd_sc_hd__or4_2::A",
+      "sky130_fd_sc_hd__or4_2::B",
+      "sky130_fd_sc_hd__or4_2::C",
+      "sky130_fd_sc_hd__or4_2::D",
+      "sky130_fd_sc_hd__or4b_2::A",
+      "sky130_fd_sc_hd__or4b_2::B",
+      "sky130_fd_sc_hd__or4b_2::C",
+      "sky130_fd_sc_hd__or4b_2::D_N",
+      "sky130_fd_sc_hd__or4bb_2::A",
+      "sky130_fd_sc_hd__or4bb_2::B",
+      "sky130_fd_sc_hd__or4bb_2::C_N",
+      "sky130_fd_sc_hd__or4bb_2::D_N",
+      "sky130_fd_sc_hd__xnor2_2::A",
+      "sky130_fd_sc_hd__xnor2_2::B",
+      "sky130_fd_sc_hd__xor2_2::A",
+      "sky130_fd_sc_hd__xor2_2::B"
+    ],
+    "undetermined": [
+      "sky130_fd_sc_hd__a31oi_2::Y",
+      "sky130_fd_sc_hd__o32ai_2::A2"
+    ]
+  },
+  "single_terminal_nets": [
+    {
+      "cluster": 627,
+      "master": "and3_2",
+      "pin": "X",
+      "direction": "output",
+      "classification": "port_out_terminal"
+    },
+    {
+      "cluster": 673,
+      "master": "and3_2",
+      "pin": "X",
+      "direction": "output",
+      "classification": "port_out_terminal"
+    },
+    {
+      "cluster": 683,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 715,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 761,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 775,
+      "master": "conb_1",
+      "pin": "HI",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 799,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 965,
+      "master": "conb_1",
+      "pin": "LO",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1026,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1051,
+      "master": "conb_1",
+      "pin": "HI",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1096,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1155,
+      "master": "and3_2",
+      "pin": "X",
+      "direction": "output",
+      "classification": "port_out_terminal"
+    },
+    {
+      "cluster": 1161,
+      "master": "conb_1",
+      "pin": "HI",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1311,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1338,
+      "master": "conb_1",
+      "pin": "HI",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1400,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1474,
+      "master": "and3_2",
+      "pin": "X",
+      "direction": "output",
+      "classification": "port_out_terminal"
+    },
+    {
+      "cluster": 1565,
+      "master": "conb_1",
+      "pin": "HI",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1608,
+      "master": "clkbuf_16",
+      "pin": "A",
+      "direction": "input",
+      "classification": "port_in_terminal"
+    },
+    {
+      "cluster": 1668,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1696,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 1697,
+      "master": "and3_2",
+      "pin": "X",
+      "direction": "output",
+      "classification": "port_out_terminal"
+    },
+    {
+      "cluster": 1862,
+      "master": "and3_2",
+      "pin": "X",
+      "direction": "output",
+      "classification": "port_out_terminal"
+    },
+    {
+      "cluster": 1943,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 2044,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 2210,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 2361,
+      "master": "and3_2",
+      "pin": "X",
+      "direction": "output",
+      "classification": "port_out_terminal"
+    },
+    {
+      "cluster": 2363,
+      "master": "and3_2",
+      "pin": "X",
+      "direction": "output",
+      "classification": "port_out_terminal"
+    },
+    {
+      "cluster": 2379,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    },
+    {
+      "cluster": 2397,
+      "master": "clkbuf_4",
+      "pin": "X",
+      "direction": "output",
+      "classification": "unused_output"
+    }
+  ],
+  "contradictions": [],
+  "checks": [
+    {
+      "check": "all 13 documented ports are located by label",
+      "passed": true,
+      "detail": {
+        "missing": [],
+        "duplicated": []
+      }
+    },
+    {
+      "check": "port label positions agree with Step 1",
+      "passed": true,
+      "detail": {
+        "I": [
+          0.0,
+          0.0
+        ],
+        "O[0]": [
+          0.0,
+          0.0
+        ],
+        "O[1]": [
+          0.0,
+          0.0
+        ],
+        "O[2]": [
+          0.0,
+          0.0
+        ],
+        "O[3]": [
+          0.0,
+          0.0
+        ],
+        "O[4]": [
+          0.0,
+          0.0
+        ],
+        "O[5]": [
+          0.0,
+          0.0
+        ],
+        "O[6]": [
+          0.0,
+          -0.0
+        ],
+        "O[7]": [
+          0.0,
+          0.0
+        ],
+        "clk": [
+          0.0,
+          0.0
+        ],
+        "enable": [
+          0.0,
+          0.0
+        ],
+        "rst_n": [
+          0.0,
+          0.0
+        ],
+        "success": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "check": "every port resolves to exactly one net",
+      "passed": true,
+      "detail": {}
+    },
+    {
+      "check": "the port nets are distinct",
+      "passed": true,
+      "detail": [
+        [
+          "I",
+          520
+        ],
+        [
+          "O[0]",
+          2363
+        ],
+        [
+          "O[1]",
+          1697
+        ],
+        [
+          "O[2]",
+          1474
+        ],
+        [
+          "O[3]",
+          1155
+        ],
+        [
+          "O[4]",
+          1862
+        ],
+        [
+          "O[5]",
+          673
+        ],
+        [
+          "O[6]",
+          627
+        ],
+        [
+          "O[7]",
+          2361
+        ],
+        [
+          "clk",
+          1608
+        ],
+        [
+          "enable",
+          1187
+        ],
+        [
+          "rst_n",
+          322
+        ],
+        [
+          "success",
+          2380
+        ]
+      ]
+    },
+    {
+      "check": "the direction system is feasible (no net needs two drivers)",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "no net carries two output terminals",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "every net whose classes are all decided has exactly one driver",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "no undriven net with more than one terminal",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "no output pin sits on a supply net",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "the netlist determines the direction of all but a handful of pins",
+      "passed": true,
+      "detail": [
+        [
+          "sky130_fd_sc_hd__a31oi_2",
+          "Y"
+        ],
+        [
+          "sky130_fd_sc_hd__o32ai_2",
+          "A2"
+        ]
+      ]
+    },
+    {
+      "check": "every undetermined class is a real pin on a real net",
+      "passed": true,
+      "detail": [
+        [
+          "sky130_fd_sc_hd__a31oi_2",
+          "Y"
+        ],
+        [
+          "sky130_fd_sc_hd__o32ai_2",
+          "A2"
+        ]
+      ]
+    },
+    {
+      "check": "no undetermined class sits on a supply net",
+      "passed": true,
+      "detail": [
+        3,
+        27
+      ]
+    },
+    {
+      "check": "no undetermined class sits on a port net",
+      "passed": true,
+      "detail": [
+        322,
+        520,
+        627,
+        673,
+        1155,
+        1187,
+        1474,
+        1608,
+        1697,
+        1862,
+        2361,
+        2363,
+        2380
+      ]
+    },
+    {
+      "check": "single-terminal nets are all classified",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "every port net has the direction its port implies",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "13 port nets, matching the documented interface",
+      "passed": true,
+      "detail": 13
+    },
+    {
+      "check": "supply nets carry only supply pin names",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "supply nets carry no functional terminal",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "two supply nets, as B4 found",
+      "passed": true,
+      "detail": [
+        3,
+        27
+      ]
+    },
+    {
+      "check": "instances against expectation",
+      "passed": true,
+      "detail": 1618
+    },
+    {
+      "check": "modelled pins against expectation",
+      "passed": true,
+      "detail": 7897
+    },
+    {
+      "check": "nets carrying terminals against expectation",
+      "passed": true,
+      "detail": 741
+    }
+  ]
+}

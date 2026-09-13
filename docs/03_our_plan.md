@@ -427,10 +427,53 @@ Two things this step established beyond its own deliverable:
 **B5 — Netlist integrity checks.**
 *Method:* build the netlist object and run the checks.
 ***Verify:*** single-driver rule holds (each net has ≤1 driver, drivers inferred structurally);
-no floating inputs; every net has ≥2 terminals except the 13 top-level port nets; the 13 port nets
-match the Step 1 label set exactly; power/ground carry only VPWR/VGND pins; total instance count
-and total pin count are reported against expectation.
+no floating inputs; **single-terminal nets are an enumerated, fully classified set rather than
+zero** — B4 measured 30, and every one must be either an unused cell output or an input driven by
+a top-level port; the 13 port nets match the Step 1 label set exactly; power/ground carry only
+VPWR/VGND pins; total instance count and total pin count are reported against expectation.
 *If it fails:* the failing check names the offending net/pin — debug that, not the whole design.
+
+*Amended before execution (2026-09-12).* The clause originally read "every net has ≥2 terminals
+except the 13 top-level port nets". B4 measured 30 single-terminal nets and all 30 are legitimate:
+15 unused `clkbuf_4` outputs, 8 unused `and3_2` outputs, 6 `conb_1` constant outputs (`HI`/`LO`,
+which drive nothing by construction), and the clock root's `A`, which is driven by the top-level
+port so it carries one instance pin by definition. An "unused output" is not a floating input —
+the distinction is exactly what the direction inference below exists to make — so the check is
+restated as a classification that must be complete, not as a count that must be zero. Writing it
+as zero would have forced the gate to be loosened later on correct data, which is the failure
+mode this project has now hit four times.
+
+**Direction is derived, not declared.** B5 solves a small linear system instead of guessing from
+names: one unknown `x` per `(master, pin)` class (`x = 1` output, `x = 0` input), and one equation
+`Σ x = 1` per net, because a well-formed net has exactly one driver. The system is seeded by the
+*documented* interface — Step 1's port directions, which are given by the problem, not read off
+pin names — and by the single-terminal rule (an alone-on-its-net terminal that is not on a port net
+must be an output, or it would be a floating input). Consistency of the whole system *is* the
+single-driver check: a net needing `Σ x ≥ 2` is two drivers on one net, and a net with `Σ x = 0`
+has no driver. Any class the system leaves undetermined is reported, not assumed.
+
+***Outcome (executed): PASS.*** All 13 documented ports were found by their `70/5` labels, their
+positions agree with Step 1's record to <0.05 µm, and each resolves to exactly one net — and the
+inference then confirms them independently: **every input port carries zero output terminals and
+every output port exactly one.** 284 of 286 pin classes were determined from structure alone
+(67 outputs, 217 inputs) by the four propagation rules; **2 remain undetermined and are reported
+rather than assumed** (net 766 is `{a31oi_2.Y, o31a_2.A2, o32ai_2.A2}`, where `Σx = 1` admits
+either undecided terminal and no rule can break the tie). Feasibility is total: 0 infeasible
+nets, 0 nets wanting two drivers, 0 undriven multi-terminal nets, 0 output pins on a supply net.
+The 30 single-terminal nets are each classified — 21 unused outputs (15 `clkbuf_4.X`, 5
+`conb_1.HI`, 1 `conb_1.LO`), 8 output-port terminals (the `O[0..7]` bits, each driven by an
+`and3_2.X`), 1 input-port terminal (the clock root's `A`). Gate `check_stepB5.py` → **42/42**; see
+`docs/steps/B5.md`.
+
+Two things this step is worth remembering for:
+
+* **A fifth instance of the project's bug class, this time inside a check.** Several checks were
+  first written in the gate's `(label, actual, expected)` style when the stage's helper is
+  `(name, passed, detail)`, which made `bool(13)` and `bool([])` decide the verdict — one check
+  could never fail and three failed on correct data. All were converted and re-verified.
+* **Direction is now available for B6.** Emitting Verilog can be checked against a structurally
+  derived input/output split instead of assuming one, and the two undetermined classes must be
+  resolved from the simulation side (B7/C2) rather than guessed.
 
 **B6 — Emit structural Verilog + behavioural models.**
 *Method:* `emit.py` writes `build/puzzle.v` (structural, our own net naming); `cells.py` writes

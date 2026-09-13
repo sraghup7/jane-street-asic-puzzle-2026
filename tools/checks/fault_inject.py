@@ -60,6 +60,7 @@ GATES = [
     ('stepB2', 'tools/checks/check_stepB2.py'),
     ('stepB3', 'tools/checks/check_stepB3.py'),
     ('stepB4', 'tools/checks/check_stepB4.py'),
+    ('stepB5', 'tools/checks/check_stepB5.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -71,8 +72,9 @@ INST = 'recon/derived/instances.json'
 WNET = 'recon/derived/warmup_netlist.json'
 NETS = 'recon/derived/nets.json'
 PINNET = 'recon/derived/pin_net.json'
+CHECK = 'recon/derived/netlist_check.json'
 INV = 'recon/inventory.json'
-ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, INV]
+ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -297,6 +299,32 @@ def m_pn_uniqueness_lie(d):
     d['totals']['engine_distinct_cluster_ids'] = d['totals']['engine_nets'] - 1
 
 
+def m_chk_port_net(d):
+    # Reassign a port to another net: the gate re-derives the port->net binding from the GDS
+    # and recomputes each port net's driver count, so this must not survive.
+    d['ports'][0]['net'] = 3
+
+
+def m_chk_port_dir(d):
+    d['ports'][0]['dir'] = 'out' if d['ports'][0]['dir'] == 'in' else 'in'
+
+
+def m_chk_hide_undetermined(d):
+    d['totals']['classes_undetermined'] = 0
+    d['direction']['undetermined'] = []
+
+
+def m_chk_extra_single(d):
+    d['single_terminal_nets'].append({'cluster': 999999,
+                                      'master': 'invented_1', 'pin': 'X',
+                                      'direction': 'output',
+                                      'classification': 'unused_output'})
+
+
+def m_chk_infeasible(d):
+    d['totals']['infeasible_nets'] = 7
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -344,6 +372,11 @@ MUTATIONS = [
     ('pin_net: an instance dropped from the map', PINNET, m_pn_drop_instance),
     ('pin_net: a supply gap called unexplained', PINNET, m_pn_gap_unexplained),
     ('pin_net: uniqueness lied about', PINNET, m_pn_uniqueness_lie),
+    ('netlist_check: a port reassigned to another net', CHECK, m_chk_port_net),
+    ('netlist_check: a port direction flipped', CHECK, m_chk_port_dir),
+    ('netlist_check: undetermined classes hidden', CHECK, m_chk_hide_undetermined),
+    ('netlist_check: an extra single-terminal net', CHECK, m_chk_extra_single),
+    ('netlist_check: infeasible net count faked', CHECK, m_chk_infeasible),
 ]
 
 

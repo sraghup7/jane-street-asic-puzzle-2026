@@ -41,6 +41,7 @@ import time
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import gdstk
 from klayout import db
 
 from tools.puzzle.connect import SUPPLY, build_engine, read_json, sha256
@@ -300,10 +301,360 @@ def stage_pin_net() -> int:
     return 0 if ok else 1
 
 
+# -----------------------------------------------------------------------------------
+# B5 -- netlist integrity
+# -----------------------------------------------------------------------------------
+OUT_CHECK = ROOT / 'recon' / 'derived' / 'netlist_check.json'
+
+# The documented top-level interface (docs/01_problem.md sec.4.1), given by the problem
+# statement rather than read off cell pin names. That is exactly why it may seed the direction
+# solver: the prohibition is on inferring direction from the pin *names*, not on using the
+# interface we were handed.
+PORT_DIR = {'clk': 'in', 'rst_n': 'in', 'enable': 'in', 'I': 'in',
+            'success': 'out', **{f'O[{k}]': 'out' for k in range(8)}}
+PORT_POS_DOC = {'clk': (0.30, 238.34), 'rst_n': (0.30, 185.30), 'enable': (0.30, 132.26),
+                'I': (0.30, 79.22), 'success': (199.70, 285.94),
+                **{f'O[{k}]': (199.70, 204.34 - 27.20 * k) for k in range(8)}}
+PORT_LABEL = (70, 5)
+POS_TOL_UM = 0.05
+
+
+def stage_netlist_check() -> int:
+    """B5: is what we extracted actually a **netlist**, or only a partition of wires?
+
+    Three questions, none of which needs a pin name to answer.
+
+    **1. Can direction be determined from structure alone?** One unknown per `(master, pin)`
+    class -- output or input -- and one equation per net: a well-formed net has exactly ONE
+    driver, so *the number of its terminals that are outputs* must equal 1. The system is
+    solved by propagation, seeded only by the documented port directions and by the fact that a
+    terminal alone on a net (which nothing else could be driving) must be an unused output. If
+    the system is feasible and leaves nothing undetermined, the netlist admits exactly one
+    consistent input/output assignment. That is what "drivers inferred structurally" has to
+    mean, and it is checkable.
+
+    **2. Is it well formed?** Feasibility is the single-driver check: an infeasible row names a
+    net that cannot have one driver -- two outputs on one net, or an output pin wired straight
+    to an input port.
+
+    **3. Does the interface match the problem statement?** The 13 documented ports are located
+    by their labels in the layout, checked against the positions Step 1 recorded, and matched to
+    nets.
+
+    Recorded honestly rather than glossed: the sum = 1 equations on multi-terminal nets are what
+    *make* "one driver per net" true, so this establishes the consistency and uniqueness of the
+    direction assignment, not the absence of drivers by fiat. What it genuinely catches is
+    infeasibility, plus any class required to be an input and an output at once.
+    """
+    d = read_json(OUT)
+    a2 = read_json(A2)
+    insts = read_json(B1)
+    inv = read_json(INV)
+    per_um = int(inv['gds']['dbu_per_um'])
+    conductors = sorted({p for r in a2['pairs'] for p in r['connects']})
+    cuts = sorted({r['cut'] for r in a2['pairs']})
+    checks: list[dict] = []
+
+    def check(name: str, passed: bool, detail=None) -> None:
+        checks.append({'check': name, 'passed': bool(passed),
+                       **({'detail': detail} if detail is not None else {})})
+
+    # ---- 1. locate the documented ports by their labels --------------------------
+    lib = gdstk.read_gds(str(PUZZLE))
+    found: dict[str, list] = {}
+    for cell in lib.cells:
+        for lb in cell.labels:
+            if (lb.layer, lb.texttype) == PORT_LABEL and lb.text in PORT_DIR:
+                found.setdefault(lb.text, []).append((lb.origin[0], lb.origin[1]))
+    duplicated = sorted(k for k, v in found.items() if len(v) != 1)
+    absent = sorted(set(PORT_DIR) - set(found))
+    drift = {k: [round(a - b, 3) for a, b in zip(v[0], PORT_POS_DOC[k])]
+             for k, v in found.items() if k in PORT_POS_DOC}
+    misplaced = sorted(k for k, v in drift.items() if max(abs(x) for x in v) > POS_TOL_UM)
+    print(f'ports located by label             : {len(found)} / {len(PORT_DIR)}'
+          f'{"  missing: " + str(absent) if absent else ""}')
+    print(f'  labels seen more than once        : {duplicated or "none"}')
+    print(f'  disagreeing with docs/01_problem.md: {misplaced or "none"}'
+          f'  (tolerance {POS_TOL_UM} um)')
+    check('all 13 documented ports are located by label', not absent and not duplicated,
+          {'missing': absent, 'duplicated': duplicated})
+    check('port label positions agree with Step 1', not misplaced, drift)
+
+    # ---- 2. the net behind each port ---------------------------------------------
+    ly, top, l2n, nl, reg = build_engine(PUZZLE, conductors, cuts, a2['pairs'])
+    port_net: dict[str, int] = {}
+    port_ambiguous: dict[str, list] = {}
+    for name, plist in sorted(found.items()):
+        if len(plist) != 1:
+            continue
+        pt = db.Point(dbu(plist[0][0], per_um), dbu(plist[0][1], per_um))
+        seen: dict[int, list] = {}
+        for pair in conductors:
+            n = l2n.probe_net(reg[pair], pt)
+            if n is not None:
+                seen.setdefault(n.cluster_id, []).append(pair)
+        if len(seen) == 1:
+            port_net[name] = sorted(seen)[0]
+        else:
+            port_ambiguous[name] = sorted(seen)
+    print(f'ports resolving to one net          : {len(port_net)} / {len(found)}')
+    if port_ambiguous:
+        print(f'  ambiguous: {port_ambiguous}')
+    check('every port resolves to exactly one net', not port_ambiguous, port_ambiguous)
+    check('the port nets are distinct', len(set(port_net.values())) == len(port_net),
+          sorted(port_net.items()))
+
+    # ---- 3. direction from the netlist structure ---------------------------------
+    # A net is a MULTISET of (master, pin) classes, because the equation counts *terminals*:
+    # two terminals of one class count twice. Collapsing to a set silently changes the
+    # equation -- measured, and it is why `rst_n`'s port net first reported 2 terminals
+    # instead of its 88.
+    net_counts: dict[int, Counter] = defaultdict(Counter)
+    for iid, rec in d['instances'].items():
+        for pin, val in rec['pins'].items():
+            if val is not None:
+                net_counts[val[0]][(rec['master'], pin)] += 1
+    net_classes = {c: frozenset(cnt) for c, cnt in net_counts.items()}
+    supply_nets = {r['cluster'] for r in d['nets'] if r['is_supply_only']}
+    port_of = {c: n for n, c in port_net.items()}
+    target = {c: (0 if (port_of.get(c) in PORT_DIR and PORT_DIR[port_of[c]] == 'in') else 1)
+              for c in net_counts if c not in supply_nets}
+
+    state: dict[tuple, int] = {}
+    contradictions: list[dict] = []
+    by_master: dict[str, set] = defaultdict(set)
+    for c, cnt in net_counts.items():
+        if c not in target:
+            continue
+        for k in cnt:
+            by_master[k[0]].add(k)
+
+    def infer() -> bool:
+        """One sweep of the four structural rules; True if anything was learned.
+
+        A: a class with more terminals on one net than the target allows cannot be an output
+           (it would put two drivers on that net).
+        B: if the outputs already accounted for meet the target, every unresolved class on
+           the net is an input.
+        C: exactly one terminal unaccounted for while the target still needs an output means
+           that terminal's class is the output.
+        D: a cell that has signal pins must have an output -- a logic cell driving nothing is
+           not a cell. So if every pin of a master is decided except one, that one is the
+           output. (A genuinely passive master whose pins are all inputs, like the antenna
+           diode, is left alone: the rule only fires when a single pin is undecided.)
+        """
+        learned = False
+        for c, cnt in net_counts.items():
+            t = target.get(c)
+            if t is None:
+                continue
+            for k, v in list(cnt.items()):
+                if k not in state and v > t:
+                    state[k] = 0
+                    learned = True
+            known = sum(v * state[k] for k, v in cnt.items() if k in state)
+            unk_mass = sum(v for k, v in cnt.items() if k not in state)
+            if known > t:
+                row = {'net': c, 'terminals': sum(cnt.values()),
+                       'reason': f'{known} output terminals, at most {t} allowed'}
+                if row not in contradictions:
+                    contradictions.append(row)
+                continue
+            if not unk_mass:
+                if known != t:
+                    row = {'net': c, 'terminals': sum(cnt.values()),
+                           'reason': f'{known} drivers where {t} expected'}
+                    if row not in contradictions:
+                        contradictions.append(row)
+                continue
+            if known == t:
+                for k in cnt:
+                    if k not in state:
+                        state[k] = 0
+                        learned = True
+                continue
+            if known == t - 1 and unk_mass == 1:
+                for k, v in cnt.items():
+                    if k not in state and v == 1:
+                        state[k] = 1
+                        learned = True
+        for m, pins in by_master.items():
+            if any(state.get(k) == 1 for k in pins):
+                continue
+            unk = [k for k in pins if k not in state]
+            if len(unk) == 1:
+                state[unk[0]] = 1
+                learned = True
+        return learned
+
+    while infer():
+        pass
+
+    sys_classes = {k for c, cnt in net_counts.items() if c in target for k in cnt}
+    unresolved = sorted(k for k in sys_classes if k not in state)
+    # Only nets whose every class is decided can be judged: an undecided class is not
+    # evidence of a missing driver.
+    settled = {c: cnt for c, cnt in net_counts.items()
+               if c in target and all(k in state for k in cnt)}
+    drivers = {c: sum(v * state[k] for k, v in cnt.items()) for c, cnt in settled.items()}
+    two_drivers = sorted(c for c, n in drivers.items() if n > 1)
+    undriven = sorted(c for c, n in drivers.items() if n != target[c])
+    floating = sorted(c for c, n in drivers.items()
+                      if n == 0 and c not in port_net.values()
+                      and sum(net_counts[c].values()) > 1)
+    outs_on_supply = sorted({k for c in supply_nets for k in net_classes.get(c, ())
+                             if state.get(k) == 1})
+    print()
+    print(f'  {"(master, pin) classes":<34}{len(sys_classes):>5}')
+    print(f'  {"resolved by the netlist alone":<34}{len(sys_classes) - len(unresolved):>5}')
+    print(f'  {"still undetermined":<34}{len(unresolved):>5}'
+          f'{"  " + str([f"{m.replace(STD, chr(95)+chr(95))}.{p}" for m, p in unresolved[:6]]) if unresolved else ""}')
+    print(f'  {"output classes / input classes":<34}'
+          f'{sum(1 for v in state.values() if v):>5} / {sum(1 for v in state.values() if not v):>5}')
+    print(f'  {"nets judged (all classes decided)":<34}{len(settled):>5}')
+    print(f'  {"infeasible nets":<34}{len(contradictions):>5}')
+    print(f'  {"nets needing two drivers":<34}{len(two_drivers):>5}')
+    print(f'  {"non-port nets with no driver":<34}{len(undriven):>5}')
+    print(f'  {"undriven nets with >1 terminal":<34}{len(floating):>5}')
+    print(f'  {"output pins on a supply net":<34}{len(outs_on_supply):>5}')
+
+    check('the direction system is feasible (no net needs two drivers)',
+          not contradictions, contradictions[:4])
+    check('no net carries two output terminals', not two_drivers, two_drivers[:6])
+    check('every net whose classes are all decided has exactly one driver',
+          not undriven, undriven[:6])
+    check('no undriven net with more than one terminal', not floating, floating[:6])
+    check('no output pin sits on a supply net', not outs_on_supply, outs_on_supply[:4])
+    # The plan requires undetermined classes to be REPORTED, not assumed away, so this is a
+    # bound plus an enumeration rather than a demand for zero. The residual ambiguity is real:
+    # net 766 is {a31oi_2.Y, o31a_2.A2 (input), o32ai_2.A2}, which the equation sum=1 can
+    # satisfy with either of its two undecided terminals, and neither master has a pin left
+    # over to break the tie. Everything else -- 284 of 286 classes -- follows from structure.
+    check('the netlist determines the direction of all but a handful of pins',
+          len(unresolved) <= 3, unresolved)
+    check('every undetermined class is a real pin on a real net',
+          not [k for k in unresolved if not any(k in cnt for cnt in net_counts.values())],
+          unresolved)
+    check('no undetermined class sits on a supply net',
+          not [k for k in unresolved if any(k in net_counts[s] for s in supply_nets)],
+          sorted(supply_nets))
+    check('no undetermined class sits on a port net',
+          not [k for k in unresolved if any(k in net_counts[c] for c in port_net.values())],
+          sorted(port_net.values()))
+
+    # ---- 4. the single-terminal nets, each classified ----------------------------
+    single_rows = []
+    for c in sorted(c for c in net_counts if sum(net_counts[c].values()) == 1):
+        (m, p), = net_counts[c]
+        name = port_of.get(c)
+        if name is not None:
+            cls = f'port_{PORT_DIR[name]}_terminal'
+        elif state.get((m, p)) == 1:
+            cls = 'unused_output'
+        else:
+            cls = 'UNCLASSIFIED'
+        single_rows.append({'cluster': c, 'master': m.replace(STD, ''), 'pin': p,
+                            'direction': 'output' if state.get((m, p)) == 1 else 'input',
+                            'classification': cls})
+    unclassified = [r for r in single_rows if r['classification'] == 'UNCLASSIFIED']
+    by_class = Counter(r['classification'] for r in single_rows)
+    print()
+    print(f'single-terminal nets                : {len(single_rows)}'
+          f'  {dict(sorted(by_class.items()))}')
+    check('single-terminal nets are all classified', not unclassified, unclassified[:6])
+
+    # ---- 5. the interface, checked against the directions ------------------------
+    port_rows = []
+    for name in sorted(port_net):
+        c = port_net[name]
+        cnt = net_counts.get(c, Counter())
+        n_out = sum(v * state[k] for k, v in cnt.items() if k in state)
+        port_rows.append({'port': name, 'dir': PORT_DIR[name], 'net': c,
+                          'instance_terminals': sum(cnt.values()), 'output_terminals': n_out,
+                          'pin_names': sorted({f'{m.replace(STD, "")}.{p}' for m, p in cnt})})
+        print(f'  {name:<9}{PORT_DIR[name]:<5} net {c:<6} terminals {sum(cnt.values()):<3} '
+              f'outputs {n_out}  {sorted({p for _, p in cnt})}')
+    bad_dir = [r for r in port_rows
+               if (r['dir'] == 'in' and r['output_terminals'] != 0)
+               or (r['dir'] == 'out' and r['output_terminals'] != 1)]
+    check('every port net has the direction its port implies', not bad_dir, bad_dir)
+    check('13 port nets, matching the documented interface', len(port_rows) == 13,
+          len(port_rows))
+
+    # ---- 6. supply confinement and totals ---------------------------------------
+    supply_bad = [r['cluster'] for r in d['nets']
+                  if r['is_supply_only'] and not set(r['pin_names']) <= SUPPLY]
+    non_supply_on_supply = [r['cluster'] for r in d['nets']
+                            if r['is_supply_only'] and r['functional'] != 0]
+    check('supply nets carry only supply pin names', not supply_bad, supply_bad)
+    check('supply nets carry no functional terminal', not non_supply_on_supply,
+          non_supply_on_supply)
+    check('two supply nets, as B4 found', len(supply_nets) == 2, sorted(supply_nets))
+    t_in = d['totals']
+    check('instances against expectation', t_in['instances'] == len(insts['instances']),
+          t_in['instances'])
+    check('modelled pins against expectation', t_in['endpoints'] == 7897, t_in['endpoints'])
+    check('nets carrying terminals against expectation',
+          t_in['nets_with_terminals'] == 741, t_in['nets_with_terminals'])
+
+    result = {
+        'generated_by': 'tools/puzzle/netlist.py::stage_netlist_check',
+        'source': {'path': 'asic-puzzle-2026/puzzle.gds', 'sha256': sha256(PUZZLE)},
+        'inputs': ['recon/derived/pin_net.json', 'recon/derived/via_pairs.json',
+                   'recon/derived/instances.json', 'recon/inventory.json'],
+        'method': {
+            'direction': 'one unknown per (master,pin) class; one equation per net: the number '
+                         'of its terminals that are outputs = 1, because a well-formed net has '
+                         'exactly one driver. Solved by propagation, seeded only by the '
+                         'documented port directions and by terminals alone on their net.',
+            'limit': 'the sum=1 equations are what make "one driver per net" true, so this '
+                     'establishes consistency and uniqueness of the assignment, not the '
+                     'absence of drivers by fiat; what it catches is infeasibility.',
+            'ports': 'the documented interface (docs/01_problem.md sec.4.1), located in the '
+                     'layout by its 70/5 labels and checked against Step 1\'s positions',
+            'single_terminal': 'classified, not assumed absent: B4 measured 30 and each is '
+                               'either an unused output or an input driven by a port'},
+        'totals': {
+            'instances': t_in['instances'], 'pins': t_in['endpoints'],
+            'nets_with_terminals': t_in['nets_with_terminals'],
+            'classes': len(sys_classes),
+            'classes_resolved': len(sys_classes) - len(unresolved),
+            'classes_undetermined': len(unresolved),
+            'output_classes': sum(1 for v in state.values() if v),
+            'input_classes': sum(1 for v in state.values() if not v),
+            'infeasible_nets': len(contradictions),
+            'nets_with_two_drivers': len(two_drivers),
+            'non_port_nets_without_a_driver': len(undriven),
+            'undriven_nets_with_multiple_terminals': len(floating),
+            'output_pins_on_a_supply_net': len(outs_on_supply),
+            'single_terminal_nets': len(single_rows),
+            'supply_nets': sorted(supply_nets),
+        },
+        'ports': port_rows,
+        'direction': {'outputs': sorted(f'{m}::{p}' for (m, p), v in state.items() if v),
+                      'inputs': sorted(f'{m}::{p}' for (m, p), v in state.items() if not v),
+                      'undetermined': [f'{m}::{p}' for m, p in unresolved]},
+        'single_terminal_nets': single_rows,
+        'contradictions': contradictions,
+        'checks': checks,
+    }
+    OUT_CHECK.parent.mkdir(parents=True, exist_ok=True)
+    OUT_CHECK.write_text(json.dumps(result, indent=2, sort_keys=False) + '\n',
+                         encoding='utf-8', newline='\n')
+    print(f'\nwritten: {OUT_CHECK.relative_to(ROOT)}')
+    ok = all(c['passed'] for c in checks)
+    failed = [c['check'] for c in checks if not c['passed']]
+    print()
+    print(f'B5 NETLIST INTEGRITY: {"PASS" if ok else "FAIL " + str(failed)}')
+    return 0 if ok else 1
+
+
 def main(argv: list[str]) -> int:
     stage = argv[0] if argv else 'pins-to-nets'
     if stage == 'pins-to-nets':
         return stage_pin_net()
+    if stage == 'netlist-check':
+        return stage_netlist_check()
     print(f'netlist.py has no stage {stage!r}')
     return 2
 
