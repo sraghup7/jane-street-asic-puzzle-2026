@@ -622,3 +622,12 @@ extended to do so. This is why the gate re-runs the simulation rather than readi
 The fault grid learned C3's three artifacts (`build/decompose_ref_tb.v`, `build/decompose_win_tb.v`,
 `recon/derived/blocks.json`) and `stepC3` as the 21st gate: **84 mutations × 21 gates**. Six new
 mutations target this step (2 harness, 4 artifact).
+
+**The focused sweep's verdict: 6 of 84 mutations, 0 misses, 0 hermeticity violations,
+`artifacts restored: True`, and every one of the six fired `stepC3` and only `stepC3`** — the same
+shape as C1's and C2's verdicts, and the evidence that this gate owns its three artifacts and that no
+older gate is covering for them. The run printed the labels it selected, so the covered set is read
+from the log rather than inferred from a count. Two of the six are mutations that leave
+well-formed JSON (a flop dropped from a block list, the reported peak inflated); both are caught,
+and they are caught by the checks that exist *because* the first version of this artifact had exactly
+those defects.
