@@ -33,6 +33,7 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('pins-to-nets',      'netlist',    'B4', 'map each instance pin onto a net'),
     ('netlist-check',     'netlist',    'B5', 'single-driver / floating / port integrity checks'),
     ('emit',              'emit',       'B6', 'write build/puzzle.v and build/cells.v'),
+    ('cells',             'cells',      'B6', 'write build/cells.v (our behavioural models)'),
     ('warmup-regression', 'connect',    'B7', 'reproduce warmup/01_netlist.v connectivity'),
     # --- Phase C: understand the chip ---------------------------------------------
     ('vcd-replay',        'simulate',   'C1', 'byte-exact replay of example_inputs.vcd'),

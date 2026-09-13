@@ -509,9 +509,34 @@ Two things this step is worth remembering for:
 `build/cells.v`, our behavioural models for the 69 cell types, with semantics grounded in the label
 names extracted in A3 (`RESET_B`/`SET_B` polarity read from the artifact, not from documentation).
 *Artifact:* `build/puzzle.v`, `build/cells.v`.
-***Verify:*** `iverilog -t null` compiles both cleanly (no implicit nets, no undriven wires);
-instance count in the Verilog equals B5's; every cell type used has a model.
+***Verify:*** `iverilog -Wall -t null` compiles both with **no diagnostics** (and, as a control,
+rejects a deliberately broken file with the same invocation); instance count in the Verilog equals
+B1's; every cell type used has a model whose interface is that master's own pin set; and the emitted
+text **round-trips** — parsed back and compared to B4's map entry by entry.
+***Amended after execution (2026-09-12):*** this clause originally read "no implicit nets, **no
+undriven wires**". This layout has exactly one undriven net (net 806), and demanding "none" is how
+B5 came to invent a driver for it. The clause is now: *exactly one wire is undriven, it is named,
+and it is the one the artifact enumerates.*
 *If it fails:* compile errors localise themselves; a missing model is a `cells.py` omission.
+
+***Outcome (executed): PASS.*** `build/puzzle.v` — 1618 instances, 7897 pins, 741 nets carrying a
+pin, 726 plain signal wires, 972 pins emitted as explicit empty connections. `build/cells.v` — 69
+modules (62 combinational, 3 sequential, 1 tie, 1 protection, 2 layout-only), each deriving its
+function from its master's own function-family name and pin labels, with every master's parse
+asserted against A3's actual pin set. Gate `check_stepB6.py` → **30/30**; `iverilog -Wall -t null`
+exit 0 with empty stderr.
+
+Two things this step is worth remembering for:
+
+* **B6 found a defect in B5.** Generating models from family names meant `cells.py` refused to build
+  a model whose family says `Y` while B5's table said `A1` — the fabricated driver on net 806 (see
+  §B5 above and `docs/steps/B5.md`). A cross-step *interface* assertion caught what the upstream
+  step's own gate had certified; B6 now runs the same check in the other direction.
+* **A clean compile is necessary but not sufficient.** `iverilog` accepted all three flip-flop models
+  with `Q` declared as an *input* and a stray `reg None;` — exit 0, `-Wall`, no diagnostics. The gate
+  caught it by re-deriving each port's direction from A3 and B5 rather than trusting the generated
+  text, and it compiles a deliberately broken file with the same invocation to prove the compiler
+  can fail.
 
 **B7 — Warm-up end-to-end regression (the Phase B gate).**
 *Goal:* our whole pipeline must reproduce a design whose correct netlist we possess.

@@ -34,18 +34,20 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRATCH = ROOT / 'recon' / 'scratch' / 'regen'
 
 
-def regenerate(module: str, out_attrs: tuple[str, ...], stage: str) -> tuple[int, bytes | None, str]:
+def regenerate(module: str, out_attrs: tuple[str, ...], stage: str,
+               suffix: str = '.json') -> tuple[int, bytes | None, str]:
     """Run ``<module>.main([stage])`` with ``out_attrs`` redirected to scratch.
 
     ``out_attrs`` names the module-global output Path(s) the stage writes. Every stage
     reads its *inputs* from the real artifacts, which is what makes this a test of the
-    committed upstream chain rather than of a self-contained re-run.
+    committed upstream chain rather than of a self-contained re-run. ``suffix`` matches the
+    extension of the redirected file, so a stage that writes Verilog can be redirected too.
 
     Returns ``(returncode, bytes_written_or_None, captured_stdout)``.
     """
     m = importlib.import_module(module)
     saved = {a: getattr(m, a) for a in out_attrs}
-    tmp = SCRATCH / f'{stage}.json'
+    tmp = SCRATCH / f'{stage}{suffix}'
     buf = io.StringIO()
     try:
         SCRATCH.mkdir(parents=True, exist_ok=True)

@@ -61,6 +61,7 @@ GATES = [
     ('stepB3', 'tools/checks/check_stepB3.py'),
     ('stepB4', 'tools/checks/check_stepB4.py'),
     ('stepB5', 'tools/checks/check_stepB5.py'),
+    ('stepB6', 'tools/checks/check_stepB6.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -74,7 +75,11 @@ NETS = 'recon/derived/nets.json'
 PINNET = 'recon/derived/pin_net.json'
 CHECK = 'recon/derived/netlist_check.json'
 INV = 'recon/inventory.json'
-ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV]
+# B6's outputs are the first artifacts that are not JSON, so the harness mutates them as text.
+PUZZLEV = 'build/puzzle.v'
+CELLSV = 'build/cells.v'
+ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
+             PUZZLEV, CELLSV]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -336,6 +341,30 @@ def m_chk_crosscheck_hidden(d):
     d['direction']['cross_check']['structure_contradicts_the_labels'] = []
 
 
+def m_v_repoint(text):
+    """Re-point one instance pin at a neighbouring net: the round trip must notice."""
+    assert '.A1(n806)' in text, 'the target connection moved'
+    return text.replace('.A1(n806)', '.A1(n807)', 1)
+
+
+def m_v_drop_instance(text):
+    """Delete one instantiation line: the inventory and round trip must notice."""
+    lines = text.splitlines(keepends=True)
+    for i, line in enumerate(lines):
+        if line.startswith('  sky130_fd_sc_hd__a31oi_2 i0523 ('):
+            del lines[i]
+            return ''.join(lines)
+    raise AssertionError('the target instance moved')
+
+
+def m_v_cells_flip_direction(text):
+    """Declare one model's output as an input: the interface check must notice."""
+    marker = 'module sky130_fd_sc_hd__dfrtp_2 ('
+    head, tail = text.split(marker, 1)
+    assert '  output Q;\n' in tail, 'the flop model moved'
+    return head + marker + tail.replace('  output Q;\n', '  input Q;\n', 1)
+
+
 def m_chk_extra_single(d):
     d['single_terminal_nets'].append({'cluster': 999999,
                                       'master': 'invented_1', 'pin': 'X',
@@ -401,6 +430,9 @@ MUTATIONS = [
     ('netlist_check: the auditor contradiction hidden', CHECK, m_chk_crosscheck_hidden),
     ('netlist_check: an extra single-terminal net', CHECK, m_chk_extra_single),
     ('netlist_check: infeasible net count faked', CHECK, m_chk_infeasible),
+    ('puzzle.v: one pin re-pointed at a neighbouring net', PUZZLEV, m_v_repoint),
+    ('puzzle.v: one instantiation deleted', PUZZLEV, m_v_drop_instance),
+    ('cells.v: a model output declared as an input', CELLSV, m_v_cells_flip_direction),
 ]
 
 
@@ -515,9 +547,15 @@ def main() -> int:
             cells, fired = [], []
             for gname, grel in GATES:
                 restore(pristine)
-                d = json.loads((ROOT / art).read_text(encoding='utf-8'))
-                mut(d)
-                write_artifact(art, json.dumps(d, indent=2, sort_keys=False).encode() + b'\n')
+                if art.endswith('.json'):
+                    d = json.loads((ROOT / art).read_text(encoding='utf-8'))
+                    mut(d)
+                    write_artifact(art,
+                                   json.dumps(d, indent=2, sort_keys=False).encode() + b'\n')
+                else:
+                    # Verilog (or any other text) artifact: the mutator takes and returns text.
+                    write_artifact(art, mut((ROOT / art).read_text(encoding='utf-8'))
+                                   .encode('utf-8'))
                 mutated = read(art)
                 rc = run_gate(grel)
                 cells.append('FAIL' if rc else '.')
