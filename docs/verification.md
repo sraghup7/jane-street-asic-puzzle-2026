@@ -85,7 +85,7 @@ one-line notes in a dict that prints `-` for anything unlisted.
 ## 4. The fault matrix
 
 The table below is this audit's original run — **21 mutations × 11 gates** — kept as the Phase-A
-record. **The current matrix is 77 mutations × 20 gates**, re-run after B7 and after fixing the
+record. **The current matrix is 78 mutations × 20 gates**, re-run after B7 and after fixing the
 fault-injector bug in §10 F2: 0 misses, 0 hermeticity violations, `artifacts restored: True`.
 Every cell is an isolated measurement with a pristine restore between probes, and the "fired"
 column is the real output of `tools/checks/fault_inject.py`:
@@ -573,6 +573,14 @@ warm-up does. Recorded here as the cheapest remaining coverage win in the projec
 
 ### Coverage as of this section
 
-The fault grid learned C2's three artifacts (77 mutations × 20 gates, `stepC2` as the 20th gate).
+The fault grid learned C2's three artifacts (**78 mutations × 20 gates**, `stepC2` as the 20th gate).
 C2's own surface is closed with a focused sweep, like C1's, for the reason §11 gives: `stepC2` is
 another ~25 s gate, and the full sweep belongs at the phase boundary.
+
+A note on `--only`, because it bit: the first C2 sweep was launched with
+`--only 'warmup_equiv:|c2_power:'`, which **cannot match** `warmup_equiv_tb: …` — a literal colon
+after `warmup_equiv` is not what those labels have. The run reported `6 of 78`, which is the harness
+telling the truth about a filter that was not the one intended. The labels are the contract, so a
+filter is now checked against them before it is trusted, and the sweep was re-run with
+`--only 'warmup_equiv|c2_power'` to cover all eight. (The `78` is also a correction: the previous
+sections said 77.)

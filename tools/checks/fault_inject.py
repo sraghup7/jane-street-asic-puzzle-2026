@@ -730,6 +730,12 @@ def main() -> int:
     print()
     if only is not None:
         print(f'--only {argv[1]!r}: {len(selected)} of {len(MUTATIONS)} mutations')
+        # Print what the filter actually selected, not just how many: a pattern that looks right
+        # and silently matches the wrong set is worse than no filter, and the count alone does not
+        # make the set visible. (Measured: `--only 'warmup_equiv:|c2_power:'` cannot match
+        # `warmup_equiv_tb: ...`, so a run intended to cover eight mutations covered six.)
+        for lbl, art_rel, _ in selected:
+            print(f'   - {art_rel}: {lbl}')
     print(header)
     print('-' * len(header))
 
