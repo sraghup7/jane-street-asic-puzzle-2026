@@ -253,7 +253,7 @@ dispatching `python -m tools.puzzle <stage>`; update `check_step1.py` / `check_s
 *Artifact:* package skeleton, updated gates.
 ***Verify:*** Step 1 gate and Step 2 gate both still pass, unchanged output; `python -m
 tools.puzzle --list` prints the stage table.
-*If it fails:* revert the import change; keep loose modules and a plain `tools/puzzle_cli.py`.
+*If it fails:* revert the import change; keep loose modules and a plain `tools/puzzle/cli.py`.
 
 **S0.2 — Dependency manifest and "no PDK" assertion.**
 *Goal:* declare exactly what we depend on, and prove we do not depend on the PDK.
@@ -749,7 +749,8 @@ measured signatures rather than given a function. Artifact `recon/derived/blocks
 **C4 — Symbolic region-map decode (Δ5, the headline differentiator).**
 *Method:* §6.6. Identify the region-select cone; reduce to a boolean function of the index bits;
 evaluate for index `0..120`.
-*Artifact:* `recon/derived/regions.json`.
+*Artifact:* `recon/derived/c4_partition.json` — the step named `regions.json` in this plan and wrote the
+partition under its own name; the two are the same artifact.
 > **Deviation (2026-09-13, user instruction).** C4 was executed with the documented **published
 > method** — stimulus probing of per-cell counters (`docs/02_known_solution.md`, Stage 8) — instead of
 > the symbolic cone reduction Δ5 specifies. Outcome: **no region map**; the per-cell counters are the
@@ -832,7 +833,8 @@ constraint was transcribed wrongly.
 **D3 — Load-bearing analysis (contribution, not required for the answer).**
 *Method:* enumerate the solutions using only the four mechanical constraints (bounded, with a
 reported cap), to quantify how much work the hidden region constraint actually does.
-*Artifact:* `docs/steps/D3.md`.
+*Artifact:* `recon/derived/solutions.json` — D closed with its record in this file's outcome block and in
+`docs/verification.md` §15, not as a separate `docs/steps/D3.md`.
 ***Verify:*** the count is large and reported honestly with the bound used; the single solution is a
 member of that set.
 *If it fails:* report the bound hit. This step is analysis; it cannot block the answer.
@@ -1067,8 +1069,9 @@ no commented-out code, no TODOs.
 **F4 — Final full gate run and freeze.** All gates, in order, from clean.
 ***Verify:*** every gate PASS; git tag `step5-complete`; working tree clean.
 
-***Outcome (executed 2026-09-13): F1–F4 all green; the suite is 32 gates; the state is frozen as
-`step5-complete`.***
+***Outcome (executed 2026-09-13): F1–F4 all green; the suite was 32 gates at that point (its live size
+is the README's number, which `check_stepF2` keeps honest); the state was frozen as `step5-complete`,
+and the tag has since moved forward with F5 and F6.***
 
 | step | result | what it cost |
 |---|---|---|
@@ -1227,7 +1230,7 @@ stop and report rather than proceeding on an unvalidated netlist.
 
 ## 9. Gate design
 
-- `tools/checks/check_stepN.py` for each executed step; exit 0 iff all its checks pass.
+- `tools/checks/check_step<StepId>.py` for each executed step; exit 0 iff all its checks pass.
 - Every gate **re-runs all earlier gates** (protocol requirement), so drift is caught immediately.
 - Gates assert **values**, not absence of errors: counts, exact constants, specific identities.
 - A gate that cannot run must **fail or SKIP loudly** — never pass silently.

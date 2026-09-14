@@ -245,9 +245,9 @@ This is the heart of Step 2. Every row is backed by a passing Step 1 gate check
 | **D9** | **"Cells in the output ROM block are placed with 90-degree rotation. KLayout shows them clearly as a grid oriented perpendicular to the main standard-cell rows."** | **Zero 90°/270° placements.** All 1618 cells are `rot000`/`rot180` ± mirror. Verified three ways: gdstk `(rotation°, mirror) ∈ {(0,F),(0,T),(180,F),(180,T)}`; KLayout agrees; and the decisive test — **all 1618 instances keep their native 3.20 µm row-height bounding box**, whereas a 90° rotation would make them width-tall. | ❌ **contradicted** |
 | D10 | Implied by D9: KLayout "shows" a perpendicular grid | KLayout's `Trans.angle` is in **90° units**, so its `r2`/`m2` mean **180°**, not 2°. Reading it as degrees manufactures exactly the phantom population D9 describes. | ⚠️ **probable root cause of D9** |
 | D11 | "738 standard cells" as the functional count | 738 includes 10 antenna diodes; excluding all physical-only gives **728** | ⚠️ convention ambiguity — we record both |
-| D12 | Floorplan: two central flop banks + adjacency block between them + vertical counter column lower right + ROM block top right | We have 92 flops and spatially clustered geometry (see `recon/hints/`), but have **not** yet mapped clusters to function | ⏳ **unverified by us** |
-| D13 | 11 regions spell "JS" | not yet independently derived | ⏳ to be derived by us |
-| D14 | `success` asserts on cycle 126 | not yet independently derived | ⏳ acceptance constant recorded |
+| D12 | Floorplan: two central flop banks + adjacency block between them + vertical counter column lower right + ROM block top right | We have 92 flops and spatially clustered geometry (see `recon/hints/`), **C3 labelled the blocks** (counters, shift register, comparator, ROM) from the flop traces, and E1 reads the message out of the ROM | ✅ **verified in outline** (C3, E1) |
+| D13 | 11 regions spell "JS" | C4 recovered a partition of the 121 cells into 11 classes and E2 shows the chip corroborates it; we do **not** reproduce the literal "JS" | ⚠ **recovered + corroborated, spelling not reproduced** (AC6 PARTIAL) |
+| D14 | `success` asserts on cycle 126 | **E1**: `success` rises at cycle 126 at offset 4 and at no other offset (5–8 answer `TRY AGAIN`) | ✅ **verified** (AC2) |
 | D15 | "the output ROM prints `(* TWO STARS *)`" ⟷ our own byte-level reading of the provided VCD gives `TRY AGAIN` | consistent: the provided VCD is a *wrong* input | ✅ consistent |
 
 ### Why D8 and D9 matter

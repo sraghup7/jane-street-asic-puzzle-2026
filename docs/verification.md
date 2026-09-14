@@ -2,6 +2,8 @@
 
 **Date:** 2026-09-12, extended 2026-09-13 · **Scope:** every step executed, Phases A to F
 **Question asked:** are the executed steps solid enough to build the remaining steps on?
+**Reading the numbers:** a gate count in any section is the suite's size *on that step's date* — the
+suite grows as steps land. The live count is the README's, and `check_stepF2` fails if the two disagree.
 **Answer:** yes — after fixing three defects found in the Phase-A audit, a fourth found in B5, and
 the Phase-B review's findings (§10), which are coverage gaps rather than wrong data.
 

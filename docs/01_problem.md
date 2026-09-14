@@ -411,7 +411,9 @@ The dossier deliberately stops at the boundary of the problem. Open questions:
 3. **Bit order.** Whether the first serial bit fed is the MSB or LSB of the 121-bit word, and
    how the 121 bits map onto the 11 × 11 grid (row-major or otherwise).
 4. **The `success` condition.** What the 121 bits must satisfy. The constant 22, the ×11
-   structure, and a separate message vocabulary are all visible in principle but not yet read.
+   structure, and a separate message vocabulary were all visible in principle; **all of them have since
+   been read** — the constant 22, the ×11 structure and the message vocabulary are reproduced in Phases
+   C–E (`docs/03_our_plan.md`), and AC2 asserts the cycle.
 5. **The region map.** Whether the design partitions the grid into regions, and if so how, and
    what it spells. The design contains a LUT-like structure that must be decoded from the
    netlist rather than probed.
