@@ -80,6 +80,7 @@ GATES = [
     ('stepD', 'tools/checks/check_stepD.py'),
     ('stepE1', 'tools/checks/check_stepE1.py'),
     ('stepE2', 'tools/checks/check_stepE2.py'),
+    ('stepE3', 'tools/checks/check_stepE3.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -121,9 +122,11 @@ E1ART = 'recon/derived/e1_messages.json'
 SOLART = 'recon/derived/solutions.json'
 # E2's: the boards built from C4's partition and the chip's own readings of them.
 E2ART = 'recon/derived/e2_messages.json'
+# E3's: the acceptance matrix over every criterion.
+ACCEPTART = 'recon/derived/acceptance.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
              PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW,
-             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART]
+             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART, ACCEPTART]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -717,6 +720,41 @@ def m_e2_class_wrong(d):
     d['message_classes']['all_zeros']['text'] = 'EMPTY SKYX'
 
 
+# --- E3: the acceptance matrix, and the overclaims it must refuse ------------------------
+def _row(d, cid):
+    return next(r for r in d['criteria'] if r['id'] == cid)
+
+
+def m_e3_ac6_upgraded(d):
+    """Upgrade AC6 from PARTIAL to PASS: the overclaim this gate exists to catch."""
+    r = _row(d, 'AC6')
+    r['status'] = 'PASS'
+    r['unmet'] = []
+    d['partial'] = []
+    d['counts'] = {'PASS': 6, 'PARTIAL': 0, 'FAIL': 0}
+
+
+def m_e3_ac1_friendly(d):
+    """Record AC1's bit-order comparison as false while the matrix still says PASS."""
+    _row(d, 'AC1')['evidence']['as_printed_equals_target'] = False
+
+
+def m_e3_ac5_vacuous(d):
+    """Zero the replay's compared bits, so a vacuous comparison would pass a floor."""
+    _row(d, 'AC5')['evidence']['output_bits_compared'] = 0
+
+
+def m_e3_counts_faked(d):
+    """Claim a clean sweep of the criteria without the statuses agreeing."""
+    d['counts'] = {'PASS': 6, 'PARTIAL': 0, 'FAIL': 0}
+
+
+def m_e3_unmet_removed(d):
+    """Delete what the matrix says is NOT met."""
+    _row(d, 'AC6')['unmet'] = []
+    d['claims_not_made'] = []
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -822,6 +860,11 @@ MUTATIONS = [
     ('e2_messages: the undriven-net finding smoothed', E2ART, m_e2_undriven_smoothed),
     ('e2_messages: a tested board moved', E2ART, m_e2_board_moved),
     ('e2_messages: another message class corrupted', E2ART, m_e2_class_wrong),
+    ('acceptance: AC6 upgraded from PARTIAL to PASS', ACCEPTART, m_e3_ac6_upgraded),
+    ('acceptance: AC1 s bit-order result made unfavourable', ACCEPTART, m_e3_ac1_friendly),
+    ('acceptance: the replay comparison made vacuous', ACCEPTART, m_e3_ac5_vacuous),
+    ('acceptance: the counts faked without the statuses', ACCEPTART, m_e3_counts_faked),
+    ('acceptance: what is not met deleted', ACCEPTART, m_e3_unmet_removed),
 ]
 
 

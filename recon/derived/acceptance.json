@@ -1,0 +1,202 @@
+{
+  "generated_by": "tools/puzzle/accept.py",
+  "yardstick": "tools/target.py, re-verified in this report",
+  "criteria": [
+    {
+      "id": "AC1",
+      "criterion": "the exact 121-bit input vector asserting success",
+      "status": "PASS",
+      "evidence": {
+        "derived_by": "tools/puzzle/solve.py::stage_solve",
+        "solutions_found": 1,
+        "unique": true,
+        "enumerators_agree_on_solution": true,
+        "enumerators_agree_on_count": true,
+        "feed_order_equals_target": true,
+        "as_printed_equals_target": true,
+        "board_equals_target_grid": true,
+        "ones": 22,
+        "five_constraints_checked": true,
+        "region_constraint_from": "recon/derived/c4_partition.json"
+      },
+      "notes": [
+        "derived by our own search over five constraints, not transcribed from the answer: tools/puzzle/solve.py::stage_solve",
+        "both bit orders asserted, so the Step-2 feed-order trap cannot produce a false negative"
+      ],
+      "unmet": []
+    },
+    {
+      "id": "AC2",
+      "criterion": "success asserts at cycle 126, and only there",
+      "status": "PASS",
+      "evidence": {
+        "expected_cycle": 126,
+        "offsets_tested": [
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "offsets_that_assert_success": [
+          4
+        ],
+        "success_cycle_1based": [
+          126
+        ],
+        "message_on_the_winning_offset": "(* TWO STARS *)",
+        "expected_message": "(* TWO STARS *)",
+        "answer_string": "TWO STARS",
+        "unknown_bits": 0
+      },
+      "notes": [
+        "every other feed offset shifts the grid and correctly answers TRY AGAIN"
+      ],
+      "unmet": []
+    },
+    {
+      "id": "AC3",
+      "criterion": "output string '(* TWO STARS *)'",
+      "status": "PASS",
+      "evidence": {
+        "expected_cycle": 126,
+        "offsets_tested": [
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "offsets_that_assert_success": [
+          4
+        ],
+        "success_cycle_1based": [
+          126
+        ],
+        "message_on_the_winning_offset": "(* TWO STARS *)",
+        "expected_message": "(* TWO STARS *)",
+        "answer_string": "TWO STARS",
+        "unknown_bits": 0
+      },
+      "notes": [],
+      "unmet": []
+    },
+    {
+      "id": "AC4",
+      "criterion": "the four wrong-input messages",
+      "status": "PASS",
+      "evidence": {
+        "classes_matching_the_contract": [
+          "all_zeros",
+          "all_ones",
+          "other_wrong",
+          "correct"
+        ],
+        "classes_mismatching": {
+          "two_per_row_col_but_adjacent": {
+            "expected": "TWO NOT TOUCH",
+            "got": "TRY AGAIN"
+          }
+        },
+        "two_not_touch_boards_spelling_it": 23,
+        "two_not_touch_boards_tested": 23,
+        "control_boards_not_spelling_it": 8,
+        "control_boards": 8,
+        "characters_exact_in_that_message": 0
+      },
+      "notes": [
+        "`TWO NOT TOUCH` is reproduced on 23 constructed boards (E2) and NOT on the 8 controls that also break a class cap",
+        "E1's single vector for that class predates the map and also violates the hidden constraint, so it answers TRY AGAIN; that mismatch is expected and is why the class needed E2",
+        "the printed message carries one indeterminate character, following the design's undriven net (806) -- recorded, not resolved"
+      ],
+      "unmet": []
+    },
+    {
+      "id": "AC5",
+      "criterion": "byte-exact replay of example_inputs.vcd",
+      "status": "PASS",
+      "evidence": {
+        "cycles": 312,
+        "output_bits_compared": 2808,
+        "output_bits_mismatched": 0,
+        "stimulus_bits_mismatched": 0,
+        "our_outputs_with_x_or_z": 0,
+        "exact": true,
+        "cross_check_compared": 1872,
+        "cross_check_mismatches": 0,
+        "forced_806_matches_reference": {
+          "0": true,
+          "1": true
+        }
+      },
+      "notes": [
+        "semantic equality at every sampled instant, `x` included",
+        "the one undriven net (806) was forced both ways; the reference is reproduced either way"
+      ],
+      "unmet": []
+    },
+    {
+      "id": "AC6",
+      "criterion": "region partition recovered from the design's own latches, spelling \"JS\"",
+      "status": "PARTIAL",
+      "evidence": {
+        "capacity2_covers_found": 2,
+        "non_column_candidate": "irregular_0",
+        "class_sizes": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          8,
+          9,
+          11,
+          14,
+          21,
+          28
+        ],
+        "stars_per_class": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "solutions_under_this_partition": 1,
+        "chip_corroborated_it": true,
+        "boards_supporting_it": 23,
+        "control_boards_against_it": 8,
+        "js_spelling_reproduced": false,
+        "verdict_channel_can_confirm": false
+      },
+      "notes": [
+        "AC6 was re-scoped on 2026-09-13 (C4 R20): the partition is recovered and the chip corroborates it through the message channel (E2), while confirmation and the \"JS\" reading are not claimed"
+      ],
+      "unmet": [
+        "the printed map does not read \"JS\" in our recovery, so the spelling claim is not reproduced",
+        "the chip cannot confirm it rather than a look-alike: the accepted input is unique (R16 \u00a73), and look-alike partitions behave identically under rejection (R20 control 1: 188/200)",
+        "one character of the corroborating message is indeterminate, following net 806"
+      ]
+    }
+  ],
+  "counts": {
+    "PASS": 5,
+    "PARTIAL": 1,
+    "FAIL": 0
+  },
+  "partial": [
+    "AC6"
+  ],
+  "claims_not_made": [
+    "the printed map does not read \"JS\" in our recovery, so the spelling claim is not reproduced",
+    "the chip cannot confirm it rather than a look-alike: the accepted input is unique (R16 \u00a73), and look-alike partitions behave identically under rejection (R20 control 1: 188/200)",
+    "one character of the corroborating message is indeterminate, following net 806"
+  ],
+  "overall": "PASS"
+}

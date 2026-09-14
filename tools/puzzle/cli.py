@@ -84,6 +84,8 @@ GATE_NOTES: dict[str, str] = {
     'stepC5': 'the hidden constraint exists; and how little a rejection says about the map',
     'stepD': 'the answer derived by us: two enumerators agree, and both bit orders match',
     'stepE1': 'success at cycle 126, and the four wrong-input messages',
+    'stepE2': 'the wrong-input classes, with the map in hand: the chip corroborates C4',
+    'stepE3': 'the acceptance matrix -- and its refusal to upgrade AC6 or delete what is unmet',
 }
 
 

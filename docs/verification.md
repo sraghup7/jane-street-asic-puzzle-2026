@@ -909,3 +909,56 @@ which silently dropped all but two control boards.
 ./.venv/Scripts/python.exe tools/checks/check_stepE2.py      # 20/20
 ./.venv/Scripts/python.exe tools/checks/fault_inject.py --only "^e2_messages:"
 ```
+
+
+## 17. Phase E, step E3 — the acceptance matrix (2026-09-13)
+
+`check_stepE3.py` (**21 checks**), `tools/puzzle/accept.py`, artifact
+`recon/derived/acceptance.json`, fault-injected:
+
+RESULT (`recon/scratch/fault_e3.txt`): **5 of 109 mutations, 0 escaped, 0 hermeticity violations,
+`artifacts restored: True`, PASS** — each firing `stepE3` and only `stepE3`. **The first run of this
+sweep failed**, and the failure is the most useful thing in this section: see the hole below.
+
+**What the matrix is.** One table over AC1–AC6, every row read from a committed artifact, compared
+against `tools/target.py`. Three rules shape it:
+
+1. **The yardstick is re-verified first.** `tools/target.py` is checked inside the report — grid
+   consistent with the bit vector in both orders, the feed-order/as-printed distinction non-vacuous,
+   and the four mechanical constraints holding — so a broken yardstick cannot flatter the matrix.
+2. **Artifacts only.** The matrix does not re-derive anything from the netlist; the per-step gates
+   guard the artifacts, and this step reports on them. Where a criterion is not met it says so rather
+   than being reworded until it passes.
+3. **Three states, not two.** `PASS`, `FAIL`, and `PARTIAL` — because AC6 is neither.
+
+**The result: 5 PASS, 1 PARTIAL, 0 FAIL, overall PASS (the partial declared).**
+
+| | criterion | status |
+|---|---|---|
+| AC1 | the exact 121-bit vector | PASS — derived by our own search, both enumerators agreeing, both bit orders equal |
+| AC2 | `success` at cycle 126 | PASS — asserted at offset 4 and nowhere else |
+| AC3 | `(* TWO STARS *)` | PASS |
+| AC4 | the four wrong-input messages | PASS — the fourth via E2's 23 boards, and not on the 8 controls |
+| AC5 | byte-exact replay of `example_inputs.vcd` | PASS — 2808 output bits, 0 mismatches, 0 `x`/`z`, cross-check clean |
+| AC6 | region partition, "JS" | **PARTIAL** — recovered and corroborated; not confirmed; "JS" not reproduced |
+
+**AC6 is the honest row, and the gate enforces it.** The matrix must keep AC6 at `PARTIAL`, must keep
+its unmet reasons (the "JS" reading is not reproduced; the verdict channel cannot confirm it rather
+than a look-alike; one character of the corroborating message follows the design's undriven net), and
+must keep a non-empty list of what is *not* claimed. Two of the gate's checks exist purely to fail if
+the matrix is ever improved: upgrading AC6 to `PASS`, or deleting its unmet items, fails the gate even
+though nothing else in the project changed.
+
+**One nuance the matrix states rather than hides.** The contract's `two_per_row_col_but_adjacent` row
+expects `TWO NOT TOUCH`, and E1's single vector for that class answers `TRY AGAIN` — because it was
+hand-built before the map existed and also violates the hidden constraint. The class is reproduced
+(E2: 23 boards), the mismatch is explained in the AC4 row, and the gate fails if that explanation is
+removed.
+
+**Reproduce:**
+
+```
+./.venv/Scripts/python.exe -m tools.puzzle acceptance        # -> recon/derived/acceptance.json
+./.venv/Scripts/python.exe tools/checks/check_stepE3.py      # 17/17
+./.venv/Scripts/python.exe tools/checks/fault_inject.py --only "^acceptance:"
+```
