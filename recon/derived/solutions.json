@@ -1,5 +1,9 @@
 {
   "generated_by": "tools/puzzle/solve.py::stage_solve",
+  "source": {
+    "recon/derived/c4_partition.json": "9e137e973636040abcaa4394f1a911174eb55d8cd319515b528307bd6694e5e9",
+    "tools/target.py": "aeba3a4df1eb6c937de315bbd274ffe826295572fc9ba076285349c9958634a2"
+  },
   "method": {
     "why": "AC1 asks for the 121-bit vector. Reproducing it from the published target proves nothing about our recovery, so it is derived here from the constraint system we recovered: four mechanical rules plus the hidden constraint as C4 recovered it",
     "two_enumerators": "solve_rows (rows / column pairs / recursion / cell-set pruning) and enumerate_bitmask (11-bit row masks / explicit stack / one bitwise adjacency test) are written separately and must agree on both the solution and the count",

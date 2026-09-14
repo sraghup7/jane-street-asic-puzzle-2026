@@ -167,6 +167,7 @@ docs/                  the dossiers, the plan, the per-step records, the verific
 | [`docs/verification.md`](docs/verification.md) | the per-step verification log: what was re-derived, and what fault injection found |
 | [`docs/deps.md`](docs/deps.md) | the dependency rationale, including what we refuse to depend on |
 | [`docs/net806.md`](docs/net806.md) | the chip's one undriven net, characterised: what the artifacts say, the refuted hypotheses, and the one experiment still owed |
+| [`IDEA.md`](IDEA.md) | the original one-line intent, kept as the record of what was wanted before any of this existed |
 | [`docs/steps/`](docs/steps/) | the round-by-round records of the long steps (C4's twenty rounds, and the rest) |
 | [`docs/C4_region_map_issue_for_review.md`](docs/C4_region_map_issue_for_review.md) | the region-map question written up for review while C4 was still open — kept as the record of what was unresolved then, and of how it was closed |
 

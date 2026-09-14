@@ -18,6 +18,8 @@ ways a README goes false are exactly the ways it drifts:
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 import sys
 from pathlib import Path
@@ -30,6 +32,7 @@ from tools.puzzle import cli as C
 README = ROOT / 'README.md'
 DEPS = ROOT / 'docs' / 'deps.md'
 REQ = ROOT / 'requirements.txt'
+D = ROOT / 'recon' / 'derived'
 
 checks: list[dict] = []
 
@@ -115,6 +118,72 @@ def main() -> int:
             if f'{d}' in text and (ROOT / d).is_dir()]
     check('the README describes the repository layout that exists',
           len(dirs) == 5, f'{len(dirs)}/5 directories described and present')
+
+    # ---- every provenance stamp is true ------------------------------------------------
+    # F5 (2026-09-13), from the post-review audit: build/cells.v named recon/derived/pin_names.json
+    # and recon/derived/netlist_check.json but printed puzzle.gds's hash for both -- the same hash
+    # twice, and neither file's actual hash. A stamp that cannot detect a stale input is worse than
+    # no stamp, because it looks like evidence. This check reads every hash a generated file claims,
+    # pairs it with the path on the *same line*, and tests it against that file.
+    #
+    # Two shapes exist in build/: `sha256 <hex>` next to a path (cells.v), and puzzle.v's per-stage
+    # lines carrying a bare hex token, which its own header declares to be the hash of the GDS.
+    gds_sha = hashlib.sha256((ROOT / 'asic-puzzle-2026' / 'puzzle.gds').read_bytes()).hexdigest()
+    path_re = re.compile(r'((?:recon|tools|build|docs|asic-puzzle-2026)/[A-Za-z0-9_./-]+?'
+                         r'\.(?:json|csv|vcd|py|v))(?=\s|$)')
+    build_files = sorted((ROOT / 'build').glob('*.v'))
+    bad_stamps: list[str] = []
+    claims = 0
+    for v in build_files:
+        lines = v.read_text(encoding='utf-8', errors='replace').splitlines()
+        for lineno, line in enumerate(lines, 1):
+            m = re.search(r'sha256 ([0-9a-f]{8,64})\s*$', line)
+            bare = re.match(r'\s*//\s+(\S+)\s+(\S+)\s+([0-9a-f]{16})\s*$', line)
+            if m:
+                claims += 1
+                # cells.v puts the path beside the hash; replay_tb.v puts it on the line above.
+                # Either way, the path is never taken from a line that already carries another hash.
+                found = path_re.search(line) or (
+                    path_re.search(lines[lineno - 2]) if lineno >= 2 else None)
+                if not found:
+                    bad_stamps.append(f'{v.name}:{lineno}: sha256 with no path on or above its line')
+                    continue
+                rel, claimed = found.group(1), m.group(1)
+                full = ROOT / rel
+                if not full.exists():
+                    bad_stamps.append(f'{v.name}:{lineno}: names {rel}, which does not exist')
+                elif not hashlib.sha256(full.read_bytes()).hexdigest().startswith(claimed[:16]):
+                    bad_stamps.append(
+                        f'{v.name}:{lineno}: claims {claimed[:16]} for {rel}, actual '
+                        f'{hashlib.sha256(full.read_bytes()).hexdigest()[:16]}')
+            elif bare:
+                claims += 1
+                if not gds_sha.startswith(bare.group(3)):
+                    bad_stamps.append(f'{v.name}:{lineno}: stage {bare.group(1)} prints '
+                                      f'{bare.group(3)}, which is not the GDS hash')
+    check('every provenance stamp in build/*.v names a file at the hash it prints',
+          not bad_stamps,
+          f'{claims} hashes in {len(build_files)} files; {bad_stamps or "every claim holds"}')
+
+    # ---- the two artifacts that state the answer name their inputs --------------------
+    # F5: `solutions.json` and `acceptance.json` are the artifacts a reader trusts most, so they must
+    # carry the hashes of what they read. Twelve other artifacts do not, and for those the fault grid
+    # is the control: each is registered, and its mutation must fire its owning gate (sweep evidence
+    # in docs/verification.md). These two are the exception, not the rule.
+    stale_src = []
+    named = 0
+    for name in ('solutions.json', 'acceptance.json'):
+        d = json.loads((D / name).read_text(encoding='utf-8'))
+        src = d.get('source') or {}
+        if not src:
+            stale_src.append(f'{name}: records no source hashes at all')
+        for rel, want in src.items():
+            named += 1
+            p = ROOT / rel
+            if not p.exists() or hashlib.sha256(p.read_bytes()).hexdigest() != want:
+                stale_src.append(f'{name}: {rel} is stale or missing')
+    check('the answer and the matrix name their inputs, at current hashes',
+          not stale_src, f'{named} hashes verified; {stale_src or "all current"}')
 
     failed = [c for c in checks if not c['passed']]
     width = max(len(c['check']) for c in checks)

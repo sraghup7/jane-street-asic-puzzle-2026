@@ -35,6 +35,7 @@ separate sections of one run rather than four passes over the same state.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from itertools import combinations
@@ -282,6 +283,11 @@ def stage_solve() -> int:
 
     report = {
         'generated_by': 'tools/puzzle/solve.py::stage_solve',
+        # F5 (2026-09-13): the answer's own artifact says which files it read, so a stale answer is
+        # visible in the artifact rather than only to whoever re-runs the gate. Recorded as
+        # repo-relative path -> sha256, which is what check_stepF2 verifies.
+        'source': {rel: hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
+                   for rel in ('recon/derived/c4_partition.json', 'tools/target.py')},
         'method': {
             'why': 'AC1 asks for the 121-bit vector. Reproducing it from the published target proves '
                    'nothing about our recovery, so it is derived here from the constraint system we '

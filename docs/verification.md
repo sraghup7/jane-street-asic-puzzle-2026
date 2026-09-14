@@ -1,6 +1,6 @@
-# Verification audit — Phases A, B and C
+# Verification audit — Phases A to F
 
-**Date:** 2026-09-12 · **Scope:** every step executed up to and including C2
+**Date:** 2026-09-12, extended 2026-09-13 · **Scope:** every step executed, Phases A to F
 **Question asked:** are the executed steps solid enough to build the remaining steps on?
 **Answer:** yes — after fixing three defects found in the Phase-A audit, a fourth found in B5, and
 the Phase-B review's findings (§10), which are coverage gaps rather than wrong data.
@@ -1161,3 +1161,36 @@ running the whole suite, which is where it belongs.
 ./.venv/Scripts/python.exe tools/checks/check_stepF4.py      # 7/7 once the tag exists
 ./.venv/Scripts/python.exe tools/checks/run_all.py           # every gate, in order
 ```
+
+
+## 23. Phase F, step F5 — the post-review remediation (2026-09-13)
+
+After the freeze, the whole project was reviewed read-only: repository and history, upstream integrity,
+every artifact's hashes, the pipeline, the gates, and the documentation's numbers. The review changed
+nothing; this step is the follow-up. Eight findings, and what each became:
+
+| # | finding | disposition |
+|---|---|---|
+| 1 | `build/cells.v`'s provenance stamp named `pin_names.json` and `netlist_check.json` but printed **puzzle.gds's hash for both** — the same hash twice, and neither file's real hash | **fixed + made an invariant.** The writer read each artifact's `['source']['sha256']` (the hash of the GDS *it* read) where it meant the artifact's own hash. `check_stepF2` now reads every hash in `build/*.v`, pairs it with the path on the same or preceding line, and tests it against that file: 7 hashes in 7 files, every claim holds. Mutation: `stamp: cells.v names an artifact that does not exist`. |
+| 2 | `IDEA.md` — the one-line seed note — was tracked and referenced by nothing | **kept and linked** from the README. Deleting a written record is the irreversible option, and it documents the original intent including the blog. |
+| 3 | 12 of 23 artifacts recorded no input hash | **two fixed, the rest a stated rule.** `solutions.json` and `acceptance.json` — the artifacts that state the answer and the verdict — now carry path→sha256 for what they read (8 hashes, verified current by `check_stepF2`). For the other ten the fault grid is the control, and the gate says so in its own comment: each is registered, and its mutation must fire its owning gate. |
+| 4 | `docs/verification.md`'s title said "Phases A, B and C" while the document covers A–F | retitled. |
+| 5 | `S0.1` (the two Step-1 stages) had no gate of its own | **the review was half right, and the half it got wrong is the half that mattered.** `recon/inventory.json` is gated: `check_step1` regenerates it bit-identically and three mutations target it. But `recon/vcd_cycles.csv` — a committed derivation the C1 stage reads as its cross-check oracle — was checked by **no gate and no mutation at all**. `check_stepC1` now regenerates it through `tools/vcd_probe.py` into a temporary directory and compares bytes, and the table is registered in the fault grid. |
+| 6 | documentation depth is uneven (A–E1 have per-step docs; D–F have plan outcome blocks and these sections) | **accepted.** The evidence is the same; the shape differs. Recorded rather than re-shaped. |
+| 7 | upstream integrity rests on the commit id plus artifact hashes, not per-file hashes | **accepted as adequate:** only three upstream files are read (GDS, VCD, the warm-up netlist), and each is hash-pinned inside the artifact that read it. |
+| 8 | workspace bulk (`.venv` 205 MB, `recon/` 137 MB of ignored scratch) | noted; the scratch tree is ignored by design and the tracked footprint is small. |
+
+**A note on the new check, because it was wrong twice.** The stamp check first paired a path from the
+*preceding* line with the hash on the current one — which made it indict correct files — and then
+matched `.v` inside `.vcd`. Both were parser bugs of mine, and both were caught by the check failing on
+subjects that were provably right. It is now the gate that would catch finding 1's recurrence, and it
+exists because the earlier version's own output had to be argued with first.
+
+FAULT RESULT (`recon/scratch/fault_f5.txt`): **3 of 126 mutations, 0 escaped, 0 hermeticity violations,
+`artifacts restored: True`, PASS.** `stepF2` owns both stamp findings and `stepC1` owns the cycle
+table; the first mutation also fires `stepB6` — by design, not by leakage: B6 owns the claim *"`cells.v`
+is what the writer emits"*, so any edit to that file fails it, while F2 owns the separate claim that the
+stamp is true. Two gates, two different claims, and the row shows both columns set.
+
+The freeze tag `step5-complete` moves forward onto this commit, which the commit message states: the
+freeze state is the one that includes the remediation.

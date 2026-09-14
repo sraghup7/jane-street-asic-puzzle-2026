@@ -33,6 +33,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
 import sys
 import tempfile
 from collections import Counter
@@ -119,6 +120,20 @@ def main() -> int:
     check('the report regenerates byte for byte', produced['OUT_REPORT'], report_before)
     check('regeneration did not write into the tree',
           (S.OUT_TB.read_bytes(), S.OUT_REPORT.read_bytes()), (tb_before, report_before))
+
+    # ---- 1b. the decoded cycle table is the Step-1 dossier's own, byte for byte ---------
+    # F5 (2026-09-13), from the post-review audit: recon/vcd_cycles.csv is a committed Step-1
+    # derivation that no gate checked, although the C1 stage reads it as its cross-check oracle. It is
+    # regenerated here through the same tool that produced it, into a temporary directory so nothing
+    # in the tree is written.
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td) / 'vcd_cycles.csv'
+        rc_csv = subprocess.run(
+            [sys.executable, str(ROOT / 'tools' / 'vcd_probe.py'), str(VCD), '--csv', str(tmp)],
+            cwd=ROOT, capture_output=True, text=True).returncode
+        fresh_csv = tmp.read_bytes() if tmp.exists() else b''
+    check('the decoded cycle table regenerates byte for byte', (rc_csv, fresh_csv),
+          (0, S.STEP1_CSV.read_bytes()))
 
     # ---- 2. the interface the reference declares ---------------------------------
     check('the reference declares exactly clk/rst_n/enable/I/O[7:0]/success',

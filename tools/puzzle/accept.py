@@ -21,6 +21,7 @@ Three design rules:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -288,6 +289,12 @@ def main(argv: list[str] | None = None) -> int:
     report = {
         'generated_by': 'tools/puzzle/accept.py',
         'yardstick': 'tools/target.py, re-verified in this report',
+        # F5 (2026-09-13): the matrix says which committed artifacts it read, so its own inputs are
+        # named in the artifact. Recorded as repo-relative path -> sha256; check_stepF2 verifies it.
+        'source': {rel: hashlib.sha256((ROOT / rel).read_bytes()).hexdigest() for rel in (
+            'recon/derived/solutions.json', 'recon/derived/e1_messages.json',
+            'recon/derived/e2_messages.json', 'recon/derived/c4_partition.json',
+            'recon/derived/vcd_replay.json', 'tools/target.py')},
         'criteria': criteria,
         'counts': counts,
         'partial': [r['id'] for r in rows if r['status'] == PARTIAL],

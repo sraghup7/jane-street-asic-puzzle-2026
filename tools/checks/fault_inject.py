@@ -134,6 +134,10 @@ E2ART = 'recon/derived/e2_messages.json'
 ACCEPTART = 'recon/derived/acceptance.json'
 # E4's: the plan, the per-stage exit codes and the cold byte comparison.
 REPROART = 'recon/derived/reproduction.json'
+# S0.1's second artifact: the Step-1 decoded cycle table. Committed, read by the C1 stage as a
+# cross-check oracle, and -- until F5 -- checked by no gate (registered here so its mutation has an
+# owner: check_stepC1).
+VCDREF = 'recon/vcd_cycles.csv'
 # F's subjects: source files and documents rather than artifacts. They are mutated as *text* (see the
 # harness's text branch) and their mutators keep them valid Python -- a syntax error would fire every
 # gate that imports the module, which is not the fault under test.
@@ -149,7 +153,8 @@ ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV
              # F's steps guard the source tree and the documents rather than a derived artifact, so
              # their subjects are registered here too: the harness snapshots and restores them, and
              # the drift check then proves no gate rewrote one while it was mutated.
-             SRC_CELLS, SRC_C5GATE, DOC_README, DOC_DEPS, SRC_POWER, SRC_SOLVE]
+             SRC_CELLS, SRC_C5GATE, DOC_README, DOC_DEPS, SRC_POWER, SRC_SOLVE,
+             VCDREF]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -868,6 +873,26 @@ def m_f3_docstring_removed(text):
                   text, count=1, flags=re.S)
 
 
+# --- F5: the three defects the post-review audit found -------------------------------
+# Two are the audit's own subjects: a provenance stamp that named files it did not hash, and two
+# artifacts that stated the answer without naming their inputs. The third is the Step-1 cycle table,
+# which no gate checked at all.
+def m_f5_cells_stamp(text):
+    """Name an artifact in cells.v's provenance stamp that does not exist."""
+    return text.replace('recon/derived/pin_names.json', 'recon/derived/pin_namess.json', 1)
+
+
+def m_f5_acceptance_source(d):
+    """Keep the matrix's verdict, falsify one of the input hashes it stands on."""
+    d['source']['recon/derived/solutions.json'] = '0' * 64
+
+
+def m_f5_csv_extra_row(text):
+    """Append a duplicated row to the decoded cycle table: parseable, and not the reference's."""
+    lines = text.splitlines()
+    return '\n'.join(lines + [lines[-1]]) + '\n'
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -991,7 +1016,13 @@ MUTATIONS = [
     ('deps: a package row deleted from the document', DOC_DEPS, m_f2_deps_row),
     ('style: a parked-work marker in a comment', SRC_POWER, m_f3_parked_marker),
     ('style: a line of code commented out', SRC_POWER, m_f3_commented_code),
-    ('style: a long function with no docstring', SRC_SOLVE, m_f3_docstring_removed),
+    ('style: a long function without a docstring', SRC_SOLVE, m_f3_docstring_removed),
+    # This one fires stepB6 as well as stepF2, and legitimately: B6 owns the claim "cells.v is what
+    # the writer emits", so any edit to that file fails it, while F2 owns "the stamp tells the truth".
+    # Two gates, two distinct claims -- recorded here rather than engineered away.
+    ('stamp: cells.v names an artifact that does not exist', CELLSV, m_f5_cells_stamp),
+    ('stamp: the matrix falsifies the hash of one of its inputs', ACCEPTART, m_f5_acceptance_source),
+    ('s0.1: the decoded cycle table gains a row', VCDREF, m_f5_csv_extra_row),
 ]
 
 
