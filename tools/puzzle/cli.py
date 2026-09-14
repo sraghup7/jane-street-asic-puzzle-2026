@@ -20,6 +20,12 @@ ROOT = Path(__file__).resolve().parents[2]
 
 # (stage, module, plan step, purpose)
 STAGES: list[tuple[str, str, str, str]] = [
+    # --- Phase S0: the Step-1 inputs, in the pipeline so a cold rebuild has them ------
+    # E4's cold run found these two missing: recon/inventory.json and recon/vcd_cycles.csv are
+    # consumed by B1/B2/B5 and C1, they are committed, and no stage regenerated them -- so deleting
+    # the tracked derived files left the pipeline unable to rebuild its own inputs.
+    ('inventory',         'inventory',  'S0.1', 'the workspace inventory consumed by B1/B2/B5'),
+    ('vcd-table',         'vcd_table',  'S0.1', 'the Step-1 decoding of the reference waveform'),
     # --- Phase A: the chip describes itself --------------------------------------
     ('layers',            'layers',     'A1', 'classify every (layer,datatype) into a role'),
     ('via-pairs',         'layers',     'A2', 'derive conductor layer pairs from the via masters'),
@@ -41,8 +47,12 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('warmup-equiv',      'equiv',      'C2', 'validate our cell models on the warmup adder'),
     ('warmup-power',      'power',      'C2', 'how much a wrong cell model would show up in C2'),
     ('decompose',         'analyse',    'C3', 'label the counters, shift register, comparator, ROM'),
-    ('region-map',        'verdict',    'C4', 'find the partition the eleven latches form, with its controls'),
+    # --- Phase C: what the chip computes, and what it refuses ---------------------
+    # Order is dataflow, not narrative: C4's controls are measured against C5's rejection set, so the
+    # rejected boards are generated first. (The plan's *steps* still read C4 then C5; this table is
+    # the pipeline.) E4's cold run is what exposed the dependency.
     ('rejections',        'verdict',    'C5', 'boards that satisfy every visible rule and are rejected'),
+    ('region-map',        'verdict',    'C4', 'find the partition the eleven latches form, with its controls'),
     ('winning',           'verdict',    'E1', 'the winning vector driven through the netlist'),
     ('confirm',           'confirm',    'E2', 'the wrong-input messages, with the region map in hand'),
     # --- Phase D: solve -----------------------------------------------------------
@@ -54,7 +64,7 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('answer',            'solve',      'D4', 'the vector in both bit orders, against the contract'),
     # --- Phase E: confirm ---------------------------------------------------------
     ('acceptance',        'accept',     'E3', 'assert AC1-AC6 against tools/target.py'),
-    ('reproduce',         'accept',     'E4', 'full pipeline from clean in one command'),
+    ('reproduce',         'repro',      'E4', 'full pipeline from clean in one command'),
 ]
 
 # Optional one-liners for known gates. The gate *list* is discovered from the filesystem
@@ -86,6 +96,7 @@ GATE_NOTES: dict[str, str] = {
     'stepE1': 'success at cycle 126, and the four wrong-input messages',
     'stepE2': 'the wrong-input classes, with the map in hand: the chip corroborates C4',
     'stepE3': 'the acceptance matrix -- and its refusal to upgrade AC6 or delete what is unmet',
+    'stepE4': 'delete every derived artifact, rebuild from the layout, get the same bytes',
 }
 
 

@@ -729,7 +729,14 @@ def stage_region_map() -> int:
               f'{" = the eleven columns (the visible rule itself)" if same_as_columns else ""}')
 
     # ---- controls: how much is each candidate worth? ------------------------------------
-    c5 = json.loads(OUT_C5.read_text(encoding='utf-8')) if OUT_C5.exists() else None
+    # The controls are measured *against C5's rejection set*, so that artifact is an input here, not
+    # an optional extra. E4's cold run caught the earlier version skipping it silently when the file
+    # was absent (C4 runs before C5 in the table): the artifact then regenerated without these fields
+    # and was not byte-reproducible. Missing input is now an error that names the command to run.
+    if not OUT_C5.exists():
+        raise SystemExit(f'missing {OUT_C5.relative_to(ROOT).as_posix()} -- C4 s controls are measured '
+                         f'against the rejected boards, so run: python -m tools.puzzle rejections')
+    c5 = json.loads(OUT_C5.read_text(encoding='utf-8'))
     candidates = []
     for idx, cov in enumerate(cap2):
         cls = [nonempty[n] for n in cov]

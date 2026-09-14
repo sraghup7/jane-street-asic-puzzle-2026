@@ -1002,6 +1002,45 @@ mismatch is explained in the AC4 row, and the gate fails if that explanation is 
 *Method:* a single script that runs S0→E3 from scratch on a clean checkout and prints the result.
 ***Verify:*** it completes and prints the acceptance table; runtime reported.
 
+***Outcome (executed 2026-09-13): the cold claim holds — 31 of 31 artifacts rebuilt byte-identically in
+396 s, acceptance PASS.*** `python -m tools.puzzle reproduce [--plan|--check|--cold]` →
+`recon/derived/reproduction.json`, gated by `check_stepE4` (**11 checks**).
+
+**What it does.** The stage list is derived from `cli.STAGES` (29 stages), never duplicated. `--cold`
+deletes every **tracked** derived artifact — git is the undo, so only tracked files are touched — runs
+the pipeline, then compares each rebuilt file's bytes against `git show HEAD:<path>`. The artifact
+records the plan, the per-stage exit codes and the byte comparison, and **no timings**: B3's rule is
+that a derived artifact must regenerate byte-identically, and a clock in a file guarantees it will not.
+Timings go to stdout (the run log is scratch).
+
+**The run:** 29 stages · 396.2 s · acceptance PASS · **31/31 byte-identical** · one new file (this
+artifact itself).
+
+**It found two real defects, and both were fixed rather than documented around.**
+
+1. **Two pipeline inputs were not regenerable.** `recon/inventory.json` (consumed by B1/B2/B5) and
+   `recon/vcd_cycles.csv` (C1's independent cross-check, "the Step-1 dossier's own decoding") are
+   committed and consumed by the pipeline, and **no stage produced them** — the cold rebuild died at
+   B1 with `missing input recon/inventory.json`. A fresh clone could still run (they are committed),
+   but the protocol's Step-5 claim is a *reproduction* path, and a pipeline that cannot rebuild its own
+   inputs fails it. Fixed with two thin S0.1 stages that call the Step-1 tools' own `main()`, so
+   serialisation stays the tools' business; both now regenerate byte-identically.
+2. **A hidden dependency plus a silent skip.** C4's controls are measured *against C5's rejection set*,
+   but the table ran C4 before C5, and the C4 stage loaded the missing file with `if exists else None`
+   — so on a cold tree it produced an artifact **without its `rejection_test` and
+   `lookalike_uniqueness` fields**, silently, which is why the first cold run reported
+   `c4_partition.json` as the one differing file. Fixed twice over: the table is now ordered by
+   *dataflow* (C5 before C4, with a comment explaining that the plan's steps stay C4-then-C5), and the
+   missing input is a **hard error** naming the command to run instead of a silent downgrade.
+
+One defect in my own comparison code was found the same way: `git show HEAD:<windows-backslash-path>`
+fails with empty output, and the empty hash was then reported as "differs from HEAD too" — a false
+diagnosis. Paths are normalised to forward slashes before any git call.
+
+**So the reproduction path is now the real thing:** delete every derived artifact we track, rebuild
+from the upstream layout and the puzzle alone, and get the same bytes — with the acceptance matrix
+re-printed at the end of the same run.
+
 ### Phase F — Hardening (protocol Step 5)
 
 **F1 — Dead code and scratch removal.** Remove unused helpers, superseded scripts and any

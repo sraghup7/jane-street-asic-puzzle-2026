@@ -81,6 +81,7 @@ GATES = [
     ('stepE1', 'tools/checks/check_stepE1.py'),
     ('stepE2', 'tools/checks/check_stepE2.py'),
     ('stepE3', 'tools/checks/check_stepE3.py'),
+    ('stepE4', 'tools/checks/check_stepE4.py'),
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -124,9 +125,11 @@ SOLART = 'recon/derived/solutions.json'
 E2ART = 'recon/derived/e2_messages.json'
 # E3's: the acceptance matrix over every criterion.
 ACCEPTART = 'recon/derived/acceptance.json'
+# E4's: the plan, the per-stage exit codes and the cold byte comparison.
+REPROART = 'recon/derived/reproduction.json'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
              PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW,
-             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART, ACCEPTART]
+             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART, ACCEPTART, REPROART]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -755,6 +758,44 @@ def m_e3_unmet_removed(d):
     d['claims_not_made'] = []
 
 
+# --- E4: the reproduction path, and the claims it must not make --------------------------
+def m_e4_drop_stage(d):
+    """Drop a stage from the recorded plan: the pipeline would no longer match the command table."""
+    d['stages'] = [r for r in d['stages'] if r['stage'] != 'warmup-regression']
+    d['stages_run'] = len(d['stages'])
+
+
+def m_e4_fake_exit(d):
+    """One stage recorded as failing while the report still says everything is clean."""
+    d['stages'][0]['exit_code'] = 1
+
+
+def m_e4_clock(d):
+    """Put a timing in the artifact -- B3's rule forbids it, because it breaks byte-identity."""
+    d['stages'][0]['seconds'] = 5.3
+
+
+def m_e4_reorder(d):
+    """Move the acceptance stage off the end."""
+    rows = list(d['stages'])
+    acc = next(r for r in rows if r['stage'] == 'acceptance')
+    rows.remove(acc)
+    rows.insert(0, acc)
+    d['stages'] = rows
+
+
+def m_e4_cold_smoothed(d):
+    """Report a cold run that agreed, when a file differed."""
+    c = d['cold_check']
+    c['differences'] = [{'path': 'recon/derived/c4_partition.json', 'why': 'differs'}]
+    c['regenerated_identically'] = c['tracked_before'] - 1
+
+
+def m_e4_warm_run(d):
+    """Present a warm run as the evidence, when E4's claim needs the cold one."""
+    d['cold_check'] = None
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -865,6 +906,12 @@ MUTATIONS = [
     ('acceptance: the replay comparison made vacuous', ACCEPTART, m_e3_ac5_vacuous),
     ('acceptance: the counts faked without the statuses', ACCEPTART, m_e3_counts_faked),
     ('acceptance: what is not met deleted', ACCEPTART, m_e3_unmet_removed),
+    ('reproduction: a stage dropped from the plan', REPROART, m_e4_drop_stage),
+    ('reproduction: a stage recorded as failing', REPROART, m_e4_fake_exit),
+    ('reproduction: a timing put in the artifact', REPROART, m_e4_clock),
+    ('reproduction: acceptance moved off the end', REPROART, m_e4_reorder),
+    ('reproduction: a cold difference smoothed over', REPROART, m_e4_cold_smoothed),
+    ('reproduction: a warm run presented as the evidence', REPROART, m_e4_warm_run),
 ]
 
 

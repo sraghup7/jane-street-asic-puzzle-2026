@@ -1,0 +1,202 @@
+{
+  "generated_by": "tools/puzzle/repro.py",
+  "mode": {
+    "cold": true,
+    "stage_source": "tools/puzzle/cli.py::STAGES"
+  },
+  "prerequisites": {
+    "upstream_layout": true,
+    "upstream_gds_present": true,
+    "iverilog": true,
+    "git": true
+  },
+  "stages": [
+    {
+      "stage": "inventory",
+      "module": "inventory",
+      "step": "S0.1",
+      "exit_code": 0
+    },
+    {
+      "stage": "vcd-table",
+      "module": "vcd_table",
+      "step": "S0.1",
+      "exit_code": 0
+    },
+    {
+      "stage": "layers",
+      "module": "layers",
+      "step": "A1",
+      "exit_code": 0
+    },
+    {
+      "stage": "via-pairs",
+      "module": "layers",
+      "step": "A2",
+      "exit_code": 0
+    },
+    {
+      "stage": "pin-names",
+      "module": "pins",
+      "step": "A3",
+      "exit_code": 0
+    },
+    {
+      "stage": "pin-geom",
+      "module": "pins",
+      "step": "A4",
+      "exit_code": 0
+    },
+    {
+      "stage": "pin-coverage",
+      "module": "pins",
+      "step": "A5",
+      "exit_code": 0
+    },
+    {
+      "stage": "instances",
+      "module": "instances",
+      "step": "B1",
+      "exit_code": 0
+    },
+    {
+      "stage": "connect",
+      "module": "connect",
+      "step": "B2/B3",
+      "exit_code": 0
+    },
+    {
+      "stage": "nets",
+      "module": "connect",
+      "step": "B3",
+      "exit_code": 0
+    },
+    {
+      "stage": "pins-to-nets",
+      "module": "netlist",
+      "step": "B4",
+      "exit_code": 0
+    },
+    {
+      "stage": "netlist-check",
+      "module": "netlist",
+      "step": "B5",
+      "exit_code": 0
+    },
+    {
+      "stage": "emit",
+      "module": "emit",
+      "step": "B6",
+      "exit_code": 0
+    },
+    {
+      "stage": "cells",
+      "module": "cells",
+      "step": "B6",
+      "exit_code": 0
+    },
+    {
+      "stage": "warmup-regression",
+      "module": "warmup",
+      "step": "B7",
+      "exit_code": 0
+    },
+    {
+      "stage": "vcd-replay",
+      "module": "simulate",
+      "step": "C1",
+      "exit_code": 0
+    },
+    {
+      "stage": "model-power",
+      "module": "power",
+      "step": "C1",
+      "exit_code": 0
+    },
+    {
+      "stage": "warmup-equiv",
+      "module": "equiv",
+      "step": "C2",
+      "exit_code": 0
+    },
+    {
+      "stage": "warmup-power",
+      "module": "power",
+      "step": "C2",
+      "exit_code": 0
+    },
+    {
+      "stage": "decompose",
+      "module": "analyse",
+      "step": "C3",
+      "exit_code": 0
+    },
+    {
+      "stage": "rejections",
+      "module": "verdict",
+      "step": "C5",
+      "exit_code": 0
+    },
+    {
+      "stage": "region-map",
+      "module": "verdict",
+      "step": "C4",
+      "exit_code": 0
+    },
+    {
+      "stage": "winning",
+      "module": "verdict",
+      "step": "E1",
+      "exit_code": 0
+    },
+    {
+      "stage": "confirm",
+      "module": "confirm",
+      "step": "E2",
+      "exit_code": 0
+    },
+    {
+      "stage": "solve",
+      "module": "solve",
+      "step": "D1",
+      "exit_code": 0
+    },
+    {
+      "stage": "uniqueness",
+      "module": "solve",
+      "step": "D2",
+      "exit_code": 0
+    },
+    {
+      "stage": "load-bearing",
+      "module": "solve",
+      "step": "D3",
+      "exit_code": 0
+    },
+    {
+      "stage": "answer",
+      "module": "solve",
+      "step": "D4",
+      "exit_code": 0
+    },
+    {
+      "stage": "acceptance",
+      "module": "accept",
+      "step": "E3",
+      "exit_code": 0
+    }
+  ],
+  "stages_run": 29,
+  "all_stages_exit_zero": true,
+  "cold_check": {
+    "tracked_before": 31,
+    "regenerated_identically": 31,
+    "differences": [],
+    "files_not_restored": 0,
+    "untracked_new_files": [
+      "recon/derived/reproduction.json"
+    ]
+  },
+  "acceptance": "PASS",
+  "note": "timings are printed to stdout and deliberately not recorded here"
+}
