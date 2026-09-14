@@ -580,11 +580,16 @@ def exact_covers(sets: dict[str, set[int]], cap: int = 200) -> list[list[str]]:
     return found
 
 
-def capacity2_cover(sets: dict[str, set[int]], star_cells: set[tuple[int, int]]) -> list[list[str]]:
-    """The covers that are a region map as the puzzle describes it: 11 classes, two stars each."""
-    stars = {r * 11 + c for r, c in star_cells}
-    return [c for c in exact_covers(sets) if len(c) == 11
-            and all(len(sets[n] & stars) == 2 for n in c)]
+def capacity2_cover(covers: list[list[str]], sets: dict[str, set[int]],
+                    star_lin: set[int]) -> list[list[str]]:
+    """The covers that are a region map as the puzzle describes it: 11 classes, two stars each.
+
+    Takes the covers and the star set the caller already computed rather than recomputing them: the
+    exact-cover search is the expensive part of this stage, and calling it twice for one answer was how
+    this function previously came to be bypassed by an inline copy of itself (F1 removed the copy).
+    """
+    return [c for c in covers if len(c) == 11
+            and all(len(sets[n] & star_lin) == 2 for n in c)]
 
 
 PAIR_PATTERNS = [(a, b) for a, b in combinations(range(11), 2) if abs(a - b) >= 2]
@@ -714,8 +719,7 @@ def stage_region_map() -> int:
     covers = exact_covers(nonempty)
     stars = answer_cells()
     star_lin = {r * 11 + c for r, c in stars}
-    cap2 = [c for c in covers if len(c) == 11
-            and all(len(nonempty[n] & star_lin) == 2 for n in c)]
+    cap2 = capacity2_cover(covers, nonempty, star_lin)
     print(f'  exact covers of the 121 cells by trigger sets: {len(covers)} (the trivial covers, where '
           f'one flop fires everywhere, included)')
     print(f'  covers with 11 classes holding exactly two answer stars each: {len(cap2)}')

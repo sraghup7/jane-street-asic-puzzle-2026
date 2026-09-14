@@ -1059,6 +1059,61 @@ no commented-out code, no TODOs.
 **F4 — Final full gate run and freeze.** All gates, in order, from clean.
 ***Verify:*** every gate PASS; git tag `step5-complete`; working tree clean.
 
+***Outcome (executed 2026-09-13): F1–F4 all green; the suite is 32 gates; the state is frozen as
+`step5-complete`.***
+
+| step | result | what it cost |
+|---|---|---|
+| F1 dead code | **5/5** | found and removed **two** dead functions; the F1 sweep's own first run **failed** |
+| F2 documentation | **9/9** | `README.md` written; two gate bugs and one arithmetic error of mine fixed |
+| F3 conventions | **6/6** | four gate bugs fixed; **22** undocumented functions documented |
+| F4 freeze | **7/7** | the tag, and the machinery's internal consistency |
+
+**Fault injection: 8 mutations across the three gates, 0 escaped, 0 hermeticity violations, each firing
+only its owner** (`--only "^(dead code|readme|deps|style):"`, `recon/scratch/fault_f.txt`). **The first
+run failed**, and that is the phase's most useful result: both dead-code mutations **escaped**, because
+F1 counted references by *text* and the mutator's own source contains the injected name **as a string
+literal** — so the mutation counted as a use of itself. A gate whose entire subject is dead code was
+blind to dead code, for the same reason any docstring mention would look like a call. Counting now walks
+the AST; the stricter count then found **a second dead function** (`um` in `tools/kl_recon.py`).
+
+**What F1 removed.** The inline duplicate of `capacity2_cover()` in C4's stage (the function was never
+called) — re-running C4 afterwards regenerates `c4_partition.json` **byte-identically**, so the refactor
+is provably behaviour-preserving — and `um()`. The dependency floor F1 asks for is now measured rather
+than asserted: `shapely`, `scipy`, `networkx` and `pandas` were uninstalled (`numpy` stays, because
+`matplotlib` requires it), `recon/inventory.json` records the new environment, and `check_step1` — which
+used to assert *"shapely available"* from the Step-1 dossier — now asserts **those packages are absent**
+(58/58). The dossier's historical record is untouched; what changed is what has to hold now.
+
+**What F2 fixed.** The README it wrote is *executably* checked: every command must be a real stage, the
+gate count must equal what the suite discovers (32), the stage count must equal the pipeline (29),
+`docs/deps.md` and `requirements.txt` must agree both ways, and no document may be orphaned. Two bugs in
+the gate: it compared 29 stages against a table of 30 (which includes `reproduce` itself) and matched
+document *file names* instead of stems. One error in the README: the per-phase runtime table summed to
+389 s against a 396 s measured total (phase C was understated by 10 s). One judgement call, decided rather
+than asked — `docs/C4_region_map_issue_for_review.md` was cited nowhere, and is **linked** rather than
+deleted, because deleting a written record is the irreversible option.
+
+**What F3 settled.** The convention is stated as a rule that cannot generate boilerplate: **classes, and
+any function over 25 lines, carry a docstring**; the `main`/`check` scaffolding is exempt by name. Four
+bugs in the gate first: it banned markers including in its own source, its snake_case rule rejected
+`check_stepC4.py`, its "public" test matched mere mentions (~20 innocent helpers flagged), and
+`check_recompute.py` was the one gate with a non-uniform verdict line. The rule then found **22**
+substantial undocumented functions, all now documented from their actual bodies: **233 documented, 218
+short helpers exempt**.
+
+**F4 is deliberately absent from the fault grid** — the one deviation from this plan's own
+"every step registers its artifacts" rule, and it is stated rather than quietly skipped: F4's subject is
+the *frozen* repository, and fault injection dirties the tree by design, so registering it would make it
+fire on every mutation and drown the signal. It has no artifact of its own; the freeze it guards is
+declared by running the whole suite.
+
+**Step 5 is closed.** The recovered truth matches the known answer on every criterion we agreed (AC6
+declared `PARTIAL`, with its reasons), the repository carries no dead code and no scratch, the
+dependencies are exactly what `requirements.txt` says, and the reproduction path is one command that
+deletes 31 tracked artifacts, rebuilds them from the upstream layout, and gets the same bytes back.
+What remains is Step 6: the writeup.
+
 ---
 
 ## 8. Risk register with kill criteria

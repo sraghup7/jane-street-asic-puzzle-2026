@@ -132,7 +132,18 @@ def main() -> int:
 
     # ---- environment ----------------------------------------------------------
     check('gdstk available', env['packages']['gdstk'] is not None, True)
-    check('shapely available', env['packages']['shapely'] is not None, True)
+    # F1 (2026-09-13) removed the packages no shipped code imports, so the dependency surface is
+    # exactly requirements.txt. Step 1's dossier recorded shapely as *available*; that record is
+    # history and stays in docs/01. What has to hold now is the stronger, checkable claim: the
+    # packages we deliberately do not depend on are gone from the environment. The first three are
+    # ones `tools/inventory.py::env_inventory` probes; pandas is checked directly with `find_spec`,
+    # which does not import it.
+    from importlib.util import find_spec
+    for pkg in ('shapely', 'scipy', 'networkx'):
+        check(f'{pkg} absent (F1: not a dependency)', env['packages'].get(pkg) is None, True)
+    check('pandas absent (F1: not a dependency)', find_spec('pandas') is None, True)
+    check('numpy present (transitive via matplotlib)',
+          env['packages'].get('numpy') is not None, True)
     check('iverilog available', env['executables_on_path']['iverilog'] is not None, True)
 
     width = max(len(r[1]) for r in results)

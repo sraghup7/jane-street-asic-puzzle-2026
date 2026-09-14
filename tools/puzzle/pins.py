@@ -456,6 +456,11 @@ def warmup_calibration(roles) -> dict:
 
 
 def stage_pin_geom(argv: list[str]) -> int:
+    """A4: master-local pin geometry, calibrated on the warm-up design.
+
+    The warm-up's real netlist is known, so the rule that turns a master's shapes into named pin
+    rectangles is calibrated there rather than assumed; writes `recon/derived/pinmodel.json`.
+    """
     lib = gdstk.read_gds(str(GDS))
     top = lib.top_level()[0]
     a1 = json.loads(A1_OUT.read_text(encoding='utf-8'))
@@ -786,6 +791,11 @@ def main(argv: list[str]) -> int:
 
 
 def stage_pin_names(argv: list[str]) -> int:
+    """A3: read pin names from the in-master pin labels.
+
+    No technology LEF and no PDK: the names come from the labels inside the cells themselves; writes
+    `recon/derived/pin_names.json` with the evidence for each name.
+    """
     lib = gdstk.read_gds(str(GDS))
     top = lib.top_level()[0]
     a1 = json.loads(A1_OUT.read_text(encoding='utf-8'))

@@ -79,6 +79,12 @@ def rot180(grid: list[str]) -> list[str]:
 
 
 def check_constraints(grid: list[str]) -> dict:
+    """The four mechanical rules, measured on a grid.
+
+    Returns the star total, the per-row and per-column counts, every adjacent pair found (diagonals
+    included), and a boolean per rule -- so a caller can assert whichever subset it is about rather
+    than re-implementing any of them.
+    """
     ones = sum(row.count('*') for row in grid)
     rows = [row.count('*') for row in grid]
     cols = [sum(1 for r in range(GRID_SIZE) if grid[r][c] == '*')

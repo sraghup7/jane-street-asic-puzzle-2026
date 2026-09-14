@@ -110,6 +110,13 @@ def _visible_ok(grid: list[str]) -> dict:
 
 
 def stage_confirm() -> int:
+    """E2: the wrong-input messages, with the region map in hand.
+
+    The two-switch family of the accepted board supplies the inputs whose *only* fault is an adjacent
+    pair; the chip answers `TWO NOT TOUCH` on every one of them and `TRY AGAIN` on the controls that
+    also break a class cap. That contrast is what turns C4's candidate partition into something the
+    chip itself corroborates. Writes `recon/derived/e2_messages.json`.
+    """
     class_of, src = V.region_partition()
     n_classes = len(src['flops'])
     m = V.Machine(cycles=V.MESSAGE_CYCLES)

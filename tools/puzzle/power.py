@@ -77,6 +77,12 @@ def negate(mod: str) -> tuple[str, str] | None:
 
 
 def stage_model_power() -> int:
+    """C1/C2: measure how much a wrong cell model would show up in the comparison.
+
+    Injects deliberately wrong models and counts how many cycles and outputs move, so the model
+    validation is quantified rather than asserted -- it is where "C1 catches 37 of 66" comes from.
+    Writes `recon/derived/c1_power.json` or `c2_power.json`, whichever stage it is run as.
+    """
     ref = S.read_reference()
     exp_O, exp_succ = ref['table']['O'], ref['table']['success']
     n = len(exp_O)

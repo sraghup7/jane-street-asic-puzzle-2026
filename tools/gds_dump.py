@@ -65,6 +65,12 @@ def coords(blob):
 
 
 def parse(path):
+    """Parse a GDSII file into records without any third-party dependency.
+
+    The independent reader: `tools/inventory.py` reads the same file through `gdstk`, and the two
+    agreeing is what makes the Step-1 layer census evidence rather than one library's opinion.
+    Returns the units, library header and the structures in file order.
+    """
     data = open(path, 'rb').read()
     units = None
     libname = None

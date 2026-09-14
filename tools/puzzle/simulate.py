@@ -437,6 +437,12 @@ def run_simulation(tb: Path, vvp: Path, force: int | None = None,
 # the stage
 # ---------------------------------------------------------------------------------
 def stage_vcd_replay() -> int:
+    """C1: replay `example_inputs.vcd` through the emitted netlist, byte for byte.
+
+    Every sampled instant of every output is compared with the reference, `x` included, and the one
+    structurally undriven net is forced both ways to show the comparison does not rest on it; writes
+    `recon/derived/vcd_replay.json`.
+    """
     ref_data = read_reference()
     ref, clock, width = ref_data['ref'], ref_data['clock'], ref_data['width']
     table, cycles = ref_data['table'], ref_data['cycles']

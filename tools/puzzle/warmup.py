@@ -83,6 +83,12 @@ def canon(part: dict) -> Counter:
 
 
 def stage_warmup_regression() -> int:
+    """B7: the whole extraction chain, on a design whose real netlist we hold.
+
+    Every layer of the pipeline runs on `warmup/` and the connectivity it produces is compared with
+    the netlist Jane Street published, net by net; writes `recon/derived/warmup_b7.json`. This is the
+    end-to-end check that the A and B phases are right, made before either touches the puzzle chip.
+    """
     a2, a4, inv = read_json(A2), read_json(A4), read_json(INV)
     per_um = int(inv['gds']['dbu_per_um'])
     conductors = sorted({p for r in a2['pairs'] for p in r['connects']})

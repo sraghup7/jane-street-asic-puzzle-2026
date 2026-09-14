@@ -97,6 +97,10 @@ GATE_NOTES: dict[str, str] = {
     'stepE2': 'the wrong-input classes, with the map in hand: the chip corroborates C4',
     'stepE3': 'the acceptance matrix -- and its refusal to upgrade AC6 or delete what is unmet',
     'stepE4': 'delete every derived artifact, rebuild from the layout, get the same bytes',
+    'stepF1': 'nothing shipped is dead, and nothing shipped is scratch',
+    'stepF2': 'the documentation is true, not just present',
+    'stepF3': 'one convention, applied everywhere',
+    'stepF4': 'the freeze: clean tree, tag at HEAD, and the machinery consistent',
 }
 
 

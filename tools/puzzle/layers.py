@@ -91,6 +91,12 @@ def estimate_site_pitch(lib, top_name: str) -> float:
 
 
 def analyse(lib, top_name: str) -> dict:
+    """Classify every (layer, datatype) pair in the library by the role it plays.
+
+    Roles are decided from the chip's own structure -- a layer that only ever draws via cuts is a via
+    layer, one that carries pin labels is a label layer -- and each decision returns its evidence, so
+    the classification can be argued with rather than trusted.
+    """
     top = next(c for c in lib.cells if c.name == top_name)
     die = top.bounding_box()
 
@@ -694,6 +700,11 @@ def classify_all(lib, top_name: str) -> dict:
 
 
 def stage_layers(argv: list[str]) -> int:
+    """A1: classify every (layer, datatype) into a role, derived from the chip itself.
+
+    Writes `recon/derived/layers.json`; the via-pair derivation (A2) is in the same module and the
+    same stage family.
+    """
     lib = gdstk.read_gds(str(GDS))
     top = lib.top_level()[0]
     res = classify_all(lib, top.name)

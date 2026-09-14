@@ -63,6 +63,11 @@ def net_names(b4: dict, b5: dict) -> dict[int, str]:
 
 
 def build_netlist() -> str:
+    """B6: build our own netlist -- instances, nets and drivers -- and render it as Verilog.
+
+    The interface is taken from the layout-read port list (B5) and checked, not assumed; the module
+    text returned here becomes `build/puzzle.v`.
+    """
     a3, b1, b3, b4, b5 = (read_json(p) for p in (A3, B1, B3, B4, B5))
     names = net_names(b4, b5)
 

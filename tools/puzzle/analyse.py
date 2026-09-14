@@ -255,6 +255,11 @@ def chain_value(chain: list[str], q: dict) -> list[int]:
 
 
 def stage_decompose() -> int:
+    """C3: label what the data path computes -- counters, shift register, comparator, ROM.
+
+    Runs the reference and winning harnesses, reads the flop states per cycle, and groups the flops
+    into functional blocks; writes `recon/derived/blocks.json`.
+    """
     flops = flop_table()
     print(f'flops                             : {len(flops)}')
     ref_rows, ref_q = run('reference', flops, S.read_reference())

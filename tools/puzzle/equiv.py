@@ -295,6 +295,12 @@ def cross_oracle_overlap() -> dict:
 
 
 def stage_warmup_equiv() -> int:
+    """C2: validate our cell models exhaustively on the warm-up adder.
+
+    Every input vector, against the design whose real netlist Jane Street published; writes
+    `recon/derived/warmup_equiv.json`. This is the check C1 cannot make: C1 catches a wrong model
+    only when it changes an observed output, and C2 catches it for all inputs by construction.
+    """
     src = ensure_harness()
     renamed = REF_V.read_text(encoding='utf-8')
     diff = [i for i, (a, b) in enumerate(zip(src['text'].splitlines(),

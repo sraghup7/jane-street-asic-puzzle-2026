@@ -82,6 +82,13 @@ GATES = [
     ('stepE2', 'tools/checks/check_stepE2.py'),
     ('stepE3', 'tools/checks/check_stepE3.py'),
     ('stepE4', 'tools/checks/check_stepE4.py'),
+    ('stepF1', 'tools/checks/check_stepF1.py'),
+    ('stepF2', 'tools/checks/check_stepF2.py'),
+    ('stepF3', 'tools/checks/check_stepF3.py'),
+    # stepF4 is deliberately absent. Its subject is the *frozen* repository -- clean tree, tag at
+    # HEAD -- and fault injection dirties the tree by design, so including it would make it fire on
+    # every mutation and drown the signal this table exists to give. It has no artifact of its own to
+    # mutate; it is run by the suite, which is where the freeze is declared.
 ]
 
 LAYERS = 'recon/derived/layers.json'
@@ -127,9 +134,22 @@ E2ART = 'recon/derived/e2_messages.json'
 ACCEPTART = 'recon/derived/acceptance.json'
 # E4's: the plan, the per-stage exit codes and the cold byte comparison.
 REPROART = 'recon/derived/reproduction.json'
+# F's subjects: source files and documents rather than artifacts. They are mutated as *text* (see the
+# harness's text branch) and their mutators keep them valid Python -- a syntax error would fire every
+# gate that imports the module, which is not the fault under test.
+SRC_CELLS = 'tools/puzzle/cells.py'
+SRC_C5GATE = 'tools/checks/check_stepC5.py'
+DOC_README = 'README.md'
+DOC_DEPS = 'docs/deps.md'
+SRC_POWER = 'tools/puzzle/power.py'
+SRC_SOLVE = 'tools/puzzle/solve.py'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
              PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW,
-             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART, ACCEPTART, REPROART]
+             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART, ACCEPTART, REPROART,
+             # F's steps guard the source tree and the documents rather than a derived artifact, so
+             # their subjects are registered here too: the harness snapshots and restores them, and
+             # the drift check then proves no gate rewrote one while it was mutated.
+             SRC_CELLS, SRC_C5GATE, DOC_README, DOC_DEPS, SRC_POWER, SRC_SOLVE]
 
 # Supply/body pins, as connect.py defines them. Duplicated here so this diagnostic tool needs
 # no pipeline import -- it must stay runnable even when the pipeline is mid-edit.
@@ -796,6 +816,58 @@ def m_e4_warm_run(d):
     d['cold_check'] = None
 
 
+# --- F1: dead code -----------------------------------------------------------------------
+def m_f1_dead_function(text):
+    """Append a helper nothing calls, in the pipeline package: F1's exact subject."""
+    return text + ('\n\ndef f1_unreferenced_helper():\n'
+                   '    """A helper nothing calls, added by fault injection."""\n'
+                   '    return 1\n')
+
+
+def m_f1_dead_function_in_checks(text):
+    """The same, in a gate: dead code is not a privilege of the pipeline."""
+    return text + ('\n\ndef f1_unreferenced_gate_helper():\n'
+                   '    """A helper nothing calls, added by fault injection."""\n'
+                   '    return 1\n')
+
+
+# --- F2: documentation truth -------------------------------------------------------------
+def m_f2_gate_count(text):
+    """State one gate fewer than the suite discovers."""
+    import re
+    m = re.search(r'all (\d+) gates', text)
+    return text[:m.start(1)] + str(int(m.group(1)) - 1) + text[m.end(1):]
+
+
+def m_f2_unknown_stage(text):
+    """Name a pipeline command that does not exist."""
+    return text.replace('-m tools.puzzle reproduce --cold', '-m tools.puzzle reproducee --cold', 1)
+
+
+def m_f2_deps_row(text):
+    """Delete a package row from the dependency document."""
+    import re
+    return re.sub(r'^\| `matplotlib`.*\n', '', text, count=1, flags=re.M)
+
+
+# --- F3: the conventions -----------------------------------------------------------------
+def m_f3_parked_marker(text):
+    """Park a thought in a comment, which is the thing F3 forbids."""
+    return text + '\n# ' + 'TO' + 'DO' + ': come back to this\n'
+
+
+def m_f3_commented_code(text):
+    """Comment a line of code out instead of deleting it."""
+    return text + '\n# total = 42\n'
+
+
+def m_f3_docstring_removed(text):
+    """Strip a long function's docstring, leaving valid Python behind."""
+    import re
+    return re.sub(r'(def stage_solve\(\) -> int:\n)    """.*?"""\n', r'\1    pass\n',
+                  text, count=1, flags=re.S)
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -912,6 +984,14 @@ MUTATIONS = [
     ('reproduction: acceptance moved off the end', REPROART, m_e4_reorder),
     ('reproduction: a cold difference smoothed over', REPROART, m_e4_cold_smoothed),
     ('reproduction: a warm run presented as the evidence', REPROART, m_e4_warm_run),
+    ('dead code: an unreferenced helper in the pipeline', SRC_CELLS, m_f1_dead_function),
+    ('dead code: an unreferenced helper in a gate', SRC_C5GATE, m_f1_dead_function_in_checks),
+    ('readme: a gate count one short of the truth', DOC_README, m_f2_gate_count),
+    ('readme: a pipeline command that does not exist', DOC_README, m_f2_unknown_stage),
+    ('deps: a package row deleted from the document', DOC_DEPS, m_f2_deps_row),
+    ('style: a parked-work marker in a comment', SRC_POWER, m_f3_parked_marker),
+    ('style: a line of code commented out', SRC_POWER, m_f3_commented_code),
+    ('style: a long function with no docstring', SRC_SOLVE, m_f3_docstring_removed),
 ]
 
 

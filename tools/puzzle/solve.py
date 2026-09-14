@@ -205,6 +205,12 @@ def bits_of(grid: list[str]) -> str:
 
 
 def stage_solve() -> int:
+    """D: solve the five constraints with our own search, and count the solutions.
+
+    One solver and one separately written enumerator, both run to completion and required to agree on
+    the solution *and* on the count; the result is checked against the contract rather than against a
+    stored number. Writes `recon/derived/solutions.json`.
+    """
     class_of, src = region_partition()
     n_classes = len(src['flops'])
     print(f'region constraint from: {src["source"]} ({n_classes} classes, sizes '

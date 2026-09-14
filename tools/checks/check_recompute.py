@@ -300,9 +300,10 @@ def main() -> int:
     print()
     print(f'{len(results) - n_fail} passed, {n_fail} failed, 0 skipped')
     if n_fail:
-        print(f'INDEPENDENT RECOMPUTATION: FAIL ({n_fail} failing)')
+        # F3: every gate reports the same verdict shape, so "the gate passed" means one thing.
+        print(f'RECOMPUTE GATE: FAIL ({n_fail} failing)')
         return 1
-    print('INDEPENDENT RECOMPUTATION: PASS')
+    print('RECOMPUTE GATE: PASS')
     return 0
 
 

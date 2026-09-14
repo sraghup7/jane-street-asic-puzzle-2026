@@ -17,10 +17,10 @@
       "gdstk": "1.0.1",
       "klayout": "0.30.12",
       "matplotlib": "3.11.2",
-      "networkx": "3.6.1",
+      "networkx": null,
       "numpy": "2.4.6",
-      "scipy": "1.17.1",
-      "shapely": "2.1.2"
+      "scipy": null,
+      "shapely": null
     },
     "python": "3.11.15"
   },

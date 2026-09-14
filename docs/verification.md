@@ -1016,3 +1016,148 @@ comparison, not the subject, was wrong.
 ./.venv/Scripts/python.exe -m tools.puzzle reproduce --cold    # ~6.5 min; the full claim
 ./.venv/Scripts/python.exe tools/checks/check_stepE4.py        # 11/11
 ```
+
+
+## 19. Phase F, step F1 — nothing shipped is dead (2026-09-13)
+
+`check_stepF1.py` (**5 checks**), fault-injected:
+
+RESULT (`recon/scratch/fault_f.txt`): **8 of 123 mutations in the focused sweep, 0 escaped, 0
+hermeticity violations, `artifacts restored: True`, PASS** — the two F1 mutations firing **`stepF1` and
+only `stepF1`**. **The first run of this sweep failed**, and what it found is the most useful result in
+the F phase:
+
+> Both dead-code mutations **escaped**. The gate counted references by **raw text**, and the mutation
+> appends a helper whose name appears in `fault_inject.py`'s own source *as a string literal* — so the
+> mutator's own text counted as a use of the function it was injecting. A gate whose subject is dead
+> code was blind to dead code, and the cause was the same one that makes any docstring mention look
+> like a call.
+>
+> Fixed at the root: reference counting is now **AST-based** — names, attributes, imports and
+> arguments, never text. The stricter counting then immediately found **a second dead function**,
+> `um(v, dbu)` in `tools/kl_recon.py`, which the text version had been hiding behind a mention.
+> So the fix to the gate found more dead code than the bug had concealed.
+
+**What it checks.** Every module-level function and class in shipped code must be referenced at least
+once somewhere in the repo besides its own `def`; every module must be imported, a pipeline stage, or
+*cited as an instrument*; no forbidden dependency may be imported or listed; and the throwaway
+directories (`recon/scratch`, `hints`, `renders`, `sources`) must be gitignored **and** hold nothing
+tracked. Scanned this run: **451 names, 64 modules, 125 text files**.
+
+**It found a real piece of dead code.** `capacity2_cover()` in `tools/puzzle/verdict.py` was **never
+called**: C4's stage had an inline copy of its body instead. Removing the copy and calling the real
+function had to keep the artifact identical, and it does — `c4_partition.json` regenerates
+**byte-identically** (verified by running the stage and diffing against `HEAD`), so the refactor is
+provably behaviour-preserving rather than probably. The function now takes the covers the caller
+already computed; the reason it was bypassed is that it used to repeat the expensive exact-cover
+search, which is exactly the kind of pressure that produces a silent duplicate.
+
+**The dependency floor F1 asks for is now measured, not asserted.** `shapely`, `scipy`, `networkx` and
+`pandas` were **uninstalled** — shipped code imported none of them, and `requirements.txt` never listed
+them; `numpy` stays because `matplotlib` requires it. `recon/inventory.json` was regenerated to record
+the new environment (three probe lines), and `check_step1`, which used to assert *"shapely available"*
+because that is what the Step-1 dossier recorded at the time, now asserts the stronger and current
+claim: **the packages we deliberately do not depend on are absent** (58/58). The dossier's historical
+record is untouched in `docs/01_problem.md`; what changed is what has to hold now.
+
+**One bug in the gate itself:** it demanded a citation for every shipped module and therefore flagged
+its own four `check_*.py` files as unlisted instruments. A gate is referenced by the suite's
+*discovery* — `run_all` walks `tools/checks/check_*.py` — so being found is what makes it live; the
+check now says so instead of asking for a citation that would never exist.
+
+
+## 20. Phase F, step F2 — the documentation is true (2026-09-13)
+
+`check_stepF2.py` (**9 checks**), fault-injected:
+
+RESULT (`recon/scratch/fault_f.txt`): **8 of 123 mutations, 0 escaped, 0 hermeticity violations, PASS**
+— the three F2 mutations firing **`stepF2` and only `stepF2`**: a gate count one short of the truth, a
+pipeline command that does not exist, and a deleted package row.
+
+**What it checks.** Nobody can clone-and-run inside a gate, but almost everything that makes a README
+*true* is checkable, and a README goes false in exactly the ways it drifts: every command it prints
+must be a real stage or a gate on disk; its gate count must equal the number the suite discovers
+(**32**); its pipeline stage count must equal the pipeline (**29**); the prerequisites it names must be
+the real ones (upstream repo, `requirements.txt`, `iverilog`, `git`); the output it shows must be the
+output we get (the acceptance summary, the reproduction summary, a runtime); `docs/deps.md` and
+`requirements.txt` must agree in **both** directions; no document may be orphaned; and the layout it
+describes must exist.
+
+**Two bugs in the gate, found by running it.** It compared the README's "29 pipeline stages" against
+the stage *table*, which has 30 entries because it includes `reproduce` itself — a check that would
+have failed forever on a correct README. And its orphan check matched document *file names*, so
+`docs/steps/A1.md` counted as unreachable even though the plan cites `A1` throughout; it now matches
+stems, because the point is reachability, not spelling.
+
+**And one arithmetic error in the README itself:** the per-phase runtime table summed to 389 s while
+the run reported 396 s. The phase numbers were wrong (C was written as 218 s; the stage times sum to
+227.8 s). Corrected, and the table now states the measured total and the reason they differ (the
+runner's own overhead).
+
+**One judgement call, decided rather than asked:** `docs/C4_region_map_issue_for_review.md` was cited
+nowhere. Deleting a written record is the irreversible option, so it is **linked from the README** with
+a note on what it is — the region-map question as it stood while C4 was open, kept as the record of how
+it was closed.
+
+
+## 21. Phase F, step F3 — one convention (2026-09-13)
+
+`check_stepF3.py` (**6 checks**), fault-injected:
+
+RESULT (`recon/scratch/fault_f.txt`): **8 of 123 mutations, 0 escaped, 0 hermeticity violations, PASS**
+— the three F3 mutations firing **`stepF3` and only `stepF3`**: a parked-work marker, a commented-out
+line of code, and a long function stripped of its docstring. Each mutation keeps the file **valid
+Python**, because the fault under test is the convention, not a syntax error that would fire every gate
+importing the module.
+
+**What it checks.** No parked-work markers in shipped code or the README; a module docstring in every
+module; a docstring on every definition a reader cannot hold in their head; no commented-out code; the
+file-naming convention; and the same verdict shape from every gate (`GATE: PASS` / `GATE: FAIL`, and a
+non-zero exit on failure).
+
+**Four bugs in the gate, all found by running it against a codebase that was already consistent.**
+
+1. It banned four all-caps markers **including in its own source**, so it flagged itself. The list is
+   now built from concatenated halves: a gate that cannot name what it bans without tripping itself
+   would end up with an exemption, which is a hole.
+2. Its "snake_case" rule rejected `check_stepC4.py` — the repo's actual, sensible convention for gates.
+3. `check_recompute.py` was the one gate whose verdict read `INDEPENDENT RECOMPUTATION:`; renamed to
+   `RECOMPUTE GATE:` so "the gate passed" means one thing everywhere.
+4. Its "public" test (a name mentioned in another file) matched *mentions* — printed words, docstrings,
+   comments — and flagged about twenty innocent helpers. Replaced with a rule that cannot produce
+   boilerplate: **classes, and any function over 25 lines**, must be documented.
+
+**What that rule then found:** 22 substantial undocumented functions, up to 276 lines
+(`stage_instances`, `stage_vcd_replay`, `stage_warmup_regression`, `stage_layers`, `build_netlist`,
+`target.check_constraints`, and the rest). All 22 now carry docstrings written from their actual
+bodies, stating what they do and why they exist — e.g. C2's says it is the check C1 structurally cannot
+make. Final state: **233 documented, 218 short helpers exempt**, the scaffolding (`main`, `check`) named
+explicitly as the exemption with the reason: thirty copies of one sentence is noise, not documentation.
+
+
+## 22. Phase F, step F4 — the freeze (2026-09-13)
+
+`check_stepF4.py` (**7 checks**). **This step registers no artifact in the fault grid, and that is
+deliberate** — the one place this project deviates from its own "every step registers its artifacts"
+rule, for the reason given below.
+
+**What it checks.** The working tree is clean; the tag `step5-complete` exists **and points at HEAD**;
+nothing was committed after the tag; every artifact the fault grid registers exists on disk; every
+mutation targets a registered artifact; every gate the grid names exists on disk; and the suite
+discovers at least the number of gates the README claims.
+
+**Why it is not in the fault harness.** Its subject is the *frozen* repository — a clean tree and a tag
+at HEAD — and fault injection dirties the tree by design. Registered as a gate in the sweep, it would
+fail on every mutation (the tree is mutated!) and drown the one signal that table exists to give: which
+gate owns which claim. It has no artifact of its own to mutate, and the freeze it guards is declared by
+running the whole suite, which is where it belongs.
+
+**Reproduce:**
+
+```
+./.venv/Scripts/python.exe tools/checks/check_stepF1.py      # 5/5
+./.venv/Scripts/python.exe tools/checks/check_stepF2.py      # 9/9
+./.venv/Scripts/python.exe tools/checks/check_stepF3.py      # 6/6
+./.venv/Scripts/python.exe tools/checks/check_stepF4.py      # 7/7 once the tag exists
+./.venv/Scripts/python.exe tools/checks/run_all.py           # every gate, in order
+```

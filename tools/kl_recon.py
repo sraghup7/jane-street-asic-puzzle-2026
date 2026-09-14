@@ -16,10 +16,6 @@ import klayout.db as kdb
 STD_PREFIXES = ('sky130_fd_sc_hd__',)
 
 
-def um(v, dbu):
-    return v * dbu
-
-
 def main():
     path = sys.argv[1] if len(sys.argv) > 1 else 'puzzle.gds'
     ly = kdb.Layout()

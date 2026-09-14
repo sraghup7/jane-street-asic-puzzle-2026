@@ -134,6 +134,11 @@ def classify(cell_name: str) -> str:
 
 # ------------------------------------------------------------------- gds inventory
 def gds_inventory(path: Path) -> dict:
+    """Summarise the layout for the Step-1 dossier: top cell, scale, layer census, bounding box.
+
+    Records the database units per micron, the count of structures and shapes per (layer, datatype),
+    and the die size -- the numbers every later stage is calibrated against.
+    """
     import gdstk
 
     lib = gdstk.read_gds(str(path))
@@ -286,6 +291,12 @@ def _row_pitch(rows: Counter) -> float | None:
 
 # ------------------------------------------------------------------- vcd inventory
 def vcd_inventory(path: Path) -> dict:
+    """Summarise the reference waveform for the Step-1 dossier.
+
+    Timescale, end time, the signal list, the clock rises, and the first cycles of stimulus --
+    decoded through `tools/vcd_probe` so the dossier and the pipeline share one reader and cannot
+    disagree about what the waveform says.
+    """
     from tools.vcd_probe import parse_vcd, value_at, decode
 
     ts, var_defs, changes, maxtime = parse_vcd(str(path))

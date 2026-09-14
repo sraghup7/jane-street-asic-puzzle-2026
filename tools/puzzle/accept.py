@@ -105,6 +105,13 @@ def ac2_ac3() -> list[dict]:
 # AC4 - the four wrong-input messages
 # ---------------------------------------------------------------------------------------
 def ac4() -> dict:
+    """AC4: the four wrong-input messages.
+
+    PASS requires the contract's rows to be matched directly, with one stated exception: the
+    `two_per_row_col_but_adjacent` row is a *class* of input, and the single vector E1 built for it
+    also violated the hidden constraint, so it answers `TRY AGAIN`. The class is reproduced by E2's
+    constructed boards -- and refused by E2's controls -- which is what this row checks.
+    """
     e1 = load('e1_messages.json')
     e2 = load('e2_messages.json')
     rows = {m['case']: m for m in e1['messages']}
@@ -173,6 +180,13 @@ def ac5() -> dict:
 # AC6 - the region partition: recovered and corroborated, not confirmed
 # ---------------------------------------------------------------------------------------
 def ac6() -> dict:
+    """AC6: the region partition -- recovered and corroborated, which is not the same as confirmed.
+
+    Returns `PARTIAL` by design, with the unmet reasons attached: the accepted input is unique so the
+    chip's verdicts cannot distinguish our partition from a look-alike, the printed map does not read
+    "JS" in our recovery, and one character of the corroborating message follows an undriven net.
+    The gate fails if this row is upgraded or if those reasons are deleted.
+    """
     c4 = load('c4_partition.json')
     e2 = load('e2_messages.json')
     ragged = [c for c in c4['candidates'] if not c['is_the_visible_column_rule']]

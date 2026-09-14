@@ -108,6 +108,11 @@ def read_json(p: Path):
 
 
 def stage_instances(argv: list[str]) -> int:
+    """B1: the placement table -- every instance with its exact affine transform.
+
+    The transform convention and the anchor semantics are established here and validated against the
+    warm-up design; writes `recon/derived/instances.json`.
+    """
     del argv
     for p in (GDS, A1, INV):
         if not p.exists():

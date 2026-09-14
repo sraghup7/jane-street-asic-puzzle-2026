@@ -253,6 +253,11 @@ def build_models() -> tuple[list[dict], list[str]]:
 
 
 def _render(m: dict) -> str:
+    """Render one master's behavioural model as a Verilog module.
+
+    Built from the pin roles and the function the master's own layout implies, so the model is a
+    consequence of the chip rather than a table typed in by hand.
+    """
     master, family, kind = m['master'], m['family'], m['kind']
     pins, supplies, signal, out = m['pins'], m['supplies'], m['signal'], m['out_pin']
 
@@ -323,6 +328,11 @@ HEADER = """\
 
 
 def stage_cells() -> int:
+    """B6: write `build/cells.v`, our behavioural models for every master.
+
+    Stamps the header with the hashes of the artifacts the models were derived from, so a stale
+    `cells.v` is visible in the file itself rather than only in a diff.
+    """
     models, assumed = build_models()
     a3sha = json.loads((ROOT / 'recon' / 'derived' / 'pin_names.json').read_text('utf-8'))['source']['sha256']
     with open(ROOT / 'recon' / 'derived' / 'netlist_check.json', encoding='utf-8') as fh:

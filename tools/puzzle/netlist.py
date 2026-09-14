@@ -174,6 +174,12 @@ def probe_placements(placements: list[dict], a4: dict, per_um: int, l2n, reg, cs
 
 
 def stage_pin_net() -> int:
+    """B4: map every instance pin onto a net.
+
+    Each pin's shape is resolved through its master's local geometry (A4) and then looked up in the
+    extracted connectivity (B3); writes `recon/derived/pin_net.json`, including any pin left
+    unassigned and why.
+    """
     a2 = read_json(A2)
     a4 = read_json(A4)
     insts = read_json(B1)
