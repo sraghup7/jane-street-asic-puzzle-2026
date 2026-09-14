@@ -177,6 +177,7 @@ docs/                  the dossiers, the plan, the per-step records, the verific
 | [`docs/01_problem.md`](docs/01_problem.md) | the puzzle statement, interfaces, resources, and Jane Street's own rules |
 | [`docs/02_known_solution.md`](docs/02_known_solution.md) | the published method as recorded, with the two claims that do not reproduce |
 | [`docs/03_our_plan.md`](docs/03_our_plan.md) | our plan, the acceptance criteria, and an outcome block per executed step |
+| [`docs/04_blog_plan.md`](docs/04_blog_plan.md) | Step 6 — the writeup: locked decisions, section-by-section evidence mapping, figures, and what the post must not claim |
 | [`docs/verification.md`](docs/verification.md) | the per-step verification log: what was re-derived, and what fault injection found |
 | [`docs/deps.md`](docs/deps.md) | the dependency rationale, including what we refuse to depend on |
 | [`docs/net806.md`](docs/net806.md) | the chip's one undriven net: three hypotheses tested and killed, and why one character of `TWO NOT TOUCH` is decided by a floating node — re-derived by the `net806` stage and [`tools/checks/check_stepF6.py`](tools/checks/check_stepF6.py) |

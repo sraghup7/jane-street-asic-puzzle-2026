@@ -1211,6 +1211,15 @@ only its owner — `stepF6` for both net806 mutations, `stepE4` for the report o
 `artifacts restored: True`. **Full suite: 33 gates; `stepF4` fails only while the step is uncommitted
 (it asserts a clean tree at HEAD), which is why the freeze is re-declared at the end of the step.**
 
+---
+
+**Step 6 — the writeup — is planned separately, as `docs/04_blog_plan.md`** (AGENTS.md step 6, and the
+plan's own §11 was written so the post cannot drift into overreach). That document holds the locked
+decisions — venue and URL, how the post relates to the published writeup, which negatives are published,
+the AI attribution scope — plus the section-by-section mapping from each claim to the artifact that
+proves it, the figure list, and the list of things the post must not claim. It is a plan for a public
+artifact, so it is also the place where the repo's honesty rules are turned into editorial rules.
+
 ## 8. Risk register with kill criteria
 
 | # | Risk | Impact | Detection | Mitigation / fallback |
