@@ -55,6 +55,10 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('region-map',        'verdict',    'C4', 'find the partition the eleven latches form, with its controls'),
     ('winning',           'verdict',    'E1', 'the winning vector driven through the netlist'),
     ('confirm',           'confirm',    'E2', 'the wrong-input messages, with the region map in hand'),
+    # --- Phase F: the chip's one undriven net, as a stage (F6, 2026-09-13) ---------
+    # It reads E2's artifact, so it sits after `confirm`; `acceptance` must stay last (E4's gate
+    # asserts the acceptance stage closes the plan), which is why an F step is registered here.
+    ('net806',            'net806',     'F6', 'the one undriven net: geometry, three refutations, the tie'),
     # --- Phase D: solve -----------------------------------------------------------
     # One computation, four plan steps: each stage name runs the whole D phase and prints its
     # section. Kept as four entries so the stage table still lines up with the plan.
@@ -101,6 +105,7 @@ GATE_NOTES: dict[str, str] = {
     'stepF2': 'the documentation is true, not just present',
     'stepF3': 'one convention, applied everywhere',
     'stepF4': 'the freeze: clean tree, tag at HEAD, and the machinery consistent',
+    'stepF6': 'the chip s one undriven net, measured rather than argued',
 }
 
 

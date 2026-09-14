@@ -156,6 +156,12 @@
       "exit_code": 0
     },
     {
+      "stage": "net806",
+      "module": "net806",
+      "step": "F6",
+      "exit_code": 0
+    },
+    {
       "stage": "solve",
       "module": "solve",
       "step": "D1",
@@ -186,16 +192,15 @@
       "exit_code": 0
     }
   ],
-  "stages_run": 29,
+  "stages_run": 30,
   "all_stages_exit_zero": true,
   "cold_check": {
-    "tracked_before": 31,
-    "regenerated_identically": 31,
+    "tracked_before": 32,
+    "regenerated_identically": 32,
+    "report_excluded": "recon/derived/reproduction.json",
     "differences": [],
     "files_not_restored": 0,
-    "untracked_new_files": [
-      "recon/derived/reproduction.json"
-    ]
+    "untracked_new_files": []
   },
   "acceptance": "PASS",
   "note": "timings are printed to stdout and deliberately not recorded here"

@@ -1,0 +1,285 @@
+{
+  "generated_by": "tools/puzzle/net806.py::stage_net806",
+  "source": {
+    "path": "asic-puzzle-2026/puzzle.gds",
+    "sha256": "8913ea4be5367b484d5886c3c5f7608942b67544a0dbe364b17223503b8d851a"
+  },
+  "inputs": [
+    "recon/derived/layers.json",
+    "recon/derived/via_pairs.json",
+    "recon/derived/pin_net.json",
+    "recon/derived/netlist_check.json",
+    "recon/derived/e2_messages.json"
+  ],
+  "method": {
+    "engine": "connect.build_engine -- the same KLayout extraction the pipeline uses, configured from A1/A2 alone, on a flattened layout so cluster_id is a key",
+    "recovery": "the net is recovered by probing the two pin coordinates B4 recorded, on their own layer; the id in pin_net.json is reproduced, not trusted",
+    "census": "every shape on the die is filed by the net the engine assigns it, so the wire's own geometry is measured rather than read",
+    "missed_merge": "a cut overlapping the wire and belonging to another net is a missed merge only if it also touches a wire shape on a conductor that cut's own A2 rule joins; a cut on a layer pair the wire does not occupy is a legal underlap",
+    "constant_tie": "pin-to-pin DBU distance from every conb output to the net's pins -- the metric docs/net806.md reports",
+    "message_tie": "tools/puzzle/confirm.ask on the first E2 board: the unforced reading, then the same board with net 806 forced to 0 and to 1"
+  },
+  "net": {
+    "cluster": 806,
+    "terminals": [
+      {
+        "instance": "i0523",
+        "master": "sky130_fd_sc_hd__a31oi_2",
+        "pin": "A1",
+        "layer": "67/20",
+        "point_dbu": [
+          175005,
+          90950
+        ],
+        "direction": "input"
+      },
+      {
+        "instance": "i0525",
+        "master": "sky130_fd_sc_hd__a311o_2",
+        "pin": "A1",
+        "layer": "67/20",
+        "point_dbu": [
+          179165,
+          91290
+        ],
+        "direction": "input"
+      }
+    ],
+    "terminal_layers": [
+      "67/20"
+    ],
+    "drivers_by_label_vocabulary": [],
+    "probe_reproduced_the_recorded_cluster": [
+      {
+        "instance": "i0523",
+        "pin": "A1",
+        "cluster": 806
+      },
+      {
+        "instance": "i0525",
+        "pin": "A1",
+        "cluster": 806
+      }
+    ],
+    "shapes": {
+      "total": 17,
+      "by_layer": {
+        "67/20": 4,
+        "67/44": 2,
+        "68/20": 6,
+        "68/44": 2,
+        "69/20": 3
+      },
+      "bbox_dbu": [
+        174895,
+        90450,
+        179330,
+        91875
+      ],
+      "own_cuts": [
+        {
+          "layer": "67/44",
+          "bbox_dbu": [
+            175405,
+            90865,
+            175575,
+            91035
+          ],
+          "net": 806,
+          "same_net": true,
+          "merges_with_a_wire_shape": true
+        },
+        {
+          "layer": "67/44",
+          "bbox_dbu": [
+            179085,
+            91205,
+            179255,
+            91375
+          ],
+          "net": 806,
+          "same_net": true,
+          "merges_with_a_wire_shape": true
+        },
+        {
+          "layer": "68/44",
+          "bbox_dbu": [
+            179095,
+            90535,
+            179245,
+            90685
+          ],
+          "net": 806,
+          "same_net": true,
+          "merges_with_a_wire_shape": true
+        },
+        {
+          "layer": "68/44",
+          "bbox_dbu": [
+            179095,
+            91215,
+            179245,
+            91365
+          ],
+          "net": 806,
+          "same_net": true,
+          "merges_with_a_wire_shape": true
+        }
+      ]
+    }
+  },
+  "die_census": {
+    "conductor_shapes": 40360,
+    "cut_shapes": 33323,
+    "shapes": 73683,
+    "nets": 2626
+  },
+  "cut_overlap": {
+    "same_net": 4,
+    "other_net": 1,
+    "overlapping": [
+      {
+        "layer": "67/44",
+        "bbox_dbu": [
+          175405,
+          90865,
+          175575,
+          91035
+        ],
+        "net": 806,
+        "same_net": true,
+        "merges_with_a_wire_shape": true
+      },
+      {
+        "layer": "67/44",
+        "bbox_dbu": [
+          179085,
+          91205,
+          179255,
+          91375
+        ],
+        "net": 806,
+        "same_net": true,
+        "merges_with_a_wire_shape": true
+      },
+      {
+        "layer": "68/44",
+        "bbox_dbu": [
+          179095,
+          90535,
+          179245,
+          90685
+        ],
+        "net": 806,
+        "same_net": true,
+        "merges_with_a_wire_shape": true
+      },
+      {
+        "layer": "68/44",
+        "bbox_dbu": [
+          174955,
+          90875,
+          175105,
+          91025
+        ],
+        "net": 766,
+        "same_net": false,
+        "rule_conductors": [
+          "68/20",
+          "69/20"
+        ],
+        "wire_shapes_on_those_conductors_overlap_it": false,
+        "merges_with_a_wire_shape": false
+      },
+      {
+        "layer": "68/44",
+        "bbox_dbu": [
+          179095,
+          91215,
+          179245,
+          91365
+        ],
+        "net": 806,
+        "same_net": true,
+        "merges_with_a_wire_shape": true
+      }
+    ],
+    "merges_that_could_hide_a_driver": []
+  },
+  "crossings": [
+    {
+      "layer": "68/20",
+      "overlapping_polygons": 5,
+      "nets": [
+        766,
+        784,
+        806,
+        808
+      ],
+      "carries_this_net": true
+    },
+    {
+      "layer": "69/20",
+      "overlapping_polygons": 3,
+      "nets": [
+        766,
+        789,
+        806
+      ],
+      "carries_this_net": true
+    },
+    {
+      "layer": "71/20",
+      "overlapping_polygons": 2,
+      "nets": [
+        3,
+        27
+      ],
+      "carries_this_net": false
+    },
+    {
+      "layer": "72/20",
+      "overlapping_polygons": 1,
+      "nets": [
+        3
+      ],
+      "carries_this_net": false
+    }
+  ],
+  "constant_tie": {
+    "constant_cells": 6,
+    "constant_outputs": 12,
+    "nearest_tie": {
+      "distance_dbu": 9966,
+      "constant_cell": "i0484",
+      "constant_pin": "LO",
+      "net_pin": "i0523.A1"
+    }
+  },
+  "message_tie": {
+    "board_grid": [
+      "*........*.",
+      ".....*.*...",
+      ".......*.*.",
+      "*.*........",
+      "....*.*....",
+      "..*.....*..",
+      "....*.....*",
+      ".*....*....",
+      "...*......*",
+      ".....*..*..",
+      ".*.*......."
+    ],
+    "unforced_reading": "TWO?NOT TOUC???",
+    "unknown_bytes": 4,
+    "positions": [
+      3,
+      12
+    ],
+    "tie_0": "TWO\"NOT TOUCH",
+    "tie_1": "TWO NOT TOUCJ..",
+    "published_string": "TWO NOT TOUCH",
+    "byte_exact": false,
+    "same_as_the_e2_artifact": true
+  }
+}

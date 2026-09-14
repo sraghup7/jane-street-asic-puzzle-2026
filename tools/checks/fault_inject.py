@@ -85,6 +85,7 @@ GATES = [
     ('stepF1', 'tools/checks/check_stepF1.py'),
     ('stepF2', 'tools/checks/check_stepF2.py'),
     ('stepF3', 'tools/checks/check_stepF3.py'),
+    ('stepF6', 'tools/checks/check_stepF6.py'),
     # stepF4 is deliberately absent. Its subject is the *frozen* repository -- clean tree, tag at
     # HEAD -- and fault injection dirties the tree by design, so including it would make it fire on
     # every mutation and drown the signal this table exists to give. It has no artifact of its own to
@@ -130,6 +131,10 @@ E1ART = 'recon/derived/e1_messages.json'
 SOLART = 'recon/derived/solutions.json'
 # E2's: the boards built from C4's partition and the chip's own readings of them.
 E2ART = 'recon/derived/e2_messages.json'
+# F6's: the chip's one undriven net -- recovered from the geometry, tested against three hypotheses,
+# and now a stage of its own (it was a document with its scripts in the ignored scratch tree, which is
+# the one place in this repository where a claim had no gate behind it).
+NET806ART = 'recon/derived/net806.json'
 # E3's: the acceptance matrix over every criterion.
 ACCEPTART = 'recon/derived/acceptance.json'
 # E4's: the plan, the per-stage exit codes and the cold byte comparison.
@@ -149,7 +154,7 @@ SRC_POWER = 'tools/puzzle/power.py'
 SRC_SOLVE = 'tools/puzzle/solve.py'
 ARTIFACTS = [LAYERS, VIA, NAMES, GEOM, COV, INST, WNET, NETS, PINNET, CHECK, INV,
              PUZZLEV, CELLSV, WARMV, WARMREP, REPLAYV, REPLAY, POWER, EQTB, EQREP, WUPOW,
-             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART, ACCEPTART, REPROART,
+             DECREF, DECWIN, BLOCKS, C4ART, C5ART, E1ART, SOLART, E2ART, NET806ART, ACCEPTART, REPROART,
              # F's steps guard the source tree and the documents rather than a derived artifact, so
              # their subjects are registered here too: the harness snapshots and restores them, and
              # the drift check then proves no gate rewrote one while it was mutated.
@@ -893,6 +898,30 @@ def m_f5_csv_extra_row(text):
     return '\n'.join(lines + [lines[-1]]) + '\n'
 
 
+# --- F6: the two claims the undriven-net artifact exists for ---------------------------
+# If either is false the note and the plan's E2 outcome block are false with it, so both are mutated:
+# the tie that is one character off the published string, and the refutation that says no cut over the
+# wire could have hidden the driver.
+def m_f6_tie_matches(d):
+    """Make one tie print the published string after all -- the smoothed-over version."""
+    d['message_tie']['tie_1'] = d['message_tie']['published_string']
+
+
+def m_f6_merges_claimed(d):
+    """Claim a cut over the wire *could* merge, i.e. that a missed merge may hide a driver."""
+    d['cut_overlap']['merges_that_could_hide_a_driver'] = d['cut_overlap']['overlapping'][:1]
+
+
+# --- F6 also found a defect in E4's own evidence --------------------------------------
+# `reproduce --cold` deleted its own report, could not regenerate it (it is written after the
+# comparison), and therefore reported one permanent difference -- so `check_stepE4`'s
+# `differences == []` was satisfiable only by a stale report. The fix is in `repro.derived_files`;
+# this mutation covers the gate check that now holds it.
+def m_e4_report_counted(d):
+    """Drop the record that the run's own report is excluded from the cold set."""
+    d['cold_check'].pop('report_excluded', None)
+
+
 MUTATIONS = [
     ('layers: role table moved li1 -> non_elec', LAYERS, m_layers_role_table),
     ('layers: a pair\'s own role field flipped', LAYERS, m_layers_pair_role),
@@ -1023,6 +1052,9 @@ MUTATIONS = [
     ('stamp: cells.v names an artifact that does not exist', CELLSV, m_f5_cells_stamp),
     ('stamp: the matrix falsifies the hash of one of its inputs', ACCEPTART, m_f5_acceptance_source),
     ('s0.1: the decoded cycle table gains a row', VCDREF, m_f5_csv_extra_row),
+    ('net806: a tie made to print the published string', NET806ART, m_f6_tie_matches),
+    ('net806: a cut over the wire claimed able to merge', NET806ART, m_f6_merges_claimed),
+    ('reproduction: the report s own exclusion dropped', REPROART, m_e4_report_counted),
 ]
 
 

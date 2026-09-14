@@ -114,6 +114,22 @@ def main() -> int:
               f"{cold['regenerated_identically']}/{cold['tracked_before']} identical, "
               f"{len(cold['differences'])} differing")
 
+    # ---- the report does not count itself as a failure -----------------------------------
+    # Added 2026-09-13 (F6). The report is written *after* the cold comparison, so a cold run that
+    # deleted it could never regenerate it during the pipeline and would always report one difference
+    # -- which made the check above unsatisfiable by a real run. It passed only while it was reading a
+    # report older than the file being tracked (that one records tracked_before 31, an empty difference
+    # list, and lists `reproduction.json` as a *new untracked* file). The exclusion is now asserted
+    # here, so it cannot be quietly undone, and the report states it for itself.
+    from tools.puzzle import repro as R
+    if isinstance(cold, dict):
+        live_set = {str(p.resolve()) for p in R.derived_files()}
+        report_rel = R.OUT.relative_to(ROOT).as_posix()
+        check('the cold set excludes the run s own report, and the report says so',
+              str(R.OUT.resolve()) not in live_set and cold.get('report_excluded') == report_rel,
+              f'{len(live_set)} artifacts in the cold set; report_excluded='
+              f'{cold.get("report_excluded")!r} (expected {report_rel!r})')
+
     # ---- no clocks in the artifact ---------------------------------------------------
     clocks = find_clock_keys(art)
     check('the artifact carries no timings (B3: byte-identical regeneration)',
