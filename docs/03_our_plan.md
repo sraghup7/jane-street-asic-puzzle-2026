@@ -1316,3 +1316,6 @@ Recorded now so the writeup in Step 6 cannot drift into overreach:
    wrapping; and its Stage-8 method (probe one cell at a time, watch the region counter fire) targets
    objects that are not present here, which is why running it faithfully produced columns and not
    regions. *(Added 2026-09-13.)*
+
+*Amendment, 2026-09-15:* an external review of the finished solution (R0–R9) found defects in the
+claims, gates and reproduction path; the fix pass is planned and tracked in `05_review_fixes_plan`.
