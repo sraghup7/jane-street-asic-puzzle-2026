@@ -131,20 +131,19 @@ def main() -> int:
     check('warmup DEF diearea', w['def_diearea_um'], [0, 0, 100000, 100000])
 
     # ---- environment ----------------------------------------------------------
-    check('gdstk available', env['packages']['gdstk'] is not None, True)
-    # F1 (2026-09-13) removed the packages no shipped code imports, so the dependency surface is
-    # exactly requirements.txt. Step 1's dossier recorded shapely as *available*; that record is
-    # history and stays in docs/01. What has to hold now is the stronger, checkable claim: the
-    # packages we deliberately do not depend on are gone from the environment. The first three are
-    # ones `tools/inventory.py::env_inventory` probes; pandas is checked directly with `find_spec`,
-    # which does not import it.
+    # The artifact records only what is the same on every machine that can run the pipeline:
+    # which required executables are present, and the pinned package versions. Where a tool lives
+    # is machine-specific, so a record of it could never regenerate byte-identically elsewhere.
+    check('the inventory records no filesystem paths for executables',
+          sorted(env), ['packages', 'python', 'required_executables'])
+    check('every required executable is recorded as present',
+          env['required_executables'], {'git': True, 'iverilog': True, 'vvp': True})
+    check('python is recorded as major.minor only', env['python'], '3.11')
     from importlib.util import find_spec
-    for pkg in ('shapely', 'scipy', 'networkx'):
-        check(f'{pkg} absent (F1: not a dependency)', env['packages'].get(pkg) is None, True)
-    check('pandas absent (F1: not a dependency)', find_spec('pandas') is None, True)
-    check('numpy present (transitive via matplotlib)',
-          env['packages'].get('numpy') is not None, True)
-    check('iverilog available', env['executables_on_path']['iverilog'] is not None, True)
+    for pkg in ('shapely', 'scipy', 'networkx', 'pandas'):
+        check(f'{pkg} absent from the live environment (F1: not a dependency)',
+              find_spec(pkg) is None, True)
+    check('gdstk pinned version recorded', env['packages'].get('gdstk'), '1.0.1')
 
     width = max(len(r[1]) for r in results)
     failures = 0

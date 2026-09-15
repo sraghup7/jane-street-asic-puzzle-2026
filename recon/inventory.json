@@ -1,28 +1,16 @@
 {
   "environment": {
-    "executables_on_path": {
-      "git": "C:\\Program Files\\Git\\mingw64\\bin\\git.EXE",
-      "iverilog": "C:\\iverilog\\bin\\iverilog.EXE",
-      "klayout": null,
-      "magic": null,
-      "make": "C:\\Program Files (x86)\\GnuWin32\\bin\\make.EXE",
-      "netgen": null,
-      "sby": null,
-      "verilator": null,
-      "vvp": "C:\\iverilog\\bin\\vvp.EXE",
-      "wsl.exe": "C:\\Windows\\system32\\wsl.exe",
-      "yosys": null
-    },
     "packages": {
       "gdstk": "1.0.1",
       "klayout": "0.30.12",
-      "matplotlib": "3.11.2",
-      "networkx": null,
-      "numpy": "2.4.6",
-      "scipy": null,
-      "shapely": null
+      "matplotlib": "3.11.2"
     },
-    "python": "3.11.15"
+    "python": "3.11",
+    "required_executables": {
+      "git": true,
+      "iverilog": true,
+      "vvp": true
+    }
   },
   "gds": {
     "array_references": 0,
@@ -665,7 +653,6 @@
       "sha256": "be7f04fedf9bacd9cd6ba646963028bb4abb17d1c114be91bd09fa595b5d498e"
     }
   },
-  "upstream_remote": "https://github.com/janestreet/asic-puzzle-2026.git",
   "vcd": {
     "clock_period_ps": 10000,
     "clock_rising_edges": 312,

@@ -406,21 +406,22 @@ def warmup_inventory(d: Path) -> dict:
 
 
 # ------------------------------------------------------------------- env inventory
+REQUIRED_EXECUTABLES = ('git', 'iverilog', 'vvp')
+
+
 def env_inventory() -> dict:
-    import importlib
-    pkgs = {}
-    for name in ('gdstk', 'klayout', 'numpy', 'scipy', 'networkx', 'matplotlib', 'shapely'):
-        try:
-            m = importlib.import_module(name)
-            pkgs[name] = getattr(m, '__version__', 'present')
-        except Exception:
-            pkgs[name] = None
-    tools = {}
-    for name in ('iverilog', 'vvp', 'verilator', 'yosys', 'sby', 'klayout',
-                 'magic', 'netgen', 'make', 'git', 'wsl.exe'):
-        tools[name] = shutil.which(name)
-    return {'python': sys.version.split()[0], 'packages': pkgs,
-            'executables_on_path': tools}
+    """What every machine that can run the pipeline has in common -- nothing machine-specific.
+
+    Executable *paths* and optional tools used to be recorded here; they differ between machines, so
+    the artifact could not regenerate byte-identically anywhere but on the machine that wrote it
+    (review R9). Packages are the ones pinned in requirements.txt, at their installed versions.
+    """
+    import importlib.metadata as md
+    pins = [ln.split('==')[0].strip() for ln in (ROOT / 'requirements.txt').read_text(
+        encoding='utf-8').splitlines() if '==' in ln and not ln.lstrip().startswith('#')]
+    return {'python': '.'.join(sys.version.split()[0].split('.')[:2]),
+            'packages': {p: md.version(p) for p in sorted(pins)},
+            'required_executables': {t: shutil.which(t) is not None for t in REQUIRED_EXECUTABLES}}
 
 
 # --------------------------------------------------------------------------- main
@@ -428,7 +429,6 @@ def build_inventory() -> dict:
     return {
         'upstream_commit': git('rev-parse', 'HEAD'),
         'upstream_commit_date': git('log', '-1', '--format=%ad'),
-        'upstream_remote': git('config', '--get', 'remote.origin.url'),
         'upstream_files': {p.relative_to(ROOT).as_posix():
                            {'bytes': p.stat().st_size, 'sha256': sha256(p)}
                            for p in sorted(UPSTREAM.rglob('*'))
