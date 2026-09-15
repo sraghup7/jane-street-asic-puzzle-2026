@@ -175,7 +175,9 @@ def main() -> int:
                              text=True, encoding='utf-8', errors='replace').stdout.split()
     ignored = {}
     for d in SCRATCH_DIRS:
-        proc = subprocess.run(['git', 'check-ignore', '-q', d], cwd=ROOT)
+        # The trailing slash tells git the path is a directory, so `recon/scratch/` in .gitignore
+        # matches whether or not the directory exists yet -- a fresh clone has none of them.
+        proc = subprocess.run(['git', 'check-ignore', '-q', '--no-index', d + '/'], cwd=ROOT)
         ignored[d] = proc.returncode == 0
     check('the throwaway directories are gitignored and hold nothing tracked',
           not tracked and all(ignored.values()),
