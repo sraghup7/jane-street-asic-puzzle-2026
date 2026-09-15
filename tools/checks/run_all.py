@@ -11,6 +11,7 @@ Exit code 0 iff every gate passed.
 """
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 import time
@@ -19,13 +20,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CHECKS = Path(__file__).resolve().parent
 
+sys.path.insert(0, str(ROOT))
+from tools import utf8_env  # noqa: E402
+
+VERDICT = re.compile(r'\b(GATE|VERIFICATION|REPRODUCTION|ACCEPTANCE|FAULT INJECTION)\b.*:\s*(PASS|FAIL)')
+
 
 def summary_line(out: str) -> str:
-    """Last meaningful line, which every gate prints as its verdict."""
-    for line in reversed([ln.strip() for ln in out.splitlines() if ln.strip()]):
-        if 'GATE' in line.upper() or 'passed' in line or 'PASS' in line.upper():
+    """The line a gate prints as its verdict; if it printed none, say so instead of guessing."""
+    lines = [ln.strip() for ln in out.splitlines() if ln.strip()]
+    for line in reversed(lines):
+        if VERDICT.search(line):
             return line
-    return ''
+    return f'(no verdict line; last output: {lines[-1][:80]!r})' if lines else '(no output)'
 
 
 def gate_paths() -> list[tuple[str, Path]]:
@@ -50,7 +57,8 @@ def main() -> int:
             failed += 1
             continue
         t0 = time.time()
-        proc = subprocess.run([sys.executable, str(path)], capture_output=True, text=True)
+        proc = subprocess.run([sys.executable, str(path)], capture_output=True, text=True,
+                              encoding='utf-8', errors='replace', env=utf8_env())
         dt = time.time() - t0
         out = (proc.stdout or '') + (proc.stderr or '')
         if proc.returncode != 0:

@@ -53,6 +53,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
+sys.path.insert(0, str(ROOT))
+from tools import utf8_env  # noqa: E402
+
 GATES = [
     ('target', 'tools/target.py'),
     ('hygiene', 'tools/checks/check_hygiene.py'),
@@ -1124,8 +1127,8 @@ def drift(pristine: dict[str, bytes]) -> list[str]:
 
 
 def run_gate(rel: str) -> int:
-    return subprocess.run([sys.executable, rel], cwd=str(ROOT),
-                          capture_output=True, text=True, timeout=600).returncode
+    return subprocess.run([sys.executable, rel], cwd=str(ROOT), capture_output=True, text=True,
+                          encoding='utf-8', errors='replace', env=utf8_env(), timeout=600).returncode
 
 
 def main() -> int:

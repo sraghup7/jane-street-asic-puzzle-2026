@@ -35,6 +35,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from tools import utf8_env
 from tools.puzzle import cli as C
 
 OUT = ROOT / 'recon' / 'derived' / 'reproduction.json'
@@ -128,7 +129,7 @@ def run_pipeline(cold: bool, out_path: Path) -> tuple[list[dict], dict, int]:
         t0 = time.time()
         proc = subprocess.run([sys.executable, '-m', 'tools.puzzle', stage],
                               cwd=ROOT, capture_output=True, text=True, encoding='utf-8',
-                              errors='replace')
+                              errors='replace', env=utf8_env())
         dt = time.time() - t0
         ok = proc.returncode == 0
         rows.append({'stage': stage, 'module': module, 'step': step, 'exit_code': proc.returncode,
@@ -222,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
         t0 = time.time()
         proc = subprocess.run([sys.executable, '-m', 'tools.puzzle', 'acceptance'],
                               cwd=ROOT, capture_output=True, text=True, encoding='utf-8',
-                              errors='replace')
+                              errors='replace', env=utf8_env())
         print(f'\nacceptance ({time.time() - t0:.1f}s):')
         print('\n'.join((proc.stdout or '').splitlines()[-14:]))
         agree = 'PASS' if proc.returncode == 0 else 'FAIL'
