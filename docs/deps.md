@@ -23,7 +23,7 @@ code is listed in `requirements.txt`. The gate checks both directions, so the tw
 | Package | Version | Imported by | Role |
 |---|---|---|---|
 | `gdstk` | 1.0.1 | `tools/inventory.py`, `tools/render.py`, and the pipeline stages A1–A5, B1 | GDSII read/write. The pipeline's only source of geometry: layer census, in-master pin labels and pin shapes, and the instance/transform table. |
-| `klayout` | 0.30.12 | `tools/kl_recon.py`, and pipeline stages B2/B3 | Connectivity extraction engine. This is differentiator **D3** — the path the published work left untested. |
+| `klayout` | 0.30.12 | `tools/kl_recon.py`, and pipeline stages B2/B3 | Connectivity extraction engine. This is differentiator **Δ3** — the path the published work left untested. (Written with the Greek letter here and in `requirements.txt`, not bare "D3", to avoid collision with Phase D's own stage numbering — `solve`/`uniqueness`/`load-bearing`/`answer` are D1-D4 in `docs/verification.md` §15.) |
 | `matplotlib` | 3.11.2 | `tools/render.py` | Layer rasterisation for Step 1 recon only. Not part of the pipeline. |
 
 ## 2. Non-Python — required
@@ -39,19 +39,18 @@ fails if it is absent, so a missing simulator cannot silently skip C1/C2.
 Verilator exists only inside WSL and is **not** used. `iverilog` covers every simulation this
 project needs, at the scale of a few hundred cycles on a ~740-cell netlist.
 
-## 3. Installed but not imported — removal candidates
+## 3. Considered, never adopted
 
-These are present in `.venv` but no shipped code imports them. They are **not** in
-`requirements.txt`. Each is either adopted by a later stage or removed at step F1, and the
-decision is recorded there.
+None of these were ever imported by shipped code, and none are in `requirements.txt`. Step F1's
+dead-code gate closed the question for each at the pipeline's completion.
 
 | Package | Version | Status |
 |---|---|---|
-| `numpy` | 2.4.6 | May be adopted by A1–A5 / B1 for geometry batches; otherwise removed at F1. The pipeline's geometry path is integer-DBU and does not require it. |
-| `scipy` | 1.17.1 | Unused. Removed at F1 unless a stage needs a spatial index. |
-| `networkx` | 3.6.1 | Unused. The netlist graph in B2–B5 and C3 is small; a hand-written adjacency structure is sufficient and avoids a dependency. |
-| `pandas` | 3.0.5 | Unused. Would have been used for tabular recon output; we emit JSON instead. Removed at F1. |
-| `shapely` | 2.1.2 | Unused, and deliberately so — see §4. Removed at F1. |
+| `numpy` | 2.4.6 | Not adopted. The pipeline's geometry path is integer-DBU throughout and never needed it. |
+| `scipy` | 1.17.1 | Not adopted. No stage needed a spatial index. |
+| `networkx` | 3.6.1 | Not adopted. The netlist graph in B2–B5 and C3 is small; a hand-written adjacency structure sufficed and avoided the dependency. |
+| `pandas` | 3.0.5 | Not adopted. Would have been used for tabular recon output; we emit JSON instead. |
+| `shapely` | 2.1.2 | Not adopted, and deliberately so — see §4. |
 
 `tools/inventory.py::env_inventory()` *probes* for these packages and records their versions in
 `recon/inventory.json`. That is an observation of the machine, not a dependency: the probe uses

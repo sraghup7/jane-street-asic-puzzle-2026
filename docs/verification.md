@@ -944,12 +944,17 @@ against `tools/target.py`. Three rules shape it:
 | AC5 | byte-exact replay of `example_inputs.vcd` | PASS — 2808 output bits, 0 mismatches, 0 `x`/`z`, cross-check clean |
 | AC6 | region partition, "JS" | **PARTIAL** — recovered and corroborated; not confirmed; "JS" not reproduced |
 
-**AC6 is the honest row, and the gate enforces it.** The matrix must keep AC6 at `PARTIAL`, must keep
-its unmet reasons (the "JS" reading is not reproduced; the verdict channel cannot confirm it rather
-than a look-alike; one character of the corroborating message follows the design's undriven net), and
-must keep a non-empty list of what is *not* claimed. Two of the gate's checks exist purely to fail if
-the matrix is ever improved: upgrading AC6 to `PASS`, or deleting its unmet items, fails the gate even
-though nothing else in the project changed.
+**AC6 is the honest row, and the gate enforces it.** At the time of this section (2026-09-13), the
+matrix kept AC6 at `PARTIAL` and required its unmet reasons and a non-empty "not claimed" list, failing
+if the row was ever improved without the evidence changing.
+
+**Superseded 2026-09-16 (fix pass, Task 10; see §25).** The "JS" reading was wrong, not the status: the
+recovered classes do read "JS" (`accept.letter_classes()`, cropping each class to its own bounding
+box), so AC6 is now `PASS`, computed from its evidence (`accept.ac6_ok()`) rather than pinned. What
+remains genuinely unproven — the verdict channel cannot *confirm* the partition over an unseen
+look-alike, and one character of the corroborating message follows net 806 — is carried as notes on a
+`PASS` row instead of reasons for a `PARTIAL` one. The gate's protection moved with it: it now fails if
+AC6's status stops matching what `ac6_ok()` computes, in either direction.
 
 **One nuance the matrix states rather than hides.** The contract's `two_per_row_col_but_adjacent` row
 expects `TWO NOT TOUCH`, and E1's single vector for that class answers `TRY AGAIN` — because it was
@@ -1297,4 +1302,77 @@ reproduction: the report s own exclusion dropped  | FAIL           .     -> step
 **Full suite:** 33 gates. `stepF6` passes (21/21, 10.6 s) and `stepE4` passes with its new check;
 `stepF4` fails only while the step is uncommitted — it asserts a clean tree with the tag at HEAD — so the
 freeze is re-declared at the end of the step, which is also how F5 handled it.
+
+## 25. Fix pass — the verification machinery says what it does (2026-09-16)
+
+`fault_inject.py`'s gate list (`GATES`) was a hand-maintained literal, and it had drifted: `stepG1`
+(added in Task 6 of the fix pass, region-map re-derivation under a nulled `target.py`) was never added
+to it, so the meta-gate could not tell whether corrupting `c4_partition.json` would be caught by the one
+gate built to catch exactly that. `GATES` is now derived from `tools.checks.run_all.gate_paths()` —
+the same discovery `run_all.py` itself uses — filtered to exclude `stepF4` (whose subject is the frozen
+tree itself; a mutation dirties the tree by design and would fire on everything). Re-running
+`fault_inject.py --only "^acceptance:"` after the change: **5 of 5 mutations caught, 0 hermeticity
+violations** (Task 10's own verification, above).
+
+**The tool now refuses to run outside a scratch clone.** `is_scratch_clone()` checks
+`git config --get remote.origin.url`: a clone made with `git clone . <dir>` has an `origin` pointing at
+a local path; the primary working repository has no remote at all (checked 2026-09-15: `git remote -v`
+is empty). Without `--in-place`, `main()` refuses before touching anything. This formalizes what the
+tool's own docstring already asked for ("run it alone", i.e. in isolation) rather than trusting the
+operator to remember.
+
+### Code-level model faults (`tools/checks/model_faults.py`, ported from the review's `r7_modelfault.py`)
+
+A companion diagnostic, not a gate: `fault_inject.py` measures whether the gates notice a corrupted
+*artifact*; this measures whether the *experiments the gates run* would notice a wrong *model* — one of
+the evaluator's own standard-cell logic functions computing the wrong thing. `c1_power.json` already
+flags which combinational cell models are C1-silent (complementing their output leaves the 312-cycle
+reference replay unchanged): 29 families, 27 of them combinational and present in this design (`conb`
+and `dfstp` are not combinational). For each, this script complements every instance of that model in
+the evaluator and re-runs R (the replay), E1 (the winning vector + four wrong classes), E2g (the E2
+gate's live stratified sample, now 53 boards post-Task-8), E2s (all 189 boards of the swap family), C5
+(the C5 gate's regenerated boards) and C4g/C4f (sampled / all 121 single-star trigger sets), comparing
+against the unmutated baseline. It reads the derived board and derived feed
+(`verdict.derived_board()`/`derived_feed()`), never `tools.target` — answer-free, like the pipeline it
+measures.
+
+Run as 4 shards in the working tree (2026-09-16; read-only, mutates only in-memory `Machine.nl.comb`
+copies, so no clone was needed) — about 44 minutes wall time across the 4 parallel shards:
+
+| Family | Instances | Gate-detected | Family | Instances | Gate-detected |
+|---|---|---|---|---|---|
+| `a2111oi` | 1 | yes (E1) | `o21a` | 31 | yes |
+| `a21bo` | 2 | yes | `o21ai` | 6 | yes |
+| `a221o` | 6 | yes | `o21bai` | 1 | yes (E2g/E2s only) |
+| `a22o` | 23 | yes | `o211ai` | 1 | yes |
+| `a22oi` | 1 | yes (E1) | `o221a` | 3 | yes |
+| `a311o` | 2 | yes | `o22ai` | 2 | yes |
+| `a31oi` | 1 | yes (E2g/E2s only) | `o2bb2a` | 1 | yes |
+| `and2` | 17 | yes | `o31ai` | 2 | yes |
+| `and3b` | 4 | yes | `o32a` | 4 | yes |
+| `buf` | 1 | **yes (E2g/E2s only)** | `o32ai` | 1 | yes (E2g/E2s only) |
+| `clkbuf` | 32 | **no** | `or3b` | 1 | yes (E1 only) |
+| `nand2b` | 24 | yes | `or4` | 10 | yes |
+| `nor4` | 2 | yes | `or4b` | 9 | yes |
+| — | — | — | `or4bb` | 1 | **no** |
+
+**25 of 27 caught by gate experiments; 2 missed: `clkbuf`, `or4bb`.** This is an improvement on the
+original review's finding (R7, 2026-09-15: 24 of 27, with `buf` also missed) — `buf` is now caught,
+via E2g, exactly because Task 8 changed the E2 gate to ask about all 23 within-cap boards instead of a
+sample of 8, closing that gap without this script being touched. `clkbuf`'s 32 instances gate the design's
+flops directly; this project's evaluator treats the clock as ideal (`Machine._settle` steps every flop on
+its own control edge without modelling clock-tree logic), so a wrong `clkbuf` model is not meaningful
+here regardless of what any gate could do — recorded as a limit of the evaluator, not a gap in the
+gates. `or4bb`'s single instance (an unused-output variant of `or4`, which model-power itself found
+C1-silent) is a genuine miss: nothing in this project's experiment set exercises it. Neither miss is new
+information — both were already disclosed by R7 — but re-measuring after Tasks 4–10 confirms the fix
+pass closed the one gap (`buf`) it could close and did not silently regress the rest.
+
+**`check_stepF4.py`** now checks the tag `review-fixes-complete` (previously `step5-complete`, which
+marked the pre-review state on 2026-09-12 and is never moved again — it is history, not the freeze this
+gate declares). **`check_step3.py`** gained a check that the plan discloses the region map's actual
+method (single-star stimulus probing, prohibited method 5) rather than only listing it as prohibited;
+`docs/03_our_plan.md` gained the disclosure sentence next to the P5 table row, and its §9 correctly
+states `run_all.py` runs every gate independently (gates do not re-run each other, which they never
+did — the old wording was aspirational, not descriptive, since the pipeline's first version).
 

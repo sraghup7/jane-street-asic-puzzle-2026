@@ -383,6 +383,12 @@ must exploit it at every stage rather than only at the end.
 | WSL | available |
 | **SkyWater PDK clone** | ✘ **not present** — and per our chosen approach, **not required** |
 
+**Note (updated as the plan was decided, `docs/03_our_plan.md` §2):** this table records what was
+*installed* at survey time, not what was ultimately *used*. `shapely` was never imported by shipped
+code — its polygon-merge extractor is the published, prohibited approach (P1); connectivity instead
+comes from the `klayout` engine (Δ3). `numpy`, `scipy`, `networkx` and `pandas` were also never
+imported; see `docs/deps.md` §3 for the final, per-package disposition.
+
 Recon tooling already written and usable:
 
 | Tool | Purpose |

@@ -20,7 +20,7 @@ Every number below is machine-checked by a gate, and the artifacts are regenerab
 | AC1 | the exact 121-bit input vector | **PASS** — derived by our own search over five constraints, two enumerators written in different styles (row pairs with recursion; bitmasks with an explicit stack) agreeing, cross-checked against a third, column-major search in the review, both bit orders equal to the contract |
 | AC2 | `success` asserts at cycle 126 | **PASS** — at feed offset 4 and at no other offset |
 | AC3 | output `(* TWO STARS *)` | **PASS** |
-| AC4 | the four wrong-input messages | **PASS** — `EMPTY SKY`, `BIG BANG`, `TRY AGAIN`, and `TWO NOT TOUCH` reproduced on 23 constructed boards (and *not* on the 8 controls) |
+| AC4 | the four wrong-input messages | **PASS** — `EMPTY SKY`, `BIG BANG`, `TRY AGAIN`, and `TWO NOT TOUCH` reproduced on 23 constructed boards (and *not* on the 156 controls — all 189 boards of the swap family are tested, not a sample) |
 | AC5 | byte-exact replay of `example_inputs.vcd` | **PASS** — 2808 output bits, 0 mismatches, 0 `x`/`z` |
 | AC6 | the hidden region map, spelled "JS" | **PASS** — recovered from the design's own latches; two classes are the letters J and S; the chip corroborates it on 189 of 189 boards, and none of 2000 look-alike maps does. **Method:** measured by single-star stimulus probing, the published solution's method (prohibited method 5), disclosed |
 
@@ -125,7 +125,7 @@ recon/vcd_cycles.csv   the reference waveform decoded per cycle (S0.1)
 recon/scratch/         throwaway probes; gitignored, never required
 tools/                 recon instruments: inventory, vcd_probe, gds_dump, kl_recon, render, target
 tools/puzzle/          the pipeline: 23 modules, one per stage group, plus cli.py
-tools/checks/          the gates: 32 checks + tools/target.py
+tools/checks/          the gates: 33 checks + tools/target.py
 docs/                  the dossiers, the plan, the per-step records, the verification log
 ```
 
@@ -138,8 +138,8 @@ docs/                  the dossiers, the plan, the per-step records, the verific
 * **Fault injection as the meta-gate.** `tools/checks/fault_inject.py` mutates each artifact — claiming
   a second solution, flipping one bit of the answer, downgrading the region map from `PASS` to
   `PARTIAL` while the evidence still says PASS, dropping a stage from the reproduction plan — and
-  requires that **the owning gate fails and no other gate does**, that no gate rewrites what it judges,
-  and that every artifact is restored.
+  requires that at least one gate fails, and records which, that no gate rewrites what it judges, and
+  that every artifact is restored.
 * **Byte-reproducibility.** Derived artifacts must regenerate identically; `reproduce --cold` is the
   standing test of that claim, and the fault grid includes a mutation that puts a timing into a file.
 * **Honesty checks that can fail.** The acceptance matrix is required to compute AC6's status from its

@@ -5,15 +5,16 @@ Deliberately **not** named `check_*.py`, so `run_all.py` does not pick it up. It
 derived artifacts, so it is a diagnostic you run deliberately, not part of the routine
 suite:
 
-    .venv/Scripts/python tools/checks/fault_inject.py [--only REGEX]
+    .venv/Scripts/python tools/checks/fault_inject.py [--only REGEX] [--in-place]
 
-`--only` restricts the sweep to the mutations whose label matches REGEX, which is how a *new*
-step's coverage gets closed without paying for the whole grid. The cost matters: the grid runs
-every gate for every mutation, so a gate that takes 20 s to run (C1's, which re-simulates the
-design three times and rebuilds the whole cell library 66 times to measure itself) turns a
-16-minute grid into something closer to two hours. Use `--only` while a phase is in progress and
-the full grid at a phase boundary. The baseline check is unaffected -- all gates must still pass
-before any mutation is injected.
+It mutates the tree it runs in, so by default it refuses to run anywhere but a scratch clone
+(`git clone -b <branch> . <dir>`) -- `--in-place` overrides that and accepts the risk. `--only`
+restricts the sweep to the mutations whose label matches REGEX, which is how a *new* step's
+coverage gets closed without paying for the whole grid. The cost matters: measured, one mutation
+against the full (non-`stepF4`) gate list takes about 7.5 minutes, so the full grid of roughly 130
+mutations is about **16 hours**. Use `--only` while a phase is in progress and the full grid at a
+phase boundary. The baseline check is unaffected -- all gates must still pass before any mutation
+is injected.
 
 **Run it alone.** It holds artifacts in a mutated state between two restores, so anything
 reading them concurrently can see a fault on purpose. Running `run_all.py` alongside it
@@ -36,7 +37,15 @@ the ordering above, silently repairs it for the next gate.
 
 Two gates are expected never to fire here, by design: `target` validates the acceptance
 contract (code, not artifacts) and `hygiene` scans source. Everything else must fire on at
-least one mutation of the artifact it owns.
+least one mutation of the artifact it owns. "Caught" means at least one gate fired on a mutation;
+the firing gate(s) are recorded, not just a pass/fail bit, so a mutation caught by the wrong gate
+is still visible as a finding rather than looking clean.
+
+**What this measures, and what it does not.** Every mutation here is artifact tampering: a
+committed JSON or Verilog file is rewritten to a wrong-but-well-formed value, as if some earlier
+stage had silently produced bad output. It says nothing about whether the *code* computes the
+right thing when a cell model is wrong -- that is a different question, measured by
+`tools/checks/model_faults.py`, which mutates the evaluator's own model rather than an artifact.
 
 Exit code 0 iff no mutation escaped every gate and no gate rewrote the tree.
 """
@@ -54,46 +63,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 sys.path.insert(0, str(ROOT))
-from tools import utf8_env  # noqa: E402
+from tools import utf8_env               # noqa: E402
+from tools.checks.run_all import gate_paths  # noqa: E402
 
-GATES = [
-    ('target', 'tools/target.py'),
-    ('hygiene', 'tools/checks/check_hygiene.py'),
-    ('step1', 'tools/checks/check_step1.py'),
-    ('step2', 'tools/checks/check_step2.py'),
-    ('step3', 'tools/checks/check_step3.py'),
-    ('stepA1', 'tools/checks/check_stepA1.py'),
-    ('stepA2', 'tools/checks/check_stepA2.py'),
-    ('stepA3', 'tools/checks/check_stepA3.py'),
-    ('stepA4', 'tools/checks/check_stepA4.py'),
-    ('stepA5', 'tools/checks/check_stepA5.py'),
-    ('recompute', 'tools/checks/check_recompute.py'),
-    ('stepB1', 'tools/checks/check_stepB1.py'),
-    ('stepB2', 'tools/checks/check_stepB2.py'),
-    ('stepB3', 'tools/checks/check_stepB3.py'),
-    ('stepB4', 'tools/checks/check_stepB4.py'),
-    ('stepB5', 'tools/checks/check_stepB5.py'),
-    ('stepB6', 'tools/checks/check_stepB6.py'),
-    ('stepB7', 'tools/checks/check_stepB7.py'),
-    ('stepC1', 'tools/checks/check_stepC1.py'),
-    ('stepC2', 'tools/checks/check_stepC2.py'),
-    ('stepC3', 'tools/checks/check_stepC3.py'),
-    ('stepC4', 'tools/checks/check_stepC4.py'),
-    ('stepC5', 'tools/checks/check_stepC5.py'),
-    ('stepD', 'tools/checks/check_stepD.py'),
-    ('stepE1', 'tools/checks/check_stepE1.py'),
-    ('stepE2', 'tools/checks/check_stepE2.py'),
-    ('stepE3', 'tools/checks/check_stepE3.py'),
-    ('stepE4', 'tools/checks/check_stepE4.py'),
-    ('stepF1', 'tools/checks/check_stepF1.py'),
-    ('stepF2', 'tools/checks/check_stepF2.py'),
-    ('stepF3', 'tools/checks/check_stepF3.py'),
-    ('stepF6', 'tools/checks/check_stepF6.py'),
-    # stepF4 is deliberately absent. Its subject is the *frozen* repository -- clean tree, tag at
-    # HEAD -- and fault injection dirties the tree by design, so including it would make it fire on
-    # every mutation and drown the signal this table exists to give. It has no artifact of its own to
-    # mutate; it is run by the suite, which is where the freeze is declared.
-]
+# stepF4 is excluded: its subject is the frozen, clean repository, and a mutation dirties the tree by
+# design, so it would fire on every mutation and drown the signal. (It also has no artifact of its own
+# to mutate; it is run by the suite, which is where the freeze is declared.) Every other gate the suite
+# discovers is included automatically, so a new gate file is covered without touching this list.
+GATES = [(name, str(path.relative_to(ROOT)).replace('\\', '/'))
+         for name, path in gate_paths() if name != 'stepF4']
 
 LAYERS = 'recon/derived/layers.json'
 VIA = 'recon/derived/via_pairs.json'
@@ -643,17 +621,6 @@ def m_c4_solution_count(d):
     _ragged(d)['unique_solution']['solutions'] = 2
 
 
-def m_c4_power(d):
-    """Call the rejection test powerful, when the control says it is nearly blind.
-
-    This is the mutation that matters most in this group: the whole point of R20 is that a passing
-    rejection test is not evidence, so a claim to the contrary must not survive.
-    """
-    rt = _ragged(d)['rejection_test']
-    rt['lookalikes_that_also_reject_every_board'] = 40
-    rt['discriminating_power'] = 0.8
-
-
 def m_c4_trigger_total(d):
     """Drop a trigger set but leave the total claiming it: the consistency check must notice."""
     del d['trigger_sets'][sorted(d['trigger_sets'])[0]]
@@ -676,6 +643,21 @@ def m_c5_drop_board(d):
 def m_c5_replay_lie(d):
     """Fault the instrument's own validation, recorded inside this artifact."""
     d['reference_replay']['mismatches'] = 3
+
+
+def m_c5_power(d):
+    """Call the rejection test powerful, when the control says it is nearly blind.
+
+    This is the mutation that matters most in this group: the whole point of R20 is that a passing
+    rejection test is not evidence, so a claim to the contrary must not survive. (Found stale during
+    the Task 11 fix-pass verification: this mutation used to target `rejection_test` on the C4
+    artifact's ragged candidate, but review R1/R5/R8 moved control A -- and this field -- to C5's
+    artifact, `c5_rejections.json`, and the mutator was never updated to follow. It crashed with
+    `KeyError: 'rejection_test'` the first time it ran against the current schema.)
+    """
+    rt = d['rejection_test']
+    rt['lookalikes_that_also_reject_every_board'] = 40
+    rt['discriminating_power'] = 0.8
 
 
 def m_e1_cycle(d):
@@ -1031,11 +1013,11 @@ MUTATIONS = [
     ('c2_power: a caught model called silent', WUPOW, m_eq_pw_sample),
     ('c4_partition: a class loses a cell', C4ART, m_c4_drop_cell),
     ('c4_partition: the solution count faked', C4ART, m_c4_solution_count),
-    ('c4_partition: the rejection test called powerful', C4ART, m_c4_power),
     ('c4_partition: a trigger set dropped from the total', C4ART, m_c4_trigger_total),
     ('c5_rejections: a board claimed accepted', C5ART, m_c5_accept_one),
     ('c5_rejections: a board dropped', C5ART, m_c5_drop_board),
     ('c5_rejections: the recorded replay faulted', C5ART, m_c5_replay_lie),
+    ('c5_rejections: the rejection test called powerful', C5ART, m_c5_power),
     ('e1_messages: the rising cycle moved', E1ART, m_e1_cycle),
     ('e1_messages: a decoded message changed', E1ART, m_e1_message),
     ('e1_messages: the open item deleted', E1ART, m_e1_open_hidden),
@@ -1149,16 +1131,37 @@ def drift(pristine: dict[str, bytes]) -> list[str]:
 
 
 def run_gate(rel: str) -> int:
+    # 1200s, not 600s: `stepG1` (region-map re-derivation under a nulled target.py, added Task 6 of
+    # the fix pass) measured 552-689s standalone and hit the old 600s cap under load once GATES
+    # started including it (Task 11) -- a real timeout, not a hang, needs headroom above the slowest
+    # gate's worst-case time, not just its typical one.
     return subprocess.run([sys.executable, rel], cwd=str(ROOT), capture_output=True, text=True,
-                          encoding='utf-8', errors='replace', env=utf8_env(), timeout=600).returncode
+                          encoding='utf-8', errors='replace', env=utf8_env(), timeout=1200).returncode
+
+
+def is_scratch_clone() -> bool:
+    """A clone made with `git clone <this repo> <dir>` has an `origin` pointing at a local directory.
+
+    The primary working repository has no remote at all (checked 2026-09-15: `git remote -v` is
+    empty), so "origin is a local directory" separates the two without guessing from paths.
+    """
+    url = subprocess.run(['git', 'config', '--get', 'remote.origin.url'], cwd=ROOT,
+                         capture_output=True, text=True).stdout.strip()
+    return bool(url) and Path(url).is_dir()
 
 
 def main() -> int:
     argv = sys.argv[1:]
+    in_place = '--in-place' in argv
+    argv = [a for a in argv if a != '--in-place']
+    if not in_place and not is_scratch_clone():
+        print('fault_inject mutates artifacts in place; run it in a scratch clone '
+              '(git clone -b <branch> . <dir>) or pass --in-place to accept that risk', file=sys.stderr)
+        return 2
     only = None
     if argv:
         if len(argv) != 2 or argv[0] != '--only':
-            print('usage: fault_inject.py [--only REGEX]', file=sys.stderr)
+            print('usage: fault_inject.py [--only REGEX] [--in-place]', file=sys.stderr)
             return 2
         only = re.compile(argv[1])
     selected = [m for m in MUTATIONS if only is None or only.search(m[0])]

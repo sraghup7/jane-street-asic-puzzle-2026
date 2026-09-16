@@ -12,5 +12,5 @@
 # deliberately do NOT depend on: see docs/deps.md.
 
 gdstk==1.0.1        # GDSII read: layer census (A1), pin names/geometry (A3/A4), instances (B1)
-klayout==0.30.12    # connectivity extraction engine (B2/B3) -- differentiator D3
+klayout==0.30.12    # connectivity extraction engine (B2/B3) -- differentiator Delta3 (see docs/deps.md)
 matplotlib==3.11.2  # layer rasterisation in tools/render.py (Step 1 recon only)

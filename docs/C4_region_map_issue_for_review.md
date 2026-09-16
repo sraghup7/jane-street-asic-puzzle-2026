@@ -1,5 +1,13 @@
 # The C4 issue: we cannot find the hidden region map, and the evidence says the chip may not compute one per cell
 
+**How this was resolved (R19/R20, 2026-09-13; see `docs/steps/C4.md`):** the map was never found by a
+per-region *counter*, and this document's finding that none exists stands. It was instead found by a
+different structural method: sweeping a single star through every cell, recording each latch's
+trigger set, and searching those 47 trigger sets for an eleven-class exact cover with capacity 2 —
+which exists, is unique among the eleven-class covers tested, and two of its classes do draw as the
+letters "J" and "S". The "chip may not compute one per cell" finding below is still correct; the map
+was recovered from the design's *latches*, not from a per-cell decode.
+
 ## Postscript (revised) — an earlier version of this section is corrected here
 
 Recorded rather than quietly edited, because it changes the picture.

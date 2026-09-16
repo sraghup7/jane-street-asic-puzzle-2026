@@ -129,6 +129,11 @@ def main() -> int:
     check('plan states the upstream is read-only',
           'read-only' in plan, True)
 
+    # ---- 7. the plan discloses P5's use, not just its prohibition -------------
+    check('plan discloses that the region map uses single-star stimulus probing '
+          '(prohibited method 5)',
+          bool(re.search(r'single-star.{0,120}(prohibited|method 5|P5)', plan, re.S)), True)
+
     # ---- report ---------------------------------------------------------------
     width = max(len(r[1]) for r in results)
     n_fail = n_skip = 0

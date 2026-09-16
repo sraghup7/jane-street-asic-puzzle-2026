@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """check_stepF4.py -- F4: the freeze, and the consistency of the machinery itself.
 
-F4's verify clause is "every gate PASS; git tag `step5-complete`; working tree clean". The full suite
-run *is* that evidence, and it cannot be re-run from inside a gate without recursing. What this gate
-does instead is check the invariants that make the freeze meaningful and that nothing else checks:
+F4's verify clause is "every gate PASS; git tag `review-fixes-complete`; working tree clean". The full
+suite run *is* that evidence, and it cannot be re-run from inside a gate without recursing. What this
+gate does instead is check the invariants that make the freeze meaningful and that nothing else checks:
+
+`step5-complete` marks the pre-review state (2026-09-12, before the solution review found the R0-R9
+findings this fix pass addresses) and is never moved again -- it is history, not the thing this gate
+freezes. `review-fixes-complete` is the tag this gate actually requires, made once every finding is
+fixed or recorded and the full suite passes.
 
 * **the tree is clean** -- no modified, staged or untracked file, so the tag below names exactly the
   reviewed state and a clone gets exactly it;
-* **the tag `step5-complete` exists and points at HEAD** -- a tag on an earlier commit, or a commit
-  made after tagging, both mean the frozen state is not the state that passed;
+* **the tag `review-fixes-complete` exists and points at HEAD** -- a tag on an earlier commit, or a
+  commit made after tagging, both mean the frozen state is not the state that passed;
 * **the fault grid is internally consistent**: every mutation targets an artifact that is registered,
   every registered artifact exists on disk, and every gate the grid names exists -- a mutation aimed at
   a path nobody tracks is a mutation that silently does nothing, which would make the sweep report a
@@ -27,7 +32,7 @@ sys.path.insert(0, str(ROOT))
 
 from tools.checks import fault_inject as FI
 
-TAG = 'step5-complete'
+TAG = 'review-fixes-complete'
 checks: list[dict] = []
 
 
