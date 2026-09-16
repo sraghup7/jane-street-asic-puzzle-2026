@@ -53,9 +53,11 @@ A1 = ROOT / 'recon' / 'derived' / 'layers.json'
 A2 = ROOT / 'recon' / 'derived' / 'via_pairs.json'
 PINNET = ROOT / 'recon' / 'derived' / 'pin_net.json'
 CHECK = ROOT / 'recon' / 'derived' / 'netlist_check.json'
+INSTANCES = ROOT / 'recon' / 'derived' / 'instances.json'
 E2ART = ROOT / 'recon' / 'derived' / 'e2_messages.json'
 WIRE_LAYER = '67/20'                                      # the layer the net's own pins sit on (A3/A5)
 NET = 806                                                 # B5's one structurally undriven net
+CONSUMERS = ('i0523', 'i0525')                            # the net's two consumers (a31oi_2, a311o_2)
 PUBLISHED = 'TWO NOT TOUCH'                               # the message this net perturbs (E2)
 
 
@@ -142,6 +144,86 @@ def constant_tie(pin_net: dict, on_net: list[dict], outputs: set[str]) -> dict:
                         'constant_pin': c['pin'], 'net_pin': f"{t['instance']}.{t['pin']}"}
     return {'constant_cells': len({c['instance'] for c in conbs}), 'constant_outputs': len(conbs),
             'nearest_tie': best}
+
+
+def nearby_signals(radius_um: float = 15.0) -> dict:
+    """Hypothesis 4: is an *existing signal* the lost wire, not a constant?
+
+    The constant-tie hypothesis rules out a `conb` cell, not a missing connection to a real net --
+    review script `r4_806_search.py` found several by rewiring net 806's two consumers to every
+    non-supply net in the design (23 of 738) and keeping the ones that reproduce the message. That
+    scan proves existence but is not a *test*: trying everything and keeping what works cannot fail to
+    find something. This restricts the search to what geometry can motivate -- nets driven by a
+    combinational gate within `radius_um` of one of the two consumers -- so a candidate is picked
+    for its distance, not for making the message come out right, and the result can actually be wrong.
+    Rewiring and restoring both happen on `verdict.Machine`'s own gate list, the same evaluator every
+    other stage uses, so this is not a second simulator.
+    """
+    pin_net = read_json(PINNET)
+    origin = {r['id']: r['origin_dbu'] for r in read_json(INSTANCES)['instances']}
+    ox = [origin[c][0] for c in CONSUMERS]
+    oy = [origin[c][1] for c in CONSUMERS]
+    radius_dbu = radius_um * 1000
+
+    def near(inst: str) -> bool:
+        x, y = origin.get(inst, (None, None))
+        return x is not None and any(hypot(x - ox[i], y - oy[i]) <= radius_dbu for i in range(len(ox)))
+
+    supply = {r['cluster'] for r in pin_net['nets'] if r['is_supply_only']}
+    m = V.Machine(cycles=V.MESSAGE_CYCLES)
+    driver_of: dict[int, tuple[str, str]] = {}
+    for inst, out_pin, _tree, _ins in m.nl.comb:
+        net = m.nl.net(inst, out_pin)
+        if net is not None:
+            driver_of.setdefault(net, (inst, out_pin))
+    candidates = sorted(net for net, (inst, _pin) in driver_of.items()
+                        if net != NET and net not in supply and near(inst))
+    if len(candidates) > 60:
+        return {'radius_um': radius_um, 'candidates': candidates,
+               'reproduce_on_first_board': [], 'reproduce_on_all_boards': [],
+               'note': f'{len(candidates)} candidates exceeds 60 -- not run; narrow the radius'}
+
+    class_of, src = V.region_partition()
+    fam = K.swap_family(class_of, len(src['flops']))
+    usable = fam['usable']
+
+    def pat(grid: list[str]) -> list[int]:
+        return [1 if ch == '*' else 0 for ch in ''.join(grid)]
+
+    consumers = [(k, g) for k, g in enumerate(m.nl.comb) if any(net == NET for _, net in g[3])]
+
+    def rewire(x: int) -> None:
+        for k, (inst, op, tree, ins) in consumers:
+            m.nl.comb[k] = (inst, op, tree, [(p, x if net == NET else net) for p, net in ins])
+
+    def restore() -> None:
+        for k, g in consumers:
+            m.nl.comb[k] = g
+
+    p0 = pat(usable[0]['grid'])
+    reproduce_first = []
+    for x in candidates:
+        rewire(x)
+        r = m.message(p0)
+        restore()
+        if r['text'] == PUBLISHED and not r['unknown_bytes']:
+            reproduce_first.append(x)
+
+    accepted = [int(b) for b in V.derived_feed()]
+    reproduce_all = []
+    for x in reproduce_first:
+        rewire(x)
+        ok_e2 = all(m.message(pat(b['grid']))['text'] == PUBLISHED for b in usable)
+        acc = m.message(accepted)
+        ok_acc = acc['text'] == '(* TWO STARS *)' and acc['success_cycle_0based'] is not None
+        ok_zero = m.message([0] * 121)['text'] == 'EMPTY SKY'
+        ok_one = m.message([1] * 121)['text'] == 'BIG BANG'
+        restore()
+        if ok_e2 and ok_acc and ok_zero and ok_one:
+            reproduce_all.append(x)
+
+    return {'radius_um': radius_um, 'candidates': candidates,
+            'reproduce_on_first_board': reproduce_first, 'reproduce_on_all_boards': reproduce_all}
 
 
 def measure() -> dict:
@@ -259,6 +341,7 @@ def measure() -> dict:
         'byte_exact': reading['text'][:len(PUBLISHED)] == PUBLISHED,
         'same_as_the_e2_artifact': (reading['text'] == e2['results'][0]['reading']['text']
                                     and positions == sorted(e2['undriven_net_in_the_message']['positions'])),
+        'nearby_signals': nearby_signals(),
     }
 
     return {
@@ -282,6 +365,12 @@ def measure() -> dict:
                             'the metric docs/net806.md reports',
             'message_tie': 'tools/puzzle/confirm.ask on the first E2 board: the unforced reading, '
                            'then the same board with net 806 forced to 0 and to 1',
+            'nearby_signals': 'rewiring net 806\'s two consumers (on verdict.Machine\'s own gate '
+                              'list, not a second simulator) to every combinational net driven '
+                              'within 15 um of either consumer, then keeping the ones that '
+                              'reproduce TWO NOT TOUCH -- a geometric restriction of the review\'s '
+                              'full 738-net scan, so the candidate set is a test rather than a '
+                              'search for something that works',
         },
         'net': {
             'cluster': NET,
@@ -302,6 +391,7 @@ def measure() -> dict:
         'crossings': crossings,
         'constant_tie': constant_tie(pin_net, on_net, outputs),
         'message_tie': tie,
+        'conclusion': 'undriven in the layout; the layout does not determine what it carried',
     }
 
 
@@ -335,11 +425,18 @@ def stage_net806() -> int:
     print(f'  message     : {tie["unforced_reading"]!r}, unknown at {tie["positions"]}; '
           f'806=0 -> {tie["tie_0"]!r}, 806=1 -> {tie["tie_1"]!r}')
     print(f'  published {tie["published_string"]!r} reproduced byte-for-byte: {tie["byte_exact"]}')
+    ns = tie['nearby_signals']
+    print(f'  nearby signals ({ns["radius_um"]} um): {len(ns["candidates"])} candidates, '
+          f'{len(ns["reproduce_on_first_board"])} reproduce board 0, '
+          f'{len(ns["reproduce_on_all_boards"])} reproduce every check: {ns["reproduce_on_all_boards"]}')
+    print(f'  conclusion  : {r["conclusion"]}')
+    ok = (not co['merges_that_could_hide_a_driver'] and not tie['byte_exact']
+         and len(ns['reproduce_on_all_boards']) >= 1)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(r, indent=2) + '\n', encoding='utf-8', newline='\n')
     print(f'\nwritten: {OUT.relative_to(ROOT).as_posix()}')
-    print(f'F6: {"PASS" if not co["merges_that_could_hide_a_driver"] and not tie["byte_exact"] else "FAIL"}')
-    return 0 if not co['merges_that_could_hide_a_driver'] and not tie['byte_exact'] else 1
+    print(f'F6: {"PASS" if ok else "FAIL"}')
+    return 0 if ok else 1
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -240,9 +240,28 @@ def main() -> int:
     tie0, tie1 = reading['forced']['0'], reading['forced']['1']
     check('the two ties are re-derived and match the artifact',
           [tie0, tie1] == [mt['tie_0'], mt['tie_1']], f'806=0 {tie0!r}, 806=1 {tie1!r}')
-    check('neither tie reproduces the published string, and they differ from each other',
-          tie0 != mt['published_string'] and tie1 != mt['published_string'] and tie0 != tie1,
-          f'{mt["published_string"]!r} attainable by neither tie -- recorded, not smoothed over')
+    check('both constant ties differ from the published string (a constant cannot be the lost wire)',
+          tie0 != mt['published_string'] and tie1 != mt['published_string'], f'{tie0!r} / {tie1!r}')
+
+    # ---- an existing signal, not a constant: re-derived, and rewired live once more -----------
+    ns = art['message_tie']['nearby_signals']
+    check('at least one nearby existing signal reproduces TWO NOT TOUCH on every within-cap board',
+          len(ns['reproduce_on_all_boards']) >= 1 and 789 in ns['reproduce_on_all_boards'],
+          f"{len(ns['candidates'])} candidates within {ns['radius_um']} um; "
+          f"all-board reproducers {ns['reproduce_on_all_boards']}")
+    check('the recorded conclusion is that the layout does not determine the net',
+          art['conclusion'].startswith('undriven in the layout'), art['conclusion'])
+
+    consumers = [(k, g) for k, g in enumerate(m.nl.comb) if any(x == N.NET for _, x in g[3])]
+    saved = [g for _k, g in consumers]
+    for k, (inst, op, tree, ins) in consumers:
+        m.nl.comb[k] = (inst, op, tree, [(p, 789 if x == N.NET else x) for p, x in ins])
+    rewired = K.ask(m, grid)
+    for (k, _g), orig in zip(consumers, saved):
+        m.nl.comb[k] = orig
+    check('live re-derivation: rewiring 806 to n789 reproduces TWO NOT TOUCH exactly',
+          rewired['text'] == mt['published_string'] and not rewired['unknown_bytes'],
+          f"{rewired['text']!r}")
 
     # ---- cross-checks against the artifacts that own those numbers --------------------------
     nets = json.loads((D / 'nets.json').read_text(encoding='utf-8'))['totals']

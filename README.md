@@ -156,13 +156,15 @@ docs/                  the dossiers, the plan, the per-step records, the verific
 
 * **Not** that the region map is confirmed. The accepted input is unique, so the chip's verdicts
   cannot distinguish our partition from a look-alike; the chip's *message* corroborates it (23 boards
-  agree, 8 controls disagree), and that is the strongest statement the evidence supports.
+  agree, 156 controls disagree), and that is the strongest statement the evidence supports.
 * **Not** that the printed map spells "JS" — our recovery does not reproduce that reading.
 * **Not** that the undriven net changes the answer: cluster 806 is *characterised*, not driven. F6 tests
   and refutes the three ways our extraction could have hidden a driver for it — a constant tie
   (9 966 dbu away), a mis-assigned pin (the engine reproduces both terminals), a cut that could merge
-  (zero can) — so the chip is nondeterministic in exactly one place: one character of one of its five
-  messages, and neither tie of that net reproduces the published `TWO NOT TOUCH`.
+  (zero can) — and tests one more possibility: an existing signal, not a constant. Genuinely undriven
+  in the layout: the layout does not determine what it carried; nearby existing signals reproduce
+  `TWO NOT TOUCH` byte-exactly (5 of 24 candidates within 15 µm of the two consumers, including net
+  789).
 * **Not** that the planned symbolic region-decode differentiator (Δ5) succeeded. It was refuted by
   measurement and replaced; the refutation is recorded rather than dropped.
 * **Not** that this was built without AI assistance, or in ignorance of the published solution: both

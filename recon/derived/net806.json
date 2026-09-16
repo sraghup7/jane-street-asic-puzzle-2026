@@ -17,7 +17,8 @@
     "census": "every shape on the die is filed by the net the engine assigns it, so the wire's own geometry is measured rather than read",
     "missed_merge": "a cut overlapping the wire and belonging to another net is a missed merge only if it also touches a wire shape on a conductor that cut's own A2 rule joins; a cut on a layer pair the wire does not occupy is a legal underlap",
     "constant_tie": "pin-to-pin DBU distance from every conb output to the net's pins -- the metric docs/net806.md reports",
-    "message_tie": "tools/puzzle/confirm.ask on the first E2 board: the unforced reading, then the same board with net 806 forced to 0 and to 1"
+    "message_tie": "tools/puzzle/confirm.ask on the first E2 board: the unforced reading, then the same board with net 806 forced to 0 and to 1",
+    "nearby_signals": "rewiring net 806's two consumers (on verdict.Machine's own gate list, not a second simulator) to every combinational net driven within 15 um of either consumer, then keeping the ones that reproduce TWO NOT TOUCH -- a geometric restriction of the review's full 738-net scan, so the candidate set is a test rather than a search for something that works"
   },
   "net": {
     "cluster": 806,
@@ -280,6 +281,50 @@
     "tie_1": "TWO NOT TOUCJ..",
     "published_string": "TWO NOT TOUCH",
     "byte_exact": false,
-    "same_as_the_e2_artifact": true
-  }
+    "same_as_the_e2_artifact": true,
+    "nearby_signals": {
+      "radius_um": 15.0,
+      "candidates": [
+        752,
+        764,
+        765,
+        766,
+        768,
+        770,
+        771,
+        784,
+        785,
+        788,
+        789,
+        800,
+        801,
+        802,
+        803,
+        805,
+        808,
+        846,
+        897,
+        898,
+        949,
+        951,
+        956,
+        984
+      ],
+      "reproduce_on_first_board": [
+        770,
+        785,
+        789,
+        951,
+        984
+      ],
+      "reproduce_on_all_boards": [
+        770,
+        785,
+        789,
+        951,
+        984
+      ]
+    }
+  },
+  "conclusion": "undriven in the layout; the layout does not determine what it carried"
 }

@@ -921,6 +921,12 @@ def m_f6_tie_matches(d):
     d['message_tie']['tie_1'] = d['message_tie']['published_string']
 
 
+def m_f6_nearby_removed(d):
+    """Empty the nearby-signal reproducers: the constant-tie refutation alone does not close the
+    question of what the lost wire carried, and the gate must not pass on that refutation alone."""
+    d['message_tie']['nearby_signals']['reproduce_on_all_boards'] = []
+
+
 def m_f6_merges_claimed(d):
     """Claim a cut over the wire *could* merge, i.e. that a missed merge may hide a driver."""
     d['cut_overlap']['merges_that_could_hide_a_driver'] = d['cut_overlap']['overlapping'][:1]
@@ -1069,6 +1075,7 @@ MUTATIONS = [
     ('stamp: the matrix falsifies the hash of one of its inputs', ACCEPTART, m_f5_acceptance_source),
     ('s0.1: the decoded cycle table gains a row', VCDREF, m_f5_csv_extra_row),
     ('net806: a tie made to print the published string', NET806ART, m_f6_tie_matches),
+    ('net806: the nearby-signal reproducers emptied', NET806ART, m_f6_nearby_removed),
     ('net806: a cut over the wire claimed able to merge', NET806ART, m_f6_merges_claimed),
     ('reproduction: the report s own exclusion dropped', REPROART, m_e4_report_counted),
 ]

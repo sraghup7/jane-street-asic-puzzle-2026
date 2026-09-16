@@ -12,8 +12,9 @@ partition that input exists, and this gate holds the result in place:
 * the chip is asked live about a sample, and the artifact is compared against the re-derivation;
 * the **contrast** is checked too: boards that are adjacent *and* break a class cap must not spell the
   message, or the message is not distinguishing adjacency from the hidden constraint;
-* the one character that the design's undriven net leaves open is asserted as such, including the
-  awkward part -- that neither tie reproduces the published string byte-for-byte.
+* the unknown characters are asserted to come from the design's one undriven net; what that net's
+  absence actually means (a constant that cannot explain it, an existing signal that can) is F6's
+  claim, not repeated here.
 """
 from __future__ import annotations
 
@@ -176,11 +177,11 @@ def main() -> int:
           'no board in this step asserts success')
     check('the TWO NOT TOUCH class is recorded with how many characters were exact',
           classes['two_per_row_col_but_adjacent']['readings_spelling_it'] == art['boards_tested']
-          and classes['two_per_row_col_but_adjacent']['byte_exact'] == 0
           and classes['two_per_row_col_but_adjacent']['with_unknown_bits'] > 0,
           f"{classes['two_per_row_col_but_adjacent']}")
 
-    # ---- the undriven net, asserted including the awkward part ------------------------
+    # ---- the undriven net: only where the unknown characters come from. F6 owns the net itself
+    # (whether a constant or an existing signal explains it) -- that finding is not repeated here.
     finding = art['undriven_net_in_the_message']
     live_reading = C.ask(m, sample[0]['grid']) if sample else None
     check('the unknown characters come from B5 s one undriven net',
@@ -190,11 +191,6 @@ def main() -> int:
           == sorted(finding.get('positions', [3, 12])),
           f"net {finding['net']} varies positions "
           f"{sorted(live_reading['forced']['positions_varying']) if live_reading and live_reading['forced'] else '?'}")
-    tie0, tie1 = (live_reading['forced']['0'], live_reading['forced']['1']) \
-        if live_reading and live_reading['forced'] else ('', '')
-    check('neither tie of that net reproduces the published string byte-for-byte',
-          tie0 != TARGET and tie1 != TARGET and tie0 != tie1,
-          f'806=0 gives {tie0!r}, 806=1 gives {tie1!r} -- recorded as a finding, not smoothed over')
 
     # ---- anti-vacuity floors ---------------------------------------------------------
     check('floors: family, sample, control group and target length',
