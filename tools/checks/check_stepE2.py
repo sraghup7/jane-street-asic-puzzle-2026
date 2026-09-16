@@ -30,7 +30,7 @@ from tools.puzzle import verdict as V
 
 ART = ROOT / 'recon' / 'derived' / 'e2_messages.json'
 TARGET = 'TWO NOT TOUCH'
-LIVE_SAMPLE = 8          # boards asked live (the artifact holds all 23)
+OVER_CAP_STRIDE = 8      # live sample of the 156 over-cap controls: every 8th
 MIN_USABLE = 5
 MIN_FAMILY = 50
 
@@ -56,21 +56,26 @@ def main() -> int:
           rep['mismatches'] == 0 and rep['unknown_bits'] == 0,
           f"{rep['mismatches']} mismatches, {rep['unknown_bits']} unknown bits")
 
-    # ---- the boards, re-derived ------------------------------------------------------
+    # ---- the boards, re-derived --------------------------------------------------------
     class_of, src = V.region_partition()
     n_classes = len(src['flops'])
     fam = C.swap_family(class_of, n_classes)
+    all_boards = C.family_boards(fam)
+    not_adj_within = [e for e in fam['not_adjacent'] if not e['classes_over_capacity']]
     check(f'the two-switch family is re-derived and is not tiny',
           fam['candidates'] >= MIN_FAMILY, f'{fam["candidates"]} distinct boards')
     check(f'at least {MIN_USABLE} boards are adjacent with every class within capacity',
           len(fam['usable']) >= MIN_USABLE,
           f"{len(fam['usable'])} usable, {len(fam['violating'])} over capacity")
+    check('every non-adjacent board breaks a class cap (else it would be a second solution to D)',
+          not not_adj_within, f'{len(not_adj_within)} would-be second solution(s)')
     check('the artifact records the same family',
-          art['family']['candidates'] == fam['candidates']
-          and art['family']['usable'] == len(fam['usable'])
-          and art['family']['violating'] == len(fam['violating']),
-          f"{art['family']} vs re-derived {fam['candidates']}/"
-          f"{len(fam['usable'])}/{len(fam['violating'])}")
+          art['family']['boards'] == fam['candidates']
+          and art['family']['adjacent_within_caps'] == len(fam['usable'])
+          and art['family']['adjacent_over_caps'] == len(fam['violating'])
+          and art['family']['not_adjacent_over_caps'] == len(fam['not_adjacent']) - len(not_adj_within),
+          f"{art['family']} vs re-derived {fam['candidates']}/{len(fam['usable'])}/"
+          f"{len(fam['violating'])}/{len(fam['not_adjacent'])}")
     check('every usable board satisfies 22 / two per row / two per column, adjacency aside',
           all(C._visible_ok(e['grid'])['ok'] for e in fam['usable']),
           'so only the hidden constraint and adjacency can be at issue')
@@ -81,43 +86,53 @@ def main() -> int:
           'the partition is satisfied by construction, then checked')
     # Without this, a board mutated inside the artifact simply falls out of the intersection below
     # and the gate would pass on the rest -- the artifact must record boards the family actually has.
-    fam_grids = {tuple(e['grid']) for e in fam['usable']}
+    fam_grids = {tuple(e['grid']) for e in all_boards}
     check('every board the artifact records is a member of the re-derived family',
           all(tuple(r['grid']) in fam_grids for r in art['results'])
-          and len({tuple(r['grid']) for r in art['results']}) == len(art['results']),
-          f"{sum(1 for r in art['results'] if tuple(r['grid']) in fam_grids)} of "
-          f"{len(art['results'])} recognised")
+          and len({tuple(r['grid']) for r in art['results']}) == len(art['results'])
+          and len(art['results']) == fam['candidates'],
+          f"{len(art['results'])} recorded of {fam['candidates']} in the family")
 
-    # ---- the chip, asked live about a sample -----------------------------------------
-    tested = [e for e in fam['usable'] if e['grid'] in [r['grid'] for r in art['results']]]
-    sample = tested[:LIVE_SAMPLE] if tested else fam['usable'][:LIVE_SAMPLE]
+    # ---- predictions re-derived for the whole family (pure Python, no simulation) -----
+    recorded = {tuple(r['grid']): r['predicted'] for r in art['results']}
+    mismatches = [e['grid'] for e in all_boards
+                 if recorded.get(tuple(e['grid'])) != C.prediction(e['cells'], class_of)]
+    check('the prediction for every board of the family matches the artifact',
+          not mismatches, f'{len(mismatches)} of {len(all_boards)} differ')
+    check('the chip is asked about every board of the swap family, and matches the map on all',
+          art['agreement']['boards'] == art['family']['boards'] == 189
+          and art['agreement']['chip_matches_prediction'] == 189, f"{art['agreement']}")
+
+    # ---- the chip, asked live about a stratified sample --------------------------------
+    over_cap_sample = fam['violating'][::OVER_CAP_STRIDE]
+    sample = fam['usable'] + over_cap_sample + fam['not_adjacent']
     live = []
     for e in sample:
+        want = C.prediction(e['cells'], class_of)
         reading = C.ask(m, e['grid'])
-        live.append((reading, C._classify(reading, TARGET)))
-    check(f'the chip spells {TARGET!r} on every sampled board, live',
-          all(v['spells_it'] for _r, v in live),
-          f"{sum(1 for _r, v in live if v['spells_it'])} of {len(live)}"
-          + (f"; readings {[r['text'] for r, _v in live if not _v['spells_it']]}"
-             if any(not v['spells_it'] for _r, v in live) else ''))
+        live.append((e, want, reading, C._classify(reading, want)))
+    check(f'the chip matches the prediction on every sampled board, live '
+          f'({len(fam["usable"])} within-cap + {len(over_cap_sample)} over-cap + '
+          f'{len(fam["not_adjacent"])} non-adjacent)',
+          all(v['spells_it'] for _e, _w, _r, v in live),
+          f"{sum(1 for *_, v in live if v['spells_it'])} of {len(live)}"
+          + (f"; readings {[r['text'] for _e, _w, r, v in live if not v['spells_it']]}"
+             if any(not v['spells_it'] for *_, v in live) else ''))
     check('the artifact records the same readings for those boards',
           all(any(r['grid'] == e['grid'] and r['reading']['text'] == rd['text']
                   for r in art['results'])
-              for e, (rd, _v) in zip(sample, live)),
+              for e, _w, rd, _v in live),
           'artifact and re-derivation agree')
-    check('the artifact says every tested board spells the message',
-          art['boards_spelling_the_message'] == len(art['results'])
-          and art['boards_tested'] == len(art['results']),
+    check('the artifact says every TWO NOT TOUCH candidate spells the message',
+          art['boards_spelling_the_message'] == art['boards_tested'] == len(fam['usable']),
           f"{art['boards_spelling_the_message']} of {art['boards_tested']}")
 
-    # ---- the contrast: adjacency is not enough ---------------------------------------
-    viol_sample = fam['violating'][:4]
-    viol_live = [(C.ask(m, e['grid']), e) for e in viol_sample]
+    # ---- the contrast: adjacency is not enough -----------------------------------------
     check('boards that are adjacent AND break a class cap do not spell the message',
-          all(not C._classify(r, TARGET)['spells_it'] for r, _e in viol_live),
-          f"readings {sorted({r['text'] for r, _e in viol_live})}")
-    check('the artifact records that contrast',
-          art['control_group']['boards'] > 0
+          all(not C._classify(r, TARGET)['spells_it'] for _e, w, r, _v in live if w == 'TRY AGAIN'),
+          f"readings {sorted({r['text'] for _e, w, r, _v in live if w == 'TRY AGAIN'})}")
+    check('the artifact records that contrast, over the full control group (not a sample)',
+          art['control_group']['boards'] == len(fam['violating']) > 0
           and art['control_group']['boards_not_spelling_it'] == art['control_group']['boards'],
           f"{art['control_group']['boards_not_spelling_it']} of "
           f"{art['control_group']['boards']}")
@@ -126,6 +141,25 @@ def main() -> int:
           and art['contrast']['adjacent_but_partition_violated']['classes_over_capacity'],
           f"{art['contrast']['adjacent_but_partition_violated']['message']!r} with classes over "
           f"capacity {art['contrast']['adjacent_but_partition_violated']['classes_over_capacity']}")
+
+    # ---- how much does agreement on this family actually prove? -----------------------
+    power = C.lookalike_power(fam, class_of)
+    check('the look-alike power is re-derived and recorded',
+          art['lookalike_power']['reproduce_all_boards'] == power['reproduce_all_boards']
+          and art['lookalike_power']['best_match'] == power['best_match']
+          and art['lookalike_power']['tested'] == power['tested'] >= 500,
+          f"{art['lookalike_power']}")
+    check('the look-alike power is not a perfect test: some null-model partitions come close',
+          0 <= art['lookalike_power']['reproduce_all_boards'] < art['lookalike_power']['tested']
+          and art['lookalike_power']['best_match'] < art['lookalike_power']['boards'],
+          f"best match {art['lookalike_power']['best_match']} of {art['lookalike_power']['boards']}")
+    resolution = C.boundary_resolution(fam, class_of)
+    check('the boundary resolution limit is recorded, not hidden',
+          art['boundary_resolution'] == resolution, f"{art['boundary_resolution']}")
+    check('the boundary resolution is a real limit, not vacuously perfect or vacuously blind',
+          0 < art['boundary_resolution']['undetected'] < art['boundary_resolution']['boundary_moves'],
+          f"{art['boundary_resolution']['undetected']} of "
+          f"{art['boundary_resolution']['boundary_moves']} boundary moves undetected")
 
     # ---- the four message classes ----------------------------------------------------
     classes = art['message_classes']
@@ -164,9 +198,10 @@ def main() -> int:
 
     # ---- anti-vacuity floors ---------------------------------------------------------
     check('floors: family, sample, control group and target length',
-          fam['candidates'] >= MIN_FAMILY and len(live) >= 1 and len(viol_live) >= 1
+          fam['candidates'] >= MIN_FAMILY and len(live) >= 1 and len(over_cap_sample) >= 1
           and len(TARGET) == 13 and T.FEED_ORDER.count('1') == 22,
-          f"{len(live)} sampled, {len(viol_live)} control, target {len(TARGET)} characters")
+          f"{len(live)} sampled, {len(over_cap_sample)} of the control group, "
+          f"target {len(TARGET)} characters")
 
     failed = [c for c in checks if not c['passed']]
     width = max(len(c['check']) for c in checks)

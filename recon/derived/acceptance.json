@@ -4,7 +4,7 @@
   "source": {
     "recon/derived/solutions.json": "e77ccf724993e7eac735dffe44c164797610a1d4b3be5b4a7cbb590140589903",
     "recon/derived/e1_messages.json": "2b76a5c0ced7bd84a0d8be2ce90f590d219bdf2c17889572c7cf3b00f0155830",
-    "recon/derived/e2_messages.json": "1b475ba6488869f88c0bbed89fb758369626b379875683ccdc2f22047ac41178",
+    "recon/derived/e2_messages.json": "9ba889a0c4e2e9e780f163f873362ff043b8807d3eeadc0fa4197abe0dd0e45b",
     "recon/derived/c4_partition.json": "881e46f56922a3e7f36d7065c0a32b5764b12f803aaef861add1aef3bc27e658",
     "recon/derived/vcd_replay.json": "8f61951cea06f9ea4ceda0782ac99c54ade2fa61c7d146a4635fe6a7190b4b4b",
     "tools/target.py": "aeba3a4df1eb6c937de315bbd274ffe826295572fc9ba076285349c9958634a2"
@@ -108,12 +108,12 @@
         },
         "two_not_touch_boards_spelling_it": 23,
         "two_not_touch_boards_tested": 23,
-        "control_boards_not_spelling_it": 8,
-        "control_boards": 8,
+        "control_boards_not_spelling_it": 156,
+        "control_boards": 156,
         "characters_exact_in_that_message": 0
       },
       "notes": [
-        "`TWO NOT TOUCH` is reproduced on 23 constructed boards (E2) and NOT on the 8 controls that also break a class cap",
+        "`TWO NOT TOUCH` is reproduced on 23 constructed boards (E2) and NOT on the 156 controls that also break a class cap",
         "E1's single vector for that class predates the map and also violates the hidden constraint, so it answers TRY AGAIN; that mismatch is expected and is why the class needed E2",
         "the printed message carries one indeterminate character, following the design's undriven net (806) -- recorded, not resolved"
       ],
@@ -179,7 +179,7 @@
         "solutions_under_this_partition": 1,
         "chip_corroborated_it": true,
         "boards_supporting_it": 23,
-        "control_boards_against_it": 8,
+        "control_boards_against_it": 156,
         "js_spelling_reproduced": false,
         "verdict_channel_can_confirm": false
       },

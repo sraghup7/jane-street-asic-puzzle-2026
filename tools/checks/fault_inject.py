@@ -756,6 +756,17 @@ def m_e2_class_wrong(d):
     d['message_classes']['all_zeros']['text'] = 'EMPTY SKYX'
 
 
+def m_e2_lookalike_power_hidden(d):
+    """Claim the null model gets much closer than it does: hides how strong the test really is."""
+    d['lookalike_power']['best_match'] = d['lookalike_power']['boards']
+    d['lookalike_power']['reproduce_all_boards'] = d['lookalike_power']['tested']
+
+
+def m_e2_boundary_resolution_hidden(d):
+    """Claim every boundary move is detected: the resolution limit (R6 medium 2) must stay visible."""
+    d['boundary_resolution']['undetected'] = 0
+
+
 # --- E3: the acceptance matrix, and the overclaims it must refuse ------------------------
 def _row(d, cid):
     return next(r for r in d['criteria'] if r['id'] == cid)
@@ -1030,6 +1041,8 @@ MUTATIONS = [
     ('e2_messages: the undriven-net finding smoothed', E2ART, m_e2_undriven_smoothed),
     ('e2_messages: a tested board moved', E2ART, m_e2_board_moved),
     ('e2_messages: another message class corrupted', E2ART, m_e2_class_wrong),
+    ('e2_messages: the look-alike power hidden', E2ART, m_e2_lookalike_power_hidden),
+    ('e2_messages: the boundary resolution limit hidden', E2ART, m_e2_boundary_resolution_hidden),
     ('acceptance: AC6 upgraded from PARTIAL to PASS', ACCEPTART, m_e3_ac6_upgraded),
     ('acceptance: AC1 s bit-order result made unfavourable', ACCEPTART, m_e3_ac1_friendly),
     ('acceptance: the replay comparison made vacuous', ACCEPTART, m_e3_ac5_vacuous),
