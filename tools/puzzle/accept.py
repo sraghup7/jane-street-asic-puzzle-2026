@@ -202,7 +202,7 @@ def ac6() -> dict:
                     and sum(len(ragged[0]['classes'][f]) for f in ragged[0]['flops']) == 121)
     sol_count = ragged[0]['unique_solution']['solutions'] if ragged else None
     ev = {
-        'capacity2_covers_found': c4['capacity2_cover_count'],
+        'capacity2_covers_found': c4['eleven_class_cover_count'],
         'non_column_candidate': ragged[0]['name'] if ragged else None,
         'class_sizes': ragged[0]['class_sizes'] if ragged else None,
         'stars_per_class': stars_per_class,

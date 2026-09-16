@@ -60,15 +60,15 @@ def main() -> int:
     # ---- the region constraint, re-derived from C4's artifact -------------------------
     class_of, src = S.region_partition()
     n_classes = len(src['flops'])
-    stars = {r * 11 + c for r, c in V.answer_cells()}
-    loads_answer = [0] * n_classes
+    stars = {r * 11 + c for r, c in V.derived_board()}
+    loads_derived = [0] * n_classes
     for p in stars:
-        loads_answer[class_of[p]] += 1
-    check('the region constraint is C4 s non-column cover, re-loaded and re-checked',
-          loads_answer == [2] * n_classes
+        loads_derived[class_of[p]] += 1
+    check('the region constraint is C4 s selected cover, re-loaded and re-checked',
+          loads_derived == [2] * n_classes
           and sorted(src['class_sizes']) == sorted(
               sum(1 for k in class_of if k == i) for i in range(n_classes)),
-          f'{n_classes} classes, the accepted board sits {sorted(set(loads_answer))} per class')
+          f'{n_classes} classes, the derived board sits {sorted(set(loads_derived))} per class')
     counts = Counter(class_of)
     check('the partition covers all 121 cells exactly once, with the recorded class sizes',
           set(counts) == set(range(n_classes)) and sum(counts.values()) == 121

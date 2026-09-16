@@ -386,10 +386,6 @@ class Machine:
 # --------------------------------------------------------------------------------------
 # boards
 # --------------------------------------------------------------------------------------
-def answer_cells() -> set[tuple[int, int]]:
-    return {(r, c) for r in range(11) for c in range(11) if T.GRID[r][c] == '*'}
-
-
 def columns_cover() -> list[frozenset]:
     """The eleven columns as cell sets. Cell index is `r * 11 + c`, so a column is fixed `c`."""
     return [frozenset(r * 11 + c for r in range(11)) for c in range(11)]
@@ -412,21 +408,24 @@ def is_columns_cover(sets) -> bool:
 
 
 def region_partition() -> tuple[list[int], dict]:
-    """C4's candidate partition as a 121-entry class map, plus the record of where it came from.
+    """C4's selected partition as a 121-entry class map, plus the record of where it came from.
 
     The one loader for the hidden constraint, so C4's artifact is interpreted in exactly one place.
-    Refuses to guess: if the artifact is missing, or holds anything other than one non-column
-    capacity-2 cover, or the classes do not partition the grid, or the accepted board does not sit two
-    per class, this raises. An arbitrary choice here would silently change the problem being solved.
+    Refuses to guess: if the artifact is missing, does not select exactly one recorded candidate, or
+    the classes do not partition the grid, this raises. An arbitrary choice here would silently change
+    the problem being solved. Unlike the version this replaced (review R1/R5/R8), selection is read
+    from `art['selected']` -- C4's own uniqueness-based choice -- never re-validated against the
+    published answer here.
     """
     if not OUT_C4.exists():
         raise SystemExit(f'missing {OUT_C4.relative_to(ROOT).as_posix()} -- run: '
                          f'python -m tools.puzzle region-map')
     art = json.loads(OUT_C4.read_text(encoding='utf-8'))
-    ragged = [c for c in art['candidates'] if not c['is_the_visible_column_rule']]
-    if len(ragged) != 1:
-        raise SystemExit(f'expected exactly one non-column capacity-2 cover, found {len(ragged)}')
-    cand = ragged[0]
+    chosen = [c for c in art['candidates'] if c['name'] == art.get('selected')]
+    if len(chosen) != 1:
+        raise SystemExit(f"c4_partition.json selects {art.get('selected')!r}, which is not exactly "
+                         "one recorded candidate -- run: python -m tools.puzzle region-map")
+    cand = chosen[0]
     class_of = [-1] * 121
     for i, flop in enumerate(cand['flops']):
         for p in cand['classes'][flop]:
@@ -435,14 +434,28 @@ def region_partition() -> tuple[list[int], dict]:
             class_of[p] = i
     if -1 in class_of:
         raise SystemExit('the classes do not cover all 121 cells')
-    stars = {r * 11 + c for r, c in answer_cells()}
-    loads = [sum(1 for p, k in enumerate(class_of) if k == i and p in stars)
-             for i in range(len(cand['flops']))]
-    if loads != [2] * len(cand['flops']):
-        raise SystemExit(f'the accepted board does not sit two-per-class: {loads}')
     return class_of, {'source': OUT_C4.relative_to(ROOT).as_posix(),
                       'flops': cand['flops'], 'class_sizes': cand['class_sizes'],
                       'is_the_visible_column_rule': False}
+
+
+OUT_SOL = ROOT / 'recon' / 'derived' / 'solutions.json'
+
+
+def derived_board() -> set[tuple[int, int]]:
+    """The board our own solver derived (D) -- the input every later experiment is built from.
+
+    Not the published answer: `tools/target.py` is read only by the D4/E3 comparisons that exist to
+    *check* the derivation against the contract, never by anything that builds an experiment.
+    """
+    if not OUT_SOL.exists():
+        raise SystemExit('missing recon/derived/solutions.json -- run: python -m tools.puzzle solve')
+    return {tuple(rc) for rc in json.loads(OUT_SOL.read_text(encoding='utf-8'))['solution']['cells']}
+
+
+def derived_feed() -> str:
+    b = derived_board()
+    return ''.join('1' if (r, c) in b else '0' for r in range(11) for c in range(11))
 
 
 def pattern_from_cells(cells) -> list[int]:
@@ -508,7 +521,7 @@ def valid_boards(seed_max: int = 600, want: int = 20) -> list[dict]:
 
         if dfs(0):
             cells = frozenset((r, c) for r, cols in placed.items() for c in cols)
-            if cells != answer_cells():
+            if cells != derived_board():
                 out.append({'seed': seed, 'cells': sorted(cells)})
     return out
 
@@ -528,7 +541,7 @@ def two_switch_boards(n: int = 40, seed_base: int = 0) -> list[dict]:
     out = []
     for seed in range(seed_base, seed_base + n):
         rng = random.Random(seed)
-        cells = set(answer_cells())
+        cells = set(derived_board())
         for _ in range(rng.randint(1, 15)):
             for _attempt in range(20):
                 r1, r2 = rng.sample(range(11), 2)
@@ -579,18 +592,6 @@ def exact_covers(sets: dict[str, set[int]], cap: int = 200) -> list[list[str]]:
 
     dfs(0, [])
     return found
-
-
-def capacity2_cover(covers: list[list[str]], sets: dict[str, set[int]],
-                    star_lin: set[int]) -> list[list[str]]:
-    """The covers that are a region map as the puzzle describes it: 11 classes, two stars each.
-
-    Takes the covers and the star set the caller already computed rather than recomputing them: the
-    exact-cover search is the expensive part of this stage, and calling it twice for one answer was how
-    this function previously came to be bypassed by an inline copy of itself (F1 removed the copy).
-    """
-    return [c for c in covers if len(c) == 11
-            and all(len(sets[n] & star_lin) == 2 for n in c)]
 
 
 PAIR_PATTERNS = [(a, b) for a, b in combinations(range(11), 2) if abs(a - b) >= 2]
@@ -738,82 +739,58 @@ def stage_region_map() -> int:
 
     # ---- the partition is *found*, not assumed: exact cover over the trigger sets -------
     covers = exact_covers(nonempty)
-    stars = answer_cells()
-    star_lin = {r * 11 + c for r, c in stars}
-    cap2 = capacity2_cover(covers, nonempty, star_lin)
+    eleven = [c for c in covers if len(c) == 11]
     print(f'  exact covers of the 121 cells by trigger sets: {len(covers)} (the trivial covers, where '
           f'one flop fires everywhere, included)')
-    print(f'  covers with 11 classes holding exactly two answer stars each: {len(cap2)}')
+    print(f'  covers with exactly eleven classes: {len(eleven)}')
     # A column: cell index is r*11 + c, so a fixed c with r running (the first version of this had the
     # two swapped, which made it rows and mislabelled the column cover as a new candidate).
     for cov in covers:
         sizes = sorted(len(nonempty[n]) for n in cov)
         same_as_columns = is_columns_cover([nonempty[n] for n in cov])
         print(f'    {len(cov):2d} classes, sizes {sizes}'
-              f'{"   <-- capacity-2 reading" if cov in cap2 else ""}'
+              f'{"   <-- eleven-class cover" if cov in eleven else ""}'
               f'{" = the eleven columns (the visible rule itself)" if same_as_columns else ""}')
 
-    # ---- controls: how much is each candidate worth? ------------------------------------
-    # The controls are measured *against C5's rejection set*, so that artifact is an input here, not
-    # an optional extra. E4's cold run caught the earlier version skipping it silently when the file
-    # was absent (C4 runs before C5 in the table): the artifact then regenerated without these fields
-    # and was not byte-reproducible. Missing input is now an error that names the command to run.
-    if not OUT_C5.exists():
-        raise SystemExit(f'missing {OUT_C5.relative_to(ROOT).as_posix()} -- C4 s controls are measured '
-                         f'against the rejected boards, so run: python -m tools.puzzle rejections')
-    c5 = json.loads(OUT_C5.read_text(encoding='utf-8'))
-    candidates = []
-    for idx, cov in enumerate(cap2):
+    # ---- selection: the eleven-class cover under which the visible rules have exactly one
+    #      solution. No read of the published answer anywhere in this search (review R1/R5/R8) --
+    candidates, selected = [], []
+    for idx, cov in enumerate(eleven):
         cls = [nonempty[n] for n in cov]
+        u = uniqueness(class_of_grid(cls))
         is_columns = is_columns_cover(cls)
-        entry = {
-            'name': 'columns' if is_columns else f'irregular_{idx}',
-            'flops': sorted(cov),
-            'class_sizes': sorted(len(s) for s in cls),
-            'classes': {n: sorted(nonempty[n]) for n in sorted(cov)},
-            'is_the_visible_column_rule': is_columns,
-        }
-        got, nodes = count_solutions(class_of_grid(cls))
-        entry['unique_solution'] = {'solutions': got, 'nodes': nodes, 'cap': 2}
+        entry = {'name': 'columns' if is_columns else f'irregular_{idx}', 'flops': sorted(cov),
+                 'class_sizes': sorted(len(s) for s in cls),
+                 'classes': {n: sorted(nonempty[n]) for n in sorted(cov)},
+                 'is_the_visible_column_rule': is_columns,
+                 'unique_solution': {'solutions': u['solutions'], 'nodes': u['nodes'],
+                                     'complete': u['complete'], 'cap': 2}}
         print(f'\n  candidate {entry["name"]}: class sizes {entry["class_sizes"]}; '
               f'the visible column rule itself? {is_columns}')
-        print(f'    + two per row + two per column + no adjacency -> {got} solution(s) '
-              f'({nodes} nodes){"" if got > 1 else " -- the accepted board is the only one"}')
-        if c5:
-            boards = [set(map(tuple, b['cells'])) for b in c5['boards']]
-            # (a) the rejection test: does "no class over 2" separate this partition from a
-            #     look-alike? If most look-alikes also reject every board, the design's own
-            #     rejections carry almost no information about which partition is the real one.
-            rng = random.Random(1)
-            trials, pass_all = 200, 0
-            for _ in range(trials):
-                look = same_shape_partitions(rng, entry['class_sizes'], stars)
-                ok = True
-                for b in boards:
-                    load = [0] * 11
-                    for cell in b:
-                        load[look[cell[0] * 11 + cell[1]]] += 1
-                    if max(load) <= 2:
-                        ok = False
-                        break
-                pass_all += 1 if ok else 0
-            entry['rejection_test'] = {
-                'boards': len(boards), 'lookalikes_tested': trials,
-                'lookalikes_that_also_reject_every_board': pass_all,
-                'discriminating_power': None if not trials else 1 - pass_all / trials}
-            print(f'    rejection test: {pass_all} of {trials} same-shape look-alikes also reject '
-                  f'all {len(boards)} boards, so the test discriminates '
-                  f'{100 * (1 - pass_all / trials):.0f}% of the time')
-            # (b) is "exactly one solution" generic?
-            rng = random.Random(20260913)
-            trials_b, n_unique = 6, 0
-            for _ in range(trials_b):
-                look = same_shape_partitions(rng, entry['class_sizes'], stars)
-                n_unique += 1 if uniqueness(look)['unique'] else 0
-            entry['lookalike_uniqueness'] = {'tested': trials_b, 'also_unique': n_unique}
-            print(f'    uniqueness test: {n_unique} of {trials_b} same-shape look-alikes also have '
-                  f'exactly one solution')
+        print(f'    + two per row + two per column + no adjacency -> {u["solutions"]} solution(s) '
+              f'({u["nodes"]} nodes, complete={u["complete"]})'
+              f'{" -- the only board a finished search found" if u["unique"] else ""}')
+        if u['unique']:
+            selected.append((entry, u['board']))
         candidates.append(entry)
+    if len(selected) != 1:
+        raise SystemExit(f'{len(selected)} eleven-class covers have exactly one solution; '
+                         'the hidden constraint is not determined -- reported, not guessed')
+    chosen, board = selected[0]
+    stars = set(board)
+    print(f'\n  selected: {chosen["name"]} (the one eleven-class cover with exactly one solution)')
+
+    # ---- control: is "exactly one solution" generic, or does this partition earn it? ----
+    # Same-shape random partitions, anchored at the *derived* board's own 22 cells -- not the
+    # published answer (review R1/R8) -- so this is a property of the selection, not of the contract.
+    rng = random.Random(20260913)
+    trials_b, n_unique = 6, 0
+    for _ in range(trials_b):
+        look = same_shape_partitions(rng, chosen['class_sizes'], stars)
+        n_unique += 1 if uniqueness(look)['unique'] else 0
+    chosen['lookalike_uniqueness'] = {'tested': trials_b, 'also_unique': n_unique, 'seed': 20260913}
+    print(f'    uniqueness test: {n_unique} of {trials_b} same-shape look-alikes also have '
+          f'exactly one solution')
 
     # ---- for scale: what the visible rules alone leave open ------------------------------
     mech, mech_nodes = count_solutions(None, cap=1000, node_budget=2_000_000)
@@ -829,13 +806,15 @@ def stage_region_map() -> int:
                           'against example_inputs.vcd by check_stepC4.py on every run',
             'sweep': 'one star at each of the 121 positions; the flops that end high are recorded, '
                      'so a trigger set is a measurement, not a hypothesis',
-            'partition': 'found as an exact cover of the 121 cells by those trigger sets, with the '
-                         'capacity-2 covers (11 classes, two answer stars each) selected from it',
-            'what_it_is_not': 'a proven map. Two capacity-2 covers fall out and neither is picked '
-                              'here: one of them is the visible column rule and adds nothing, the '
-                              'other does pin the accepted board, and the controls measure how weak '
-                              'that is as evidence. C4 R9-R18 remain the record of what was searched '
-                              'and not found (no per-cell decode, no per-region counter)',
+            'partition': 'found as an exact cover of the 121 cells by those trigger sets; every '
+                         'eleven-class cover is tested for exactly one solution under the visible '
+                         'rules, and the one that has exactly one is selected -- the published '
+                         'answer plays no part in the search',
+            'what_it_is_not': 'a proven map. Two eleven-class covers fall out and only one is '
+                              'selected: the other is the visible column rule and has many '
+                              'solutions, so it adds no constraint. C4 R9-R18 remain the record of '
+                              'what was searched and not found (no per-cell decode, no per-region '
+                              'counter)',
         },
         'window_cycles': C4_CYCLES,
         'flops_with_a_trigger_set': len(nonempty),
@@ -843,8 +822,12 @@ def stage_region_map() -> int:
         'exact_covers': [{'classes': len(c), 'sizes': sorted(len(nonempty[n]) for n in c),
                           'is_the_eleven_columns': is_columns_cover([nonempty[n] for n in c]),
                           'flops': sorted(c)} for c in covers],
-        'capacity2_cover_count': len(cap2),
+        'eleven_class_cover_count': len(eleven),
         'candidates': candidates,
+        'selected': chosen['name'],
+        'selection_rule': 'the one eleven-class exact cover of the trigger sets under which two per '
+                          'row, two per column, no adjacency and at most two per class have exactly '
+                          'one solution',
         'visible_rules_only': {'solutions_seen': mech, 'nodes': mech_nodes, 'cap': 1000,
                                'lower_bound_only': True},
     }
@@ -858,11 +841,12 @@ def stage_rejections() -> int:
     """C5: boards that satisfy every visible rule and are rejected anyway."""
     m = Machine(cycles=MESSAGE_CYCLES)
     boards = two_switch_boards(40)
-    print(f'generated {len(boards)} boards by two-switches from the winning pattern')
-    # The generator can in principle return the winning pattern or a pattern with adjacency; such a
-    # board would say nothing, so it is counted and reported rather than quietly included.
-    usable = [b for b in boards if b['all_ok'] and set(map(tuple, b['cells'])) != answer_cells()]
-    print(f'  usable (all visible rules, distinct from the winning pattern): {len(usable)}')
+    print(f'generated {len(boards)} boards by two-switches from the derived board')
+    # The generator can in principle return the derived board itself or a pattern with adjacency; such
+    # a board would say nothing, so it is counted and reported rather than quietly included.
+    stars = derived_board()
+    usable = [b for b in boards if b['all_ok'] and set(map(tuple, b['cells'])) != stars]
+    print(f'  usable (all visible rules, distinct from the derived board): {len(usable)}')
     accepted = 0
     for b in usable:
         r = m.message(pattern_from_cells(b['cells']))
@@ -880,10 +864,36 @@ def stage_rejections() -> int:
     print(f'  instrument on the reference waveform: {replay["output_comparisons"]} comparisons, '
           f'{replay["mismatches"]} mismatches, {replay["unknown_bits"]} unknown bits')
 
+    # ---- control A: does the design's own rejection set separate the partition from a
+    #      look-alike? Moved here from C4 (review R1/R5/R8): this stage owns the rejected boards,
+    #      so the control measured against them belongs with it. --------------------------------
+    _, src = region_partition()
+    board_cells = [set(map(tuple, b['cells'])) for b in usable]
+    rng = random.Random(1)
+    trials, pass_all = 200, 0
+    for _ in range(trials):
+        look = same_shape_partitions(rng, src['class_sizes'], stars)
+        ok = True
+        for b in board_cells:
+            load = [0] * 11
+            for cell in b:
+                load[look[cell[0] * 11 + cell[1]]] += 1
+            if max(load) <= 2:
+                ok = False
+                break
+        pass_all += 1 if ok else 0
+    rejection_test = {
+        'boards': len(board_cells), 'lookalikes_tested': trials,
+        'lookalikes_that_also_reject_every_board': pass_all,
+        'discriminating_power': None if not trials else 1 - pass_all / trials}
+    print(f'  rejection test: {pass_all} of {trials} same-shape look-alikes also reject '
+          f'all {len(board_cells)} boards, so the test discriminates '
+          f'{100 * (1 - pass_all / trials):.0f}% of the time')
+
     report = {
         'generated_by': 'tools/puzzle/verdict.py::stage_rejections',
         'method': {
-            'boards': 'random 2-switches away from the winning pattern (two rows exchange their '
+            'boards': 'random 2-switches away from the derived board (two rows exchange their '
                       'columns, which preserves the row and column counts by construction), keeping '
                       'only moves that leave the pattern adjacency-free -- so every board satisfies '
                       '22 ones, two per row, two per column and no 8-neighbour adjacency',
@@ -891,6 +901,10 @@ def stage_rejections() -> int:
                         'is interpreted',
             'instrument': 'tools/puzzle/verdict.py, re-validated against example_inputs.vcd on '
                           'every gate run',
+            'rejection_test': 'does "no class over 2" separate C4 s partition from a same-shape '
+                              'look-alike? If most look-alikes also reject every one of these boards, '
+                              'the design s rejections carry almost no information about which '
+                              'partition is the real one',
         },
         'window_cycles': MESSAGE_CYCLES,
         'boards': usable,
@@ -898,6 +912,7 @@ def stage_rejections() -> int:
         'accepted': accepted,
         'rejected': len(usable) - accepted,
         'reference_replay': replay,
+        'rejection_test': rejection_test,
     }
     OUT_C5.parent.mkdir(parents=True, exist_ok=True)
     OUT_C5.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8', newline='\n')
@@ -920,16 +935,18 @@ def adjacent_vector() -> str:
 
 
 def other_wrong_vector() -> str:
-    """The winning grid with one star moved: still 22 ones, but no longer two per row."""
-    cells = [(r, c) for r in range(11) for c in range(11) if T.GRID[r][c] == '*']
+    """The derived board with one star moved one column right in its row: 22 ones and two per row
+    still, but two columns break and an adjacent pair appears (review R6: the old docstring said
+    "no longer two per row", which was never what this builds)."""
+    cells = sorted(derived_board())
     cells[0] = (cells[0][0], (cells[0][1] + 1) % 11)
     return ''.join('1' if (r, c) in set(cells) else '0' for r in range(11) for c in range(11))
 
 
 def stage_winning() -> int:
-    """E1: drive the netlist with the winning vector, and with each class of wrong input."""
+    """E1: drive the netlist with the derived vector, and with each class of wrong input."""
     m = Machine(cycles=MESSAGE_CYCLES)
-    winning = [int(b) for b in T.FEED_ORDER]
+    winning = [int(b) for b in derived_feed()]
 
     print('offset   success cycle   message                       ones fed in window')
     offsets = []
@@ -954,7 +971,7 @@ def stage_winning() -> int:
         ('all_ones', '1' * 121, 'BIG BANG'),
         ('two_per_row_col_but_adjacent', adjacent_vector(), 'TWO NOT TOUCH'),
         ('other_wrong', other_wrong_vector(), 'TRY AGAIN'),
-        ('correct', T.FEED_ORDER, '(* TWO STARS *)'),
+        ('correct', derived_feed(), '(* TWO STARS *)'),
     ]
     print(f'\n{"case":<30} {"ones":>4}  {"expected":<16} {"got":<16} {"success":>7}  cycles')
     results = []

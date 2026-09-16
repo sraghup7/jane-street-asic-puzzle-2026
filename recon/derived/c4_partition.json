@@ -3,8 +3,8 @@
   "method": {
     "instrument": "the simulation-free evaluator of tools/puzzle/verdict.py, validated against example_inputs.vcd by check_stepC4.py on every run",
     "sweep": "one star at each of the 121 positions; the flops that end high are recorded, so a trigger set is a measurement, not a hypothesis",
-    "partition": "found as an exact cover of the 121 cells by those trigger sets, with the capacity-2 covers (11 classes, two answer stars each) selected from it",
-    "what_it_is_not": "a proven map. Two capacity-2 covers fall out and neither is picked here: one of them is the visible column rule and adds nothing, the other does pin the accepted board, and the controls measure how weak that is as evidence. C4 R9-R18 remain the record of what was searched and not found (no per-cell decode, no per-region counter)"
+    "partition": "found as an exact cover of the 121 cells by those trigger sets; every eleven-class cover is tested for exactly one solution under the visible rules, and the one that has exactly one is selected -- the published answer plays no part in the search",
+    "what_it_is_not": "a proven map. Two eleven-class covers fall out and only one is selected: the other is the visible column rule and has many solutions, so it adds no constraint. C4 R9-R18 remain the record of what was searched and not found (no per-cell decode, no per-region counter)"
   },
   "window_cycles": 126,
   "flops_with_a_trigger_set": 47,
@@ -1561,7 +1561,7 @@
       ]
     }
   ],
-  "capacity2_cover_count": 2,
+  "eleven_class_cover_count": 2,
   "candidates": [
     {
       "name": "irregular_0",
@@ -1740,17 +1740,13 @@
       "unique_solution": {
         "solutions": 1,
         "nodes": 715877,
+        "complete": true,
         "cap": 2
-      },
-      "rejection_test": {
-        "boards": 39,
-        "lookalikes_tested": 200,
-        "lookalikes_that_also_reject_every_board": 188,
-        "discriminating_power": 0.06000000000000005
       },
       "lookalike_uniqueness": {
         "tested": 6,
-        "also_unique": 0
+        "also_unique": 0,
+        "seed": 20260913
       }
     },
     {
@@ -1930,20 +1926,13 @@
       "unique_solution": {
         "solutions": 2,
         "nodes": 1289,
+        "complete": true,
         "cap": 2
-      },
-      "rejection_test": {
-        "boards": 39,
-        "lookalikes_tested": 200,
-        "lookalikes_that_also_reject_every_board": 179,
-        "discriminating_power": 0.10499999999999998
-      },
-      "lookalike_uniqueness": {
-        "tested": 6,
-        "also_unique": 0
       }
     }
   ],
+  "selected": "irregular_0",
+  "selection_rule": "the one eleven-class exact cover of the trigger sets under which two per row, two per column, no adjacency and at most two per class have exactly one solution",
   "visible_rules_only": {
     "solutions_seen": 1000,
     "nodes": 30552,

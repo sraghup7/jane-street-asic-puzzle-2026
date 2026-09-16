@@ -40,7 +40,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from tools import target as T
 from tools.puzzle import verdict as V
 
 OUT = ROOT / 'recon' / 'derived' / 'e2_messages.json'
@@ -60,7 +59,7 @@ def swap_family(class_of: list[int], n_classes: int) -> dict:
     below is small, gets to the interesting boards immediately, and every member is checked against
     all five constraints before it is fed to the chip.
     """
-    base = {(r, c) for r, c in V.answer_cells()}
+    base = {(r, c) for r, c in V.derived_board()}
     by_row: dict[int, list[int]] = {}
     for r, c in base:
         by_row.setdefault(r, []).append(c)
@@ -184,7 +183,7 @@ def stage_confirm() -> int:
     #   E1's hand-built adjacent vector         -> TRY AGAIN        (same, built before the map existed)
     # If TWO NOT TOUCH appears only for boards whose only fault is adjacency, then the chip is
     # distinguishing exactly the cases the partition defines.
-    acc = m.message([int(b) for b in T.FEED_ORDER])
+    acc = m.message([int(b) for b in V.derived_feed()])
     viol = []
     for k, e in enumerate(fam['violating'][:8]):
         reading = ask(m, e['grid'])
@@ -208,7 +207,7 @@ def stage_confirm() -> int:
         'all_zeros': '0' * 121,
         'all_ones': '1' * 121,
         'other_wrong': V.other_wrong_vector(),
-        'correct': T.FEED_ORDER,
+        'correct': V.derived_feed(),
     }
     class_msgs = {}
     for name, feed in cases.items():

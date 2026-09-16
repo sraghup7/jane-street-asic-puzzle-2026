@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/puzzle/solve.py::stage_solve",
   "source": {
-    "recon/derived/c4_partition.json": "9e137e973636040abcaa4394f1a911174eb55d8cd319515b528307bd6694e5e9",
+    "recon/derived/c4_partition.json": "221360ef098c4a9263136772a663819a1116c206abe1f27a9e675985dd5d47d4",
     "tools/target.py": "aeba3a4df1eb6c937de315bbd274ffe826295572fc9ba076285349c9958634a2"
   },
   "method": {

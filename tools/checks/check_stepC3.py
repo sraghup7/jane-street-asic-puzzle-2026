@@ -30,7 +30,7 @@ sys.path.insert(0, str(ROOT))
 
 from tools.puzzle import analyse as A
 from tools.puzzle import simulate as S
-from tools import target as T
+from tools.puzzle import verdict as V
 
 REPORT = ROOT / 'recon' / 'derived' / 'blocks.json'
 PUZZLE = ROOT / 'build' / 'puzzle.v'
@@ -167,7 +167,7 @@ def main() -> int:
     check('the artifact records signatures for every flop',
           len(art['signatures']) == 92, f'{len(art["signatures"])} entries')
     check('the winning feed actually contains 22 stars',
-          T.FEED_ORDER.count('1') == 22, f'{T.FEED_ORDER.count("1")}')
+          V.derived_feed().count('1') == 22, f'{V.derived_feed().count("1")}')
 
     failed = [c for c in checks if not c['passed']]
     width = max(len(c['check']) for c in checks)

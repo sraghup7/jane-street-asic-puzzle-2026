@@ -163,7 +163,7 @@ def main() -> int:
           == e2['control_group']['boards_not_spelling_it'],
           "the 126, the message, and the E2 board counts are the artifacts' own")
     check('the matrix quotes the partition artifact faithfully',
-          rows['AC6']['evidence']['capacity2_covers_found'] == c4['capacity2_cover_count']
+          rows['AC6']['evidence']['capacity2_covers_found'] == c4['eleven_class_cover_count']
           and rows['AC6']['evidence']['non_column_candidate'] == ragged[0]['name']
           and rows['AC6']['evidence']['boards_supporting_it'] == e2['boards_spelling_the_message']
           and rows['AC6']['evidence']['control_boards_against_it']

@@ -41,7 +41,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from tools.puzzle import simulate as S
-from tools import target as T
+from tools.puzzle import verdict as V
 
 PUZZLE = ROOT / 'build' / 'puzzle.v'
 CELLS = ROOT / 'build' / 'cells.v'
@@ -91,7 +91,7 @@ def emit(stimulus: str, flops: list[dict], path: Path) -> dict:
     events = [(t, n, S._normalise(v, 1)) for n in ('rst_n', 'enable')
               for t, v in ref_data['ref']['changes'][n]]
     if stimulus == 'winning':
-        for k, bit in enumerate(T.FEED_ORDER):
+        for k, bit in enumerate(V.derived_feed()):
             events.append((10000 * (WIN_FEED_OFFSET + k), 'I', bit))
     else:
         events += [(t, 'I', S._normalise(v, 1)) for t, v in ref_data['ref']['changes']['I']]

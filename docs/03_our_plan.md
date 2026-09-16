@@ -1213,6 +1213,28 @@ only its owner — `stepF6` for both net806 mutations, `stepE4` for the report o
 
 ---
 
+**G1 — The answer is derived without the published answer, made mechanical.** *(Added 2026-09-15, in
+the post-review fix pass tracked by `docs/05_review_fixes_plan.md`.)*
+*Goal:* the review (R1, R5, R8) found that C4's map selection and several boards downstream of it read
+`tools/target.py`'s published grid as an input, while the README called it "a yardstick only". C4 now
+selects its map by uniqueness alone, and D, C5, C3, E1 and E2 build every board from D's own derived
+solution — but a claim like that is only as good as the check behind it, so G1 makes it a gate rather
+than a description.
+*Method:* `tools/checks/check_stepG1.py` sets `target.GRID`, `target.FEED_ORDER` and
+`target.WITNESS_AS_PRINTED` to `None`, then re-runs `region-map`, `rejections`, `winning` and
+`confirm` in isolation (via `tools/checks/_regen.py`, so the working tree is never touched) and
+requires each to still exit 0 and reproduce its committed artifact byte-for-byte. A stage that
+secretly depended on the answer would raise (reading a `None` attribute) or produce different bytes;
+either way the gate fails.
+*Artifact:* no artifact of its own -- G1 re-derives the four artifacts the stages above already own
+and compares bytes. It is excluded from `fault_inject.py`'s default grid (its own runtime, re-running
+two of the more expensive stages, is comparable to one mutation's).
+***Verify:*** `python -m tools.puzzle reproduce` regenerates normally (G1 changes no stage's normal
+behaviour, only the gate's own re-invocation of it); `tools/checks/check_stepG1.py` passes; the full
+suite is green.
+
+---
+
 **Step 6 — the writeup — is planned separately, as `docs/04_blog_plan.md`** (AGENTS.md step 6, and the
 plan's own §11 was written so the post cannot drift into overreach). That document holds the locked
 decisions — venue and URL, how the post relates to the published writeup, which negatives are published,

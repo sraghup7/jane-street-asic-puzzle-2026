@@ -31,7 +31,7 @@ UPSTREAM_DIRNAME = 'asic-puzzle-2026'
 
 # NB: re.MULTILINE is essential here -- without it `^` only matches at position 0 and
 # the "unique IDs" check degenerates into a single match that trivially passes.
-STEP_RE = re.compile(r'^\*\*((?:S\d+\.\d+)|(?:[A-F]\d+(?:\.\d+)?)) — ', re.M)
+STEP_RE = re.compile(r'^\*\*((?:S\d+\.\d+)|(?:[A-G]\d+(?:\.\d+)?)) — ', re.M)
 DELTA_RE = re.compile(r'^\| \*\*Δ(\d)\*\* \|(.*)$', re.M)
 
 # The five prohibited method families, as canonical keywords. Both Step 2 and Step 3

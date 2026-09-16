@@ -46,26 +46,26 @@ STAGES: list[tuple[str, str, str, str]] = [
     ('model-power',       'power',      'C1', 'how much a wrong cell model would show up in C1'),
     ('warmup-equiv',      'equiv',      'C2', 'validate our cell models on the warmup adder'),
     ('warmup-power',      'power',      'C2', 'how much a wrong cell model would show up in C2'),
+    # --- Phase C-E: the answer, derived without the answer -------------------------
+    # Dataflow order, not plan order. C4 selects the map by uniqueness alone -- no read of the
+    # published answer. D then derives the board from that map: everything after this point (C5's
+    # rejected boards, C3's decomposition labels, E1's winning-vector replay, E2's wrong-input
+    # messages) is built from *our derived board*, not the contract. C5 also owns the rejection
+    # control (moved here from C4, review R1/R5/R8): it is the stage that holds the rejected
+    # boards, so the control that is measured against them belongs with it.
+    ('region-map',        'verdict',    'C4', 'find the partition the eleven latches form, and select it by uniqueness'),
+    ('solve',             'solve',      'D1', 'our own solver over the five constraints (runs all of D)'),
+    ('uniqueness',        'solve',      'D2', 'two independent enumerations, run to completion'),
+    ('load-bearing',      'solve',      'D3', 'the exact count without the region constraint'),
+    ('answer',            'solve',      'D4', 'the vector in both bit orders, against the contract'),
+    ('rejections',        'verdict',    'C5', 'boards that satisfy every visible rule and are rejected, with the rejection control'),
     ('decompose',         'analyse',    'C3', 'label the counters, shift register, comparator, ROM'),
-    # --- Phase C: what the chip computes, and what it refuses ---------------------
-    # Order is dataflow, not narrative: C4's controls are measured against C5's rejection set, so the
-    # rejected boards are generated first. (The plan's *steps* still read C4 then C5; this table is
-    # the pipeline.) E4's cold run is what exposed the dependency.
-    ('rejections',        'verdict',    'C5', 'boards that satisfy every visible rule and are rejected'),
-    ('region-map',        'verdict',    'C4', 'find the partition the eleven latches form, with its controls'),
-    ('winning',           'verdict',    'E1', 'the winning vector driven through the netlist'),
+    ('winning',           'verdict',    'E1', 'the derived vector driven through the netlist'),
     ('confirm',           'confirm',    'E2', 'the wrong-input messages, with the region map in hand'),
     # --- Phase F: the chip's one undriven net, as a stage (F6, 2026-09-13) ---------
     # It reads E2's artifact, so it sits after `confirm`; `acceptance` must stay last (E4's gate
     # asserts the acceptance stage closes the plan), which is why an F step is registered here.
-    ('net806',            'net806',     'F6', 'the one undriven net: geometry, three refutations, the tie'),
-    # --- Phase D: solve -----------------------------------------------------------
-    # One computation, four plan steps: each stage name runs the whole D phase and prints its
-    # section. Kept as four entries so the stage table still lines up with the plan.
-    ('solve',             'solve',      'D1', 'our own solver over the five constraints (runs all of D)'),
-    ('uniqueness',        'solve',      'D2', 'two independent enumerations, run to completion'),
-    ('load-bearing',      'solve',      'D3', 'the bounded count without the region constraint'),
-    ('answer',            'solve',      'D4', 'the vector in both bit orders, against the contract'),
+    ('net806',            'net806',     'F6', 'the one undriven net: geometry, refutations, and nearby signals'),
     # --- Phase E: confirm ---------------------------------------------------------
     ('acceptance',        'accept',     'E3', 'assert AC1-AC6 against tools/target.py'),
     ('reproduce',         'repro',      'E4', 'full pipeline from clean in one command'),

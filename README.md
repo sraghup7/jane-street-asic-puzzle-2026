@@ -60,7 +60,7 @@ python -m venv .venv
 ./.venv/Scripts/python.exe -m tools.puzzle reproduce --check    # prerequisites
 ./.venv/Scripts/python.exe -m tools.puzzle reproduce --plan     # the 30 pipeline stages, in order
 ./.venv/Scripts/python.exe -m tools.puzzle reproduce --cold     # rebuild everything from scratch
-./.venv/Scripts/python.exe tools/checks/run_all.py              # all 33 gates
+./.venv/Scripts/python.exe tools/checks/run_all.py              # all 34 gates
 ```
 
 ### The full claim: `reproduce --cold`

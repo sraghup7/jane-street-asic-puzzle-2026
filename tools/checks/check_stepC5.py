@@ -22,13 +22,13 @@ What this gate holds in place:
 from __future__ import annotations
 
 import json
+import random
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from tools import target as T
 from tools.puzzle import verdict as V
 
 ART_C5 = ROOT / 'recon' / 'derived' / 'c5_rejections.json'
@@ -62,15 +62,16 @@ def main() -> int:
           f"{rep['cycles']} cycles")
 
     # ---- the boards, regenerated -----------------------------------------------------
+    board = V.derived_board()
     boards = [b for b in V.two_switch_boards(40)
-              if b['all_ok'] and set(map(tuple, b['cells'])) != V.answer_cells()]
+              if b['all_ok'] and set(map(tuple, b['cells'])) != board]
     check(f'at least {MIN_BOARDS} boards satisfying every visible rule were generated',
           len(boards) >= MIN_BOARDS, f'{len(boards)} boards')
     check('every board satisfies 22 ones, two per row, two per column, no adjacency',
           all(V.visible_rules(b['cells'])['all_ok'] for b in boards),
           'so a rejection cannot be explained by a visible rule')
-    check('no board is the winning pattern',
-          all(set(map(tuple, b['cells'])) != V.answer_cells() for b in boards),
+    check('no board is the derived board',
+          all(set(map(tuple, b['cells'])) != board for b in boards),
           f'{len(boards)} distinct')
 
     # ---- the claim: the design rejects every one of them -----------------------------
@@ -83,9 +84,9 @@ def main() -> int:
             else 0
     check('the design accepts none of them, and says so on its own output stream',
           accepted == 0, f'{accepted} of {len(boards)} accepted')
-    check('the answer is the reference point: the winning pattern is still accepted',
-          m.message([int(b) for b in T.FEED_ORDER])['text'] == '(* TWO STARS *)',
-          'the winning vector answers (* TWO STARS *)')
+    check('the derived board is the reference point: it is still accepted',
+          m.message([int(b) for b in V.derived_feed()])['text'] == '(* TWO STARS *)',
+          'the derived vector answers (* TWO STARS *)')
     check('the rejections are the generic message, not an adjacency complaint',
           all(v == 'TRY AGAIN' for v in messages.values()),
           f"{sorted(set(messages.values()))}")
@@ -111,12 +112,35 @@ def main() -> int:
           f"artifact {art['reference_replay']['mismatches']}/"
           f"{art['reference_replay']['unknown_bits']} vs live {rep['mismatches']}/{rep['unknown_bits']}")
 
-    # ---- the scope of the claim ------------------------------------------------------
+    # ---- the scope of the claim: control A, moved here from C4 (review R1/R5/R8) -----
+    # This stage owns the rejected boards, so the control measured against them belongs with it: does
+    # "no class over 2" separate C4's partition from a same-shape look-alike? If most look-alikes also
+    # reject every one of these boards, the rejections carry almost no information about the map.
     ragged = [c for c in c4['candidates'] if not c['is_the_visible_column_rule']]
-    power = (ragged[0].get('rejection_test') or {}).get('discriminating_power') if ragged else None
-    check('the rejection test is recorded as weak evidence about the map, and it is',
-          power is not None and power <= MAX_POWER,
-          f'{power:.3f}' if isinstance(power, float) else str(power))
+    rt = art.get('rejection_test') or {}
+    power = rt.get('discriminating_power')
+    check('control A: the rejection test has weak discriminating power (recorded)',
+          rt.get('lookalikes_tested') == 200 and power is not None and power <= MAX_POWER,
+          f"{rt.get('lookalikes_that_also_reject_every_board')} of {rt.get('lookalikes_tested')} "
+          f"look-alikes also reject every board (power {power!r})")
+    # ... and the recording is checked, not trusted: 200 look-alike partitions of the same shape,
+    # each asked whether it also rejects all these boards. Cheap (170k cell tests), so re-derived live.
+    board_cells = [set(map(tuple, b['cells'])) for b in boards]
+    rng_a, trials_a, pass_a = random.Random(1), 200, 0
+    for _ in range(trials_a):
+        look = V.same_shape_partitions(rng_a, ragged[0]['class_sizes'], board)
+        ok = True
+        for b in board_cells:
+            load = [0] * 11
+            for cell in b:
+                load[look[cell[0] * 11 + cell[1]]] += 1
+            if max(load) <= 2:
+                ok = False
+                break
+        pass_a += 1 if ok else 0
+    check('control A re-derived live matches the artifact',
+          pass_a == rt.get('lookalikes_that_also_reject_every_board'),
+          f"live {pass_a} vs artifact {rt.get('lookalikes_that_also_reject_every_board')}")
 
     # ---- anti-vacuity floors ---------------------------------------------------------
     check('floors: boards, comparisons and message bytes',

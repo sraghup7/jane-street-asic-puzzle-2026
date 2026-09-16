@@ -1,9 +1,10 @@
 {
   "generated_by": "tools/puzzle/verdict.py::stage_rejections",
   "method": {
-    "boards": "random 2-switches away from the winning pattern (two rows exchange their columns, which preserves the row and column counts by construction), keeping only moves that leave the pattern adjacency-free -- so every board satisfies 22 ones, two per row, two per column and no 8-neighbour adjacency",
+    "boards": "random 2-switches away from the derived board (two rows exchange their columns, which preserves the row and column counts by construction), keeping only moves that leave the pattern adjacency-free -- so every board satisfies 22 ones, two per row, two per column and no 8-neighbour adjacency",
     "decision": "the design is asked and its own message is read off O; no internal signal is interpreted",
-    "instrument": "tools/puzzle/verdict.py, re-validated against example_inputs.vcd on every gate run"
+    "instrument": "tools/puzzle/verdict.py, re-validated against example_inputs.vcd on every gate run",
+    "rejection_test": "does \"no class over 2\" separate C4 s partition from a same-shape look-alike? If most look-alikes also reject every one of these boards, the design s rejections carry almost no information about which partition is the real one"
   },
   "window_cycles": 140,
   "boards": [
@@ -4112,5 +4113,11 @@
     "mismatches": 0,
     "unknown_bits": 0,
     "first_mismatch": null
+  },
+  "rejection_test": {
+    "boards": 39,
+    "lookalikes_tested": 200,
+    "lookalikes_that_also_reject_every_board": 188,
+    "discriminating_power": 0.06000000000000005
   }
 }

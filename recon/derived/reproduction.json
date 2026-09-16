@@ -126,39 +126,9 @@
       "exit_code": 0
     },
     {
-      "stage": "decompose",
-      "module": "analyse",
-      "step": "C3",
-      "exit_code": 0
-    },
-    {
-      "stage": "rejections",
-      "module": "verdict",
-      "step": "C5",
-      "exit_code": 0
-    },
-    {
       "stage": "region-map",
       "module": "verdict",
       "step": "C4",
-      "exit_code": 0
-    },
-    {
-      "stage": "winning",
-      "module": "verdict",
-      "step": "E1",
-      "exit_code": 0
-    },
-    {
-      "stage": "confirm",
-      "module": "confirm",
-      "step": "E2",
-      "exit_code": 0
-    },
-    {
-      "stage": "net806",
-      "module": "net806",
-      "step": "F6",
       "exit_code": 0
     },
     {
@@ -183,6 +153,36 @@
       "stage": "answer",
       "module": "solve",
       "step": "D4",
+      "exit_code": 0
+    },
+    {
+      "stage": "rejections",
+      "module": "verdict",
+      "step": "C5",
+      "exit_code": 0
+    },
+    {
+      "stage": "decompose",
+      "module": "analyse",
+      "step": "C3",
+      "exit_code": 0
+    },
+    {
+      "stage": "winning",
+      "module": "verdict",
+      "step": "E1",
+      "exit_code": 0
+    },
+    {
+      "stage": "confirm",
+      "module": "confirm",
+      "step": "E2",
+      "exit_code": 0
+    },
+    {
+      "stage": "net806",
+      "module": "net806",
+      "step": "F6",
       "exit_code": 0
     },
     {

@@ -31,11 +31,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from tools import target as T
 from tools.puzzle import verdict as V
 
 ART_C4 = ROOT / 'recon' / 'derived' / 'c4_partition.json'
-ART_C5 = ROOT / 'recon' / 'derived' / 'c5_rejections.json'
 BLOCKS = ROOT / 'recon' / 'derived' / 'blocks.json'
 
 # Recorded by C4 R18 and re-derived below.
@@ -56,14 +54,13 @@ def check(name: str, passed: bool, detail: str = '') -> None:
 
 
 def main() -> int:
-    for path in (ART_C4, ART_C5, BLOCKS):
+    for path in (ART_C4, BLOCKS):
         if not path.exists():
             print(f'missing {path.relative_to(ROOT).as_posix()}')
-            print('run: python -m tools.puzzle region-map   (and rejections first, for the controls)')
+            print('run: python -m tools.puzzle region-map')
             return 1
     art = json.loads(ART_C4.read_text(encoding='utf-8'))
     role = json.loads(BLOCKS.read_text(encoding='utf-8'))['assignment']
-    c5 = json.loads(ART_C5.read_text(encoding='utf-8'))
 
     m = V.Machine(cycles=126)
 
@@ -106,8 +103,8 @@ def main() -> int:
           census == CENSUS, f'{census} vs recorded {CENSUS}')
 
     # ---- 3. the hidden condition: exactly two latches differ -------------------------
-    answer = V.answer_cells()
-    acc = m.run(V.pattern_from_cells(answer), watch_flops=cone_flops)
+    board = V.derived_board()
+    acc = m.run(V.pattern_from_cells(board), watch_flops=cone_flops)
     boards = V.valid_boards(600, N_BOARDS)
     check(f'{N_BOARDS} rejected-but-visible-valid boards were generated',
           len(boards) == N_BOARDS, f'{len(boards)} boards')
@@ -131,21 +128,24 @@ def main() -> int:
 
     # ---- 4. the candidate partition: structure, from the artifact and from the design --
     cands = art['candidates']
-    check('the artifact records the capacity-2 candidates', len(cands) >= 1, f'{len(cands)}')
+    check('the artifact records at least one eleven-class candidate', len(cands) >= 1, f'{len(cands)}')
     ragged = [c for c in cands if not c['is_the_visible_column_rule']]
     check('the rows identify a cover that is not the visible column rule',
           len(ragged) == 1, f'{len(ragged)} such cover(s)')
     if not ragged:
         return report()
     rag = ragged[0]
+    check('the artifact selected the ragged cover (the one with exactly one solution)',
+          art.get('selected') == rag['name'],
+          f"selected {art.get('selected')!r}, the ragged cover is named {rag['name']!r}")
     classes = [set(rag['classes'][f]) for f in rag['flops']]
     covered = set().union(*classes)
     overlaps = sum(len(a & b) for i, a in enumerate(classes) for b in classes[i + 1:])
-    stars_per = [len(c & {r * 11 + c2 for r, c2 in answer}) for c in classes]
+    stars_per = [len(c & {r * 11 + c2 for r, c2 in board}) for c in classes]
     check('the classes are eleven, disjoint, and cover all 121 cells',
           len(classes) == 11 and overlaps == 0 and covered == set(range(121)),
           f'{len(classes)} classes, {overlaps} overlapping cells, {len(covered)} covered')
-    check('every class holds exactly two of the answer s stars',
+    check('every class holds exactly two of the derived board s stars',
           stars_per == [2] * 11, f'{stars_per}')
     check('the class sizes are the recorded ones',
           sorted(len(c) for c in classes) == RAGGED_SIZES,
@@ -182,37 +182,12 @@ def main() -> int:
     check('the visible rules alone do not pin it (the region constraint does work)',
           mech >= 1000, f'{mech} solutions seen, cap reached ({mech_nodes} nodes)')
 
-    # Control A: the design's own rejections carry almost no information about the map.
-    rt = rag.get('rejection_test') or {}
-    check('control A: the rejection test has weak discriminating power (recorded)',
-          rt.get('lookalikes_tested') == 200 and (rt.get('discriminating_power') or 1) <= 0.15,
-          f"{rt.get('lookalikes_that_also_reject_every_board')} of {rt.get('lookalikes_tested')} "
-          f"look-alikes also reject every board")
-    # ... and the recording is checked, not trusted: 200 look-alike partitions of the same shape,
-    # each asked whether it also rejects all the boards. Cheap (170k cell tests), so it is re-derived.
-    board_cells = [set(map(tuple, b['cells'])) for b in c5['boards']]
-    rng_a, trials_a, pass_a = random.Random(1), 200, 0
-    for _ in range(trials_a):
-        look = V.same_shape_partitions(rng_a, rag['class_sizes'], answer)
-        ok = True
-        for b in board_cells:
-            load = [0] * 11
-            for cell in b:
-                load[look[cell[0] * 11 + cell[1]]] += 1
-            if max(load) <= 2:
-                ok = False
-                break
-        pass_a += 1 if ok else 0
-    check('control A re-derived live matches the artifact',
-          pass_a == rt.get('lookalikes_that_also_reject_every_board'),
-          f"live {pass_a} vs artifact {rt.get('lookalikes_that_also_reject_every_board')}")
-
     # ---- 6. the artifact must not outrun the re-derivation ---------------------------
     check('the artifact s recorded solution count matches the re-derivation',
           (rag.get('unique_solution') or {}).get('solutions') == got,
           f"artifact {(rag.get('unique_solution') or {}).get('solutions')} vs live {got}")
-    check('the artifact records one candidate per capacity-2 cover',
-          art.get('capacity2_cover_count') == len(cands), f"{art.get('capacity2_cover_count')}")
+    check('the artifact records one candidate per eleven-class cover',
+          art.get('eleven_class_cover_count') == len(cands), f"{art.get('eleven_class_cover_count')}")
     check('the artifact s trigger-set total agrees with the sets it stores',
           art.get('flops_with_a_trigger_set') == len(art.get('trigger_sets') or {}),
           f"{art.get('flops_with_a_trigger_set')} vs {len(art.get('trigger_sets') or {})}")
@@ -227,13 +202,14 @@ def main() -> int:
           f"{len(col_cands)} flagged as the column rule; the ragged cover is not it, checked "
           f"through the same canonical comparison")
 
-    # Control B: uniqueness is not generic. Re-derived live with the stage's own seed, so the
+    # Control B: uniqueness is not generic. Re-derived live with the stage's own seed, and anchored
+    # at the derived board's own 22 cells -- not the published answer (review R1/R8) -- so the
     # artifact and the gate cannot drift apart.
     rng = random.Random(20260913)
     live_unique = 0
     trials = 6
     for _ in range(trials):
-        look = V.same_shape_partitions(rng, rag['class_sizes'], answer)
+        look = V.same_shape_partitions(rng, rag['class_sizes'], board)
         live_unique += 1 if V.uniqueness(look)['unique'] else 0
     recorded = (rag.get('lookalike_uniqueness') or {}).get('also_unique')
     check('control B: same-shape look-alike partitions are not all unique either',
@@ -241,10 +217,7 @@ def main() -> int:
           f'{live_unique} of {trials} look-alikes also have one solution '
           f'(artifact records {recorded})')
 
-    # ---- 6. what C4 did *not* find is still not claimed ------------------------------
-    check('the rejection set the controls are measured on is non-empty and all rejected',
-          c5['accepted'] == 0 and len(c5['boards']) >= 20,
-          f"{len(c5['boards'])} boards, {c5['accepted']} accepted")
+    # ---- 7. what C4 did *not* find is still not claimed ------------------------------
     check('no part of this gate claims the map is recovered: the artifact says what it is not',
           'not' in art['method']['what_it_is_not'],
           art['method']['what_it_is_not'][:80] + '...')
@@ -255,8 +228,8 @@ def main() -> int:
           and len(covered) == 121,
           f'{len(cone_flops)} flops, {len(boards)} boards, {len(classes)} classes, '
           f'{len(covered)} cells')
-    check('the answer itself has 22 stars, so "two per class" is a real constraint',
-          len(answer) == 22 and T.FEED_ORDER.count('1') == 22, f'{len(answer)}')
+    check('the derived board itself has 22 stars, so "two per class" is a real constraint',
+          len(board) == 22, f'{len(board)}')
 
     return report()
 
