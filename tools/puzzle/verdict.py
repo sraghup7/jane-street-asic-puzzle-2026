@@ -279,7 +279,8 @@ class Machine:
             if c is not None and c == 0:
                 q = 1 if s['family'] == 'dfstp' else 0
             nets[s['q']] = q
-        self.nl.comb_eval(nets)
+        if not self.nl.comb_eval(nets):
+            raise RuntimeError('combinational logic did not settle in 300 passes: a loop in the netlist')
         return nets
 
     def run(self, pattern: list[int] | None, watch_nets=(), watch_flops=()):
@@ -595,12 +596,13 @@ def capacity2_cover(covers: list[list[str]], sets: dict[str, set[int]],
 PAIR_PATTERNS = [(a, b) for a, b in combinations(range(11), 2) if abs(a - b) >= 2]
 
 
-def count_solutions(class_of: list[int] | None, cap: int = 2, node_budget: int = 4_000_000):
+def count_solutions(class_of: list[int] | None, cap: int = 2, node_budget: int = 4_000_000,
+                    collect: list | None = None):
     """Boards with two per row, two per column, no adjacency -- optionally at most two per class.
 
     Exhaustive: the answer to "is it unique?" has to come from a finished search, so the count only
     stops early once it has seen `cap` solutions, and a node budget keeps a weak constraint set from
-    running for hours.
+    running for hours. If `collect` is a list, every found solution's row-pair board is appended to it.
     """
     colcnt = [0] * 11
     clscnt = [0] * 11
@@ -615,6 +617,8 @@ def count_solutions(class_of: list[int] | None, cap: int = 2, node_budget: int =
         if r == 11:
             if all(v == 2 for v in colcnt):
                 total += 1
+                if collect is not None:
+                    collect.append(tuple(board))
                 return total >= cap
             return False
         prev = board[r - 1]
@@ -652,6 +656,23 @@ def count_solutions(class_of: list[int] | None, cap: int = 2, node_budget: int =
 
     dfs(0)
     return total, nodes
+
+
+def uniqueness(class_of: list[int] | None, node_budget: int = 4_000_000) -> dict:
+    """Is the solution unique? Only a *finished* search may say yes.
+
+    `count_solutions` stops at its node budget and returns what it has; a budget-stopped search that
+    had found one solution used to be counted as unique (review R5). `complete` is true iff the search
+    either finished inside the budget or found a second solution.
+    """
+    boards: list[tuple] = []
+    total, nodes = count_solutions(class_of, cap=2, node_budget=node_budget, collect=boards)
+    complete = nodes <= node_budget or total >= 2
+    board = None
+    if complete and total == 1:
+        board = sorted((r, c) for r, pair in enumerate(boards[0]) for c in pair)
+    return {'solutions': total, 'nodes': nodes, 'complete': complete,
+            'unique': complete and total == 1, 'board': board}
 
 
 def class_of_grid(sets: list[set[int]]) -> list[int]:
@@ -788,8 +809,7 @@ def stage_region_map() -> int:
             trials_b, n_unique = 6, 0
             for _ in range(trials_b):
                 look = same_shape_partitions(rng, entry['class_sizes'], stars)
-                u, _n = count_solutions(look)
-                n_unique += 1 if u == 1 else 0
+                n_unique += 1 if uniqueness(look)['unique'] else 0
             entry['lookalike_uniqueness'] = {'tested': trials_b, 'also_unique': n_unique}
             print(f'    uniqueness test: {n_unique} of {trials_b} same-shape look-alikes also have '
                   f'exactly one solution')

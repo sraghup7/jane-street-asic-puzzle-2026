@@ -174,6 +174,10 @@ def main() -> int:
     got, nodes = V.count_solutions(co)
     check('the candidate + the visible rules has exactly one solution, the accepted board',
           got == 1, f'{got} solution(s) over {nodes} search nodes')
+    tiny = V.uniqueness(co, node_budget=10)
+    check('a search stopped by its node budget is never reported as unique',
+          tiny['complete'] is False and tiny['unique'] is False,
+          f"{tiny['solutions']} found in {tiny['nodes']} nodes, complete={tiny['complete']}")
     mech, mech_nodes = V.count_solutions(None, cap=1000, node_budget=2_000_000)
     check('the visible rules alone do not pin it (the region constraint does work)',
           mech >= 1000, f'{mech} solutions seen, cap reached ({mech_nodes} nodes)')
@@ -230,8 +234,7 @@ def main() -> int:
     trials = 6
     for _ in range(trials):
         look = V.same_shape_partitions(rng, rag['class_sizes'], answer)
-        u, _n = V.count_solutions(look)
-        live_unique += 1 if u == 1 else 0
+        live_unique += 1 if V.uniqueness(look)['unique'] else 0
     recorded = (rag.get('lookalike_uniqueness') or {}).get('also_unique')
     check('control B: same-shape look-alike partitions are not all unique either',
           live_unique <= trials // 2 and recorded == live_unique,
