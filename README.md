@@ -17,7 +17,7 @@ Every number below is machine-checked by a gate, and the artifacts are regenerab
 
 | | Criterion | Status |
 |---|---|---|
-| AC1 | the exact 121-bit input vector | **PASS** — derived by our own search over five constraints, two independently written enumerators agreeing, both bit orders equal to the contract |
+| AC1 | the exact 121-bit input vector | **PASS** — derived by our own search over five constraints, two enumerators written in different styles (row pairs with recursion; bitmasks with an explicit stack) agreeing, cross-checked against a third, column-major search in the review, both bit orders equal to the contract |
 | AC2 | `success` asserts at cycle 126 | **PASS** — at feed offset 4 and at no other offset |
 | AC3 | output `(* TWO STARS *)` | **PASS** |
 | AC4 | the four wrong-input messages | **PASS** — `EMPTY SKY`, `BIG BANG`, `TRY AGAIN`, and `TWO NOT TOUCH` reproduced on 23 constructed boards (and *not* on the 8 controls) |

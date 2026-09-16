@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/puzzle/solve.py::stage_solve",
   "source": {
-    "recon/derived/c4_partition.json": "221360ef098c4a9263136772a663819a1116c206abe1f27a9e675985dd5d47d4",
+    "recon/derived/c4_partition.json": "881e46f56922a3e7f36d7065c0a32b5764b12f803aaef861add1aef3bc27e658",
     "tools/target.py": "aeba3a4df1eb6c937de315bbd274ffe826295572fc9ba076285349c9958634a2"
   },
   "method": {
@@ -231,11 +231,9 @@
   },
   "load_bearing": {
     "region_free": {
-      "solutions_seen": 100000,
-      "nodes": 1027376,
-      "bounded": true,
-      "cap": 100000,
-      "node_budget": 30000000
+      "solutions": 31197434,
+      "exact": true,
+      "method": "row DP over (previous mask, column loads), validated against OEIS A002464"
     },
     "column_cover": {
       "solutions_seen": 2,

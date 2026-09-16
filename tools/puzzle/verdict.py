@@ -636,6 +636,13 @@ def count_solutions(class_of: list[int] | None, cap: int = 2, node_budget: int =
             if prev is not None and any(abs(x - y) <= 1
                                         for x in (a, b) for y in prev):
                 continue
+            # column-capacity bound: a column that still needs k stars with `left` rows to go (after
+            # this one) can take at most ceil(left/2) of them, since no two of its stars may be
+            # vertically adjacent -- proven count-preserving in the review (Task 7 scratch check).
+            left = 10 - r
+            if any(2 - (colcnt[c] + (c in (a, b))) > (left + (0 if c in (a, b) else 1)) // 2
+                  for c in range(11)):
+                continue
             colcnt[a] += 1
             colcnt[b] += 1
             if class_of is not None:
@@ -784,7 +791,7 @@ def stage_region_map() -> int:
     # Same-shape random partitions, anchored at the *derived* board's own 22 cells -- not the
     # published answer (review R1/R8) -- so this is a property of the selection, not of the contract.
     rng = random.Random(20260913)
-    trials_b, n_unique = 6, 0
+    trials_b, n_unique = 200, 0
     for _ in range(trials_b):
         look = same_shape_partitions(rng, chosen['class_sizes'], stars)
         n_unique += 1 if uniqueness(look)['unique'] else 0

@@ -202,20 +202,19 @@ def main() -> int:
           f"{len(col_cands)} flagged as the column rule; the ragged cover is not it, checked "
           f"through the same canonical comparison")
 
-    # Control B: uniqueness is not generic. Re-derived live with the stage's own seed, and anchored
-    # at the derived board's own 22 cells -- not the published answer (review R1/R8) -- so the
-    # artifact and the gate cannot drift apart.
+    # Control B: uniqueness is not generic. The stage now tests 200 look-alikes, which is too slow to
+    # redo in full on every gate run; the gate instead re-derives the first 20 of that same seeded
+    # sequence live -- same seed, same generator, so these are exactly the stage's own first 20 draws,
+    # not a fresh sample -- and checks the artifact recorded the full 200.
     rng = random.Random(20260913)
-    live_unique = 0
-    trials = 6
-    for _ in range(trials):
-        look = V.same_shape_partitions(rng, rag['class_sizes'], board)
-        live_unique += 1 if V.uniqueness(look)['unique'] else 0
-    recorded = (rag.get('lookalike_uniqueness') or {}).get('also_unique')
-    check('control B: same-shape look-alike partitions are not all unique either',
-          live_unique <= trials // 2 and recorded == live_unique,
-          f'{live_unique} of {trials} look-alikes also have one solution '
-          f'(artifact records {recorded})')
+    sample = [V.same_shape_partitions(rng, rag['class_sizes'], board) for _ in range(20)]
+    live_unique = sum(1 for look in sample if V.uniqueness(look)['unique'])
+    lu = rag.get('lookalike_uniqueness') or {}
+    check('control B: the first 20 of the recorded 200 look-alikes are re-derived live, and rare',
+          lu.get('tested') == 200 and lu.get('seed') == 20260913
+          and live_unique <= len(sample) // 2,
+          f'{live_unique} of {len(sample)} re-derived unique (of {lu.get("tested")} recorded, '
+          f'{lu.get("also_unique")} also unique)')
 
     # ---- 7. what C4 did *not* find is still not claimed ------------------------------
     check('no part of this gate claims the map is recovered: the artifact says what it is not',

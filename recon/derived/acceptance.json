@@ -2,10 +2,10 @@
   "generated_by": "tools/puzzle/accept.py",
   "yardstick": "tools/target.py, re-verified in this report",
   "source": {
-    "recon/derived/solutions.json": "7ff253adec26722dabb2634ae5c4c31b464799942d99c612d5053b690b83da61",
+    "recon/derived/solutions.json": "e77ccf724993e7eac735dffe44c164797610a1d4b3be5b4a7cbb590140589903",
     "recon/derived/e1_messages.json": "2b76a5c0ced7bd84a0d8be2ce90f590d219bdf2c17889572c7cf3b00f0155830",
     "recon/derived/e2_messages.json": "1b475ba6488869f88c0bbed89fb758369626b379875683ccdc2f22047ac41178",
-    "recon/derived/c4_partition.json": "221360ef098c4a9263136772a663819a1116c206abe1f27a9e675985dd5d47d4",
+    "recon/derived/c4_partition.json": "881e46f56922a3e7f36d7065c0a32b5764b12f803aaef861add1aef3bc27e658",
     "recon/derived/vcd_replay.json": "8f61951cea06f9ea4ceda0782ac99c54ade2fa61c7d146a4635fe6a7190b4b4b",
     "tools/target.py": "aeba3a4df1eb6c937de315bbd274ffe826295572fc9ba076285349c9958634a2"
   },

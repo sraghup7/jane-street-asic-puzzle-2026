@@ -2,8 +2,10 @@
 """solve.py -- Phase D: solve the puzzle from the constraints we recovered, with our own search.
 
 The published solution handed its constraint problem to a formal solver over an opaque netlist. This
-module solves the problem *we* recovered, with two independently written enumerations, and requires
-them to agree on both the solution and the total count. The point is not speed; it is that the answer
+module solves the problem *we* recovered, with two enumerators written in different styles (row pairs
+with recursion; bitmasks with an explicit stack), cross-checked against a third, column-major search
+in the review, and requires them to agree on both the solution and the total count. The point is not
+speed; it is that the answer
 be **derived** rather than *reproduced from the known target* -- which is what the traceability table
 in `docs/03_our_plan.md` sec.10 asks of AC1, and the last gap in it.
 
@@ -53,10 +55,6 @@ OUT = ROOT / 'recon' / 'derived' / 'solutions.json'
 ROW_PAIRS = [(a, b) for a, b in combinations(range(11), 2) if abs(a - b) >= 2]
 # The same set as bitmasks, for the second enumerator: two bits set, never adjacent.
 ROW_MASKS = [m for m in range(1 << 11) if bin(m).count('1') == 2 and not (m & (m << 1))]
-# D3's bound: the region-free space is large, and this step is analysis, not part of the answer. The
-# count is reported as "at least this many", with the bound that produced it.
-MECH_CAP = 100_000
-MECH_NODE_BUDGET = 30_000_000
 
 
 # ---------------------------------------------------------------------------------------
@@ -227,7 +225,7 @@ def stage_solve() -> int:
           f'{"complete" if b["complete"] else "capped"}')
     grids_a = [tuple(''.join(row) for row in g) for g in a['solutions']]
     grids_b = [tuple(''.join(row) for row in g) for g in b['solutions']]
-    agree_solution = grids_a == grids_b
+    agree_solution = sorted(grids_a) == sorted(grids_b)
     agree_count = a['count'] == b['count']
     print(f'    the two agree on the solution(s): {agree_solution}; on the count: {agree_count}')
     if not agree_solution or not agree_count:
@@ -268,12 +266,10 @@ def stage_solve() -> int:
     print(f'    its reverse == WITNESS_AS_PRINTED          : {ok_printed}')
     print(f'    the board == the published grid            : {same_grid}')
 
-    # ---- D3: how much work the region constraint does, and the cover discriminator ----
-    mech_run = _mech_count()
+    # ---- D3: the exact region-free count, and the cover discriminator -----------------
+    region_free_solutions = region_free_count()
     print()
-    print(f'D3  without the region constraint        : {mech_run["solutions_seen"]} solutions seen, '
-          f'{mech_run["nodes"]} nodes, '
-          f'{"bound hit -- a lower bound" if mech_run["bounded"] else "complete"}')
+    print(f'D3  without the region constraint (exact): {region_free_solutions} solutions')
     # The other capacity-2 cover C4 found is the visible column rule, so it adds no constraint. Its
     # count is therefore the region-free count, which the published uniqueness result rules out.
     col_class_of = _columns_class_of()
@@ -325,7 +321,9 @@ def stage_solve() -> int:
         'against_target': {'feed_order_equals': ok_feed, 'as_printed_equals': ok_printed,
                            'board_equals': same_grid},
         'load_bearing': {
-            'region_free': mech_run,
+            'region_free': {'solutions': region_free_solutions, 'exact': True,
+                            'method': 'row DP over (previous mask, column loads), validated '
+                                     'against OEIS A002464'},
             'column_cover': {'solutions_seen': col_run['count'], 'cap': 2,
                              'note': 'the other capacity-2 cover C4 found is the visible column rule, '
                                      'so it adds no constraint; the published uniqueness result '
@@ -343,47 +341,90 @@ def stage_solve() -> int:
     return 0 if ok else 1
 
 
-def _mech_count() -> dict:
-    """The bounded region-free count (D3). Bounded on purpose: this is analysis, not the answer."""
-    colcnt = [0] * 11
-    board: list[tuple[int, int] | None] = [None] * 11
-    total = nodes = 0
+def region_free_count(n: int = 11, per: int = 2) -> int:
+    """Boards with `per` stars in every row and column and no two adjacent, counted exactly.
 
-    def dfs(r: int) -> bool:
-        nonlocal total, nodes
-        nodes += 1
-        if nodes > MECH_NODE_BUDGET or total >= MECH_CAP:
-            return True
-        if r == 11:
-            if all(v == 2 for v in colcnt):
-                total += 1
-            return total >= MECH_CAP
-        prev = board[r - 1]
-        for a, b in ROW_PAIRS:
-            if colcnt[a] >= 2 or colcnt[b] >= 2:
-                continue
-            if prev is not None and any(abs(x - y) <= 1 for x in (a, b) for y in prev):
-                continue
-            colcnt[a] += 1
-            colcnt[b] += 1
-            board[r] = (a, b)
-            stop = dfs(r + 1)
-            board[r] = None
-            colcnt[a] -= 1
-            colcnt[b] -= 1
-            if stop:
-                return True
-        return False
-
-    dfs(0)
-    return {'solutions_seen': total, 'nodes': nodes,
-            'bounded': total >= MECH_CAP or nodes > MECH_NODE_BUDGET,
-            'cap': MECH_CAP, 'node_budget': MECH_NODE_BUDGET}
+    Dynamic programming over rows; the state is (previous row's mask, column loads). A column that
+    still needs k stars with `left` rows to go can take at most ceil(left/2) of them (no vertical
+    adjacency), and one just used loses the next row, which prunes states that cannot finish. With
+    per=1 this is Hertzsprung's problem (OEIS A002464), which the gate uses as the cross-check.
+    """
+    masks = [m for m in range(1 << n) if bin(m).count('1') == per and not m & (m << 1)]
+    full = (1 << n) - 1
+    states = {(0, (0,) * n): 1}
+    for r in range(n):
+        left = n - r - 1
+        nxt: dict = {}
+        for (prev, loads), ways in states.items():
+            forbid = (prev | prev << 1 | prev >> 1) & full
+            for m in masks:
+                if m & forbid:
+                    continue
+                new = tuple(v + (m >> c & 1) for c, v in enumerate(loads))
+                if max(new) > per:
+                    continue
+                if any(per - new[c] > (left + (0 if m >> c & 1 else 1)) // 2 for c in range(n)):
+                    continue
+                nxt[(m, new)] = nxt.get((m, new), 0) + ways
+        states = nxt
+    return sum(w for (_m, loads), w in states.items() if all(v == per for v in loads))
 
 
 def _columns_class_of() -> list[int]:
     """A class map whose classes are the eleven columns (the visible rule, as a 'region' set)."""
     return [c for _r in range(11) for c in range(11)]
+
+
+def stage_report(stage: str) -> int:
+    """D2/D3/D4: print one section of the one D computation, without re-solving.
+
+    `solve` is the only stage that searches. These three read `recon/derived/solutions.json` and
+    refuse to report from it unless it was produced from the `c4_partition.json` and `target.py`
+    currently on disk -- the same freshness check `stage_solve` records at write time.
+    """
+    if not OUT.exists():
+        print(f'missing {OUT.relative_to(ROOT).as_posix()}', file=sys.stderr)
+        print('run: python -m tools.puzzle solve', file=sys.stderr)
+        return 1
+    art = json.loads(OUT.read_text(encoding='utf-8'))
+    current = {rel: hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
+              for rel in ('recon/derived/c4_partition.json', 'tools/target.py')}
+    if art.get('source') != current:
+        print(f'{OUT.relative_to(ROOT).as_posix()} is stale for the c4_partition.json/target.py '
+              f'now on disk', file=sys.stderr)
+        print('run: python -m tools.puzzle solve', file=sys.stderr)
+        return 1
+
+    if stage == 'uniqueness':
+        e = art['enumerators']
+        print(f'D1  solver (rows / pairs / recursion)   : {e["rows_dfs"]["count"]} solution(s), '
+              f'{e["rows_dfs"]["nodes"]} nodes, '
+              f'{"complete" if e["rows_dfs"]["complete"] else "capped"}')
+        print(f'D2  enumerator (bitmasks / stack)      : {e["bitmask_stack"]["count"]} solution(s), '
+              f'{e["bitmask_stack"]["nodes"]} nodes, '
+              f'{"complete" if e["bitmask_stack"]["complete"] else "capped"}')
+        print(f'    the two agree on the solution(s): {e["agree_on_solution"]}; '
+              f'on the count: {e["agree_on_count"]}')
+        ok = e['agree_on_solution'] and e['agree_on_count'] and art['unique']
+    elif stage == 'load-bearing':
+        lb = art['load_bearing']
+        rf = lb['region_free']
+        print(f'D3  region-free count (exact)            : {rf["solutions"]} solutions '
+              f'({rf["method"]})')
+        print(f'    with the COLUMN cover instead         : {lb["column_cover"]["solutions_seen"]}+ '
+              f'solutions ({lb["column_cover"]["note"]})')
+        ok = rf.get('exact') is True and lb['column_cover']['solutions_seen'] >= 2
+    else:
+        s, t = art['solution'], art['against_target']
+        print('the board our solver derived:')
+        for row in s['grid']:
+            print(f'    {row}')
+        print(f'D4  derived vector == target.FEED_ORDER        : {t["feed_order_equals"]}')
+        print(f'    its reverse == WITNESS_AS_PRINTED          : {t["as_printed_equals"]}')
+        print(f'    the board == the published grid            : {t["board_equals"]}')
+        ok = all(t.values())
+    print(f'PHASE D ({stage}): {"PASS" if ok else "FAIL"}')
+    return 0 if ok else 1
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -392,7 +433,9 @@ def main(argv: list[str] | None = None) -> int:
     if stage not in ('solve', 'uniqueness', 'load-bearing', 'answer'):
         print(f'solve.py has no stage {stage!r}', file=sys.stderr)
         return 2
-    return stage_solve()
+    if stage == 'solve':
+        return stage_solve()
+    return stage_report(stage)
 
 
 if __name__ == '__main__':

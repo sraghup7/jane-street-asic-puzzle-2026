@@ -40,7 +40,6 @@ from tools.puzzle import solve as S
 from tools.puzzle import verdict as V
 
 ART = ROOT / 'recon' / 'derived' / 'solutions.json'
-MIN_REGION_FREE = 100_000
 MIN_NODES = 1000
 
 checks: list[dict] = []
@@ -136,13 +135,13 @@ def main() -> int:
     check('the artifact records the target comparisons as true',
           all(art['against_target'].values()), str(art['against_target']))
 
-    # ---- D3: the bound, and the discriminator between the covers ---------------------
+    # ---- D3: the exact count, and the discriminator between the covers ---------------
     lb = art['load_bearing']
-    check('D3: the region-free count is large and reported with its bound',
-          lb['region_free']['bounded'] is True
-          and lb['region_free']['solutions_seen'] >= MIN_REGION_FREE
-          and lb['region_free']['cap'] == S.MECH_CAP,
-          f'{lb["region_free"]["solutions_seen"]} solutions seen, bound {lb["region_free"]["cap"]}')
+    check('D3: the region-free count is exact, and cross-checked on known sizes',
+          lb['region_free'].get('exact') is True
+          and lb['region_free']['solutions'] == S.region_free_count()
+          and [S.region_free_count(n, 1) for n in range(1, 9)] == [1, 0, 0, 2, 14, 90, 646, 5242],
+          f"{lb['region_free'].get('solutions')} boards; one-per-line DP matches OEIS A002464")
     check('the unique solution is a member of the region-free set (it satisfies the four rules)',
           val['mechanical']['total_ok'] and val['mechanical']['per_row_ok']
           and val['mechanical']['per_col_ok'] and val['mechanical']['no_adjacency'],
