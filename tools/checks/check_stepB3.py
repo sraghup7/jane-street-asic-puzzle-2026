@@ -106,12 +106,15 @@ def main() -> int:
           t['supply_pins_probed'], expected_pins)
     check('unassigned supply pins', t['supply_pins_unassigned'],
           t['supply_unassigned_in_known_gap_classes'] + t['supply_unassigned_unexplained'])
-    check('no unassigned supply pin outside A5\'s two gap classes',
+    check('no unassigned supply pin outside A5\'s one gap class',
           t['supply_unassigned_unexplained'], 0)
-    check('unassigned pins are the VPB ties plus the diode supplies',
+    # The antenna diode's VGND/VNB/VPWR used to appear here too -- reading paths as well as
+    # polygons (review R2) shows they ride a met1 rail, so they are assigned like any other
+    # supply pin, and VPB (drawn only as a well-tie contact) is the only thing left unassigned.
+    check('unassigned pins are the VPB ties, and nothing else',
           (t['supply_unassigned_by_pin'].get('VPB'),
            t['supply_pins_unassigned'] - t['supply_unassigned_by_pin'].get('VPB', 0)),
-          (942, 30))
+          (942, 0))
 
     si = d['supply_identification']
     check('the two largest nets are supply nets', si['largest_two_are_supply'], True)
@@ -128,13 +131,14 @@ def main() -> int:
                  key=lambda c: -[x['polygons'] for x in largest if x['cluster'] == c][0])
           == [n['cluster'] for n in sorted(largest, key=lambda n: -n['polygons'])[:2]], True)
     # Pinned, and this is the strongest form of the claim: the two biggest nets carry exactly
-    # the supply pin names, with the counts the pin model predicts (1608 placements carry
-    # VPWR; 1608 carry VGND; 932 carry VNB). Identification by name and by size therefore
-    # agree, and neither is doing the work alone.
+    # the supply pin names, with the counts the pin model predicts (1618 placements carry
+    # VPWR; 1618 carry VGND; 942 carry VNB -- 10 more of each than before paths were read,
+    # review R2: the antenna diode's supplies now reach these nets instead of being stranded).
+    # Identification by name and by size therefore agree, and neither is doing the work alone.
     check('the largest net carries VPWR and nothing else',
-          largest[0]['supply_pins'], {'VPWR': 1608})
+          largest[0]['supply_pins'], {'VPWR': 1618})
     check('the second largest carries VGND and VNB and nothing else',
-          largest[1]['supply_pins'], {'VGND': 1608, 'VNB': 932})
+          largest[1]['supply_pins'], {'VGND': 1618, 'VNB': 942})
     # Supply is separated from signal by an order of magnitude in polygon count, so "biggest"
     # is not a knife-edge call that a small change could flip.
     check('the supply nets are >5x the next biggest net',

@@ -29,6 +29,8 @@ from pathlib import Path
 
 import gdstk
 
+from tools.puzzle.pins import master_shapes
+
 ROOT = Path(__file__).resolve().parents[2]
 GDS = ROOT / 'asic-puzzle-2026' / 'puzzle.gds'
 OUT = ROOT / 'recon' / 'derived' / 'layers.json'
@@ -405,7 +407,7 @@ def prove_master_connectivity(cell, role_of, cut_layers, cond_layers) -> dict:
     not layer-name arithmetic.
     """
     by_layer: dict[tuple[int, int], list] = defaultdict(list)
-    for p in cell.polygons:
+    for p in master_shapes(cell):
         by_layer[(p.layer, p.datatype)].append(p)
 
     cuts = [k for k in by_layer if k in cut_layers]
@@ -456,7 +458,7 @@ def derive_via_pairs(lib, top_name: str, roles: dict) -> dict:
 
     via_master_cells, other_cut_cells = [], []
     for cell in lib.cells:
-        layers = {(p.layer, p.datatype) for p in cell.polygons}
+        layers = {(p.layer, p.datatype) for p in master_shapes(cell)}
         if not (layers & cut_layers):
             continue
         (via_master_cells if layers <= conductor_or_cut else other_cut_cells).append(cell)
@@ -475,7 +477,7 @@ def derive_via_pairs(lib, top_name: str, roles: dict) -> dict:
     internal: dict[str, dict] = {}
     for cell in other_cut_cells:
         used = sorted(key_str(k) for k in
-                      {(p.layer, p.datatype) for p in cell.polygons} & cut_layers)
+                      {(p.layer, p.datatype) for p in master_shapes(cell)} & cut_layers)
         e = internal.setdefault('+'.join(used),
                                 {'cuts_used': used, 'cells': 0, 'instances': 0})
         e['cells'] += 1
@@ -511,11 +513,11 @@ def derive_via_pairs(lib, top_name: str, roles: dict) -> dict:
             continue
         partners: Counter = Counter()
         for cell in lib.cells:
-            shapes = [p for p in cell.polygons
+            shapes = [p for p in master_shapes(cell)
                       if (p.layer, p.datatype) == k]
             if not shapes:
                 continue
-            others = [p for p in cell.polygons
+            others = [p for p in master_shapes(cell)
                       if (p.layer, p.datatype) != k
                       and (p.layer, p.datatype) in geometry_layers]
             for a in shapes:
@@ -524,7 +526,7 @@ def derive_via_pairs(lib, top_name: str, roles: dict) -> dict:
                         partners[key_str((b.layer, b.datatype))] += 1
         non_via_contacts.append({
             'layer': key_str(k),
-            'shapes_in_masters': sum(1 for c in lib.cells for p in c.polygons
+            'shapes_in_masters': sum(1 for c in lib.cells for p in master_shapes(c)
                                      if (p.layer, p.datatype) == k),
             'partners': {p: n for p, n in sorted(partners.items())},
             'overlap_events': sum(partners.values()),

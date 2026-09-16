@@ -40,12 +40,12 @@
     "endpoints": 7897,
     "terminals_functional": 2777,
     "terminals_supply": 5120,
-    "assigned": 6925,
+    "assigned": 6955,
     "assigned_functional": 2777,
-    "assigned_supply": 4148,
-    "unassigned": 972,
+    "assigned_supply": 4178,
+    "unassigned": 942,
     "unassigned_functional": 0,
-    "unassigned_supply": 972,
+    "unassigned_supply": 942,
     "unassigned_supply_unexplained": 0,
     "nets_with_terminals": 741,
     "engine_nets": 2626,
@@ -56,11 +56,11 @@
     "largest_two_nets_are_supply": true,
     "pins_labelled_with_two_nets": 0,
     "probe_errors": 0,
-    "position_layer_fallbacks": 981
+    "position_layer_fallbacks": 951
   },
   "gap_classes": {
     "vpb_well_tie_no_routeable_geometry": 942,
-    "antenna_diode_supply": 30,
+    "antenna_diode_supply": 0,
     "unexplained": 0,
     "by_master": {
       "a2111oi_2": 1,
@@ -95,7 +95,7 @@
       "dfrtp_2": 84,
       "dfstp_2": 4,
       "dfxtp_2": 4,
-      "diode_2": 40,
+      "diode_2": 10,
       "inv_2": 25,
       "mux2_1": 21,
       "nand2_2": 39,
@@ -304,14 +304,14 @@
     },
     "VGND": {
       "instances": 1618,
-      "assigned": 1608,
-      "unassigned": 10,
+      "assigned": 1618,
+      "unassigned": 0,
       "class": "supply"
     },
     "VNB": {
       "instances": 942,
-      "assigned": 932,
-      "unassigned": 10,
+      "assigned": 942,
+      "unassigned": 0,
       "class": "supply"
     },
     "VPB": {
@@ -322,8 +322,8 @@
     },
     "VPWR": {
       "instances": 1618,
-      "assigned": 1608,
-      "unassigned": 10,
+      "assigned": 1618,
+      "unassigned": 0,
       "class": "supply"
     },
     "X": {
@@ -342,30 +342,30 @@
   "nets": [
     {
       "cluster": 3,
-      "terminals": 2540,
+      "terminals": 2560,
       "functional": 0,
-      "supply": 2540,
-      "instances": 1608,
+      "supply": 2560,
+      "instances": 1618,
       "pin_names": {
-        "VGND": 1608,
-        "VNB": 932
+        "VGND": 1618,
+        "VNB": 942
       },
       "layers": {
-        "67/20": 2540
+        "67/20": 2560
       },
       "is_supply_only": true
     },
     {
       "cluster": 27,
-      "terminals": 1608,
+      "terminals": 1618,
       "functional": 0,
-      "supply": 1608,
-      "instances": 1608,
+      "supply": 1618,
+      "instances": 1618,
       "pin_names": {
-        "VPWR": 1608
+        "VPWR": 1618
       },
       "layers": {
-        "67/20": 1608
+        "67/20": 1618
       },
       "is_supply_only": true
     },
@@ -24184,10 +24184,25 @@
           122130,
           60350
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          122590,
+          59840
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          122590,
+          59840
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          122590,
+          62560
+        ]
       }
     },
     "i0359": {
@@ -47281,10 +47296,25 @@
           30130,
           196350
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          30130,
+          195840
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          30130,
+          195840
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          30130,
+          198560
+        ]
       }
     },
     "i1107": {
@@ -55054,10 +55084,25 @@
           170430,
           234430
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          170430,
+          233920
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          170430,
+          233920
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          170430,
+          236640
+        ]
       }
     },
     "i1350": {
@@ -59551,10 +59596,25 @@
           171350,
           264350
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          171350,
+          266560
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          171350,
+          266560
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          171350,
+          263840
+        ]
       }
     },
     "i1509": {
@@ -59566,10 +59626,25 @@
           171350,
           267070
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          171350,
+          266560
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          171350,
+          266560
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          171350,
+          269280
+        ]
       }
     },
     "i1510": {
@@ -60150,10 +60225,25 @@
           169050,
           269790
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          169050,
+          272000
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          169050,
+          272000
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          169050,
+          269280
+        ]
       }
     },
     "i1533": {
@@ -60165,10 +60255,25 @@
           170430,
           269790
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          170430,
+          272000
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          170430,
+          272000
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          170430,
+          269280
+        ]
       }
     },
     "i1534": {
@@ -60863,10 +60968,25 @@
           168130,
           277950
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          168130,
+          277440
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          168130,
+          277440
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          168130,
+          280160
+        ]
       }
     },
     "i1560": {
@@ -60878,10 +60998,25 @@
           169050,
           275230
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          169050,
+          277440
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          169050,
+          277440
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          169050,
+          274720
+        ]
       }
     },
     "i1561": {
@@ -62523,10 +62658,25 @@
           169050,
           286110
         ],
-        "VGND": null,
-        "VNB": null,
+        "VGND": [
+          3,
+          "67/20",
+          169050,
+          288320
+        ],
+        "VNB": [
+          3,
+          "67/20",
+          169050,
+          288320
+        ],
         "VPB": null,
-        "VPWR": null
+        "VPWR": [
+          27,
+          "67/20",
+          169050,
+          285600
+        ]
       }
     },
     "i1616": {
@@ -64438,34 +64588,10 @@
     },
     {
       "instance": "i0358",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i0358",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i0358",
       "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
       "gap_class": "vpb_well_tie_no_routeable_geometry",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i0358",
-      "pin": "VPWR",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
       "cause": "no_routing_geometry"
     },
     {
@@ -67902,34 +68028,10 @@
     },
     {
       "instance": "i1106",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1106",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1106",
       "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
       "gap_class": "vpb_well_tie_no_routeable_geometry",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1106",
-      "pin": "VPWR",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
       "cause": "no_routing_geometry"
     },
     {
@@ -69054,34 +69156,10 @@
     },
     {
       "instance": "i1349",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1349",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1349",
       "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
       "gap_class": "vpb_well_tie_no_routeable_geometry",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1349",
-      "pin": "VPWR",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
       "cause": "no_routing_geometry"
     },
     {
@@ -69726,54 +69804,6 @@
     },
     {
       "instance": "i1508",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1508",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1508",
-      "pin": "VPB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "vpb_well_tie_no_routeable_geometry",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1508",
-      "pin": "VPWR",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1509",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1509",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1509",
       "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
@@ -69782,10 +69812,10 @@
     },
     {
       "instance": "i1509",
-      "pin": "VPWR",
+      "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
-      "gap_class": "antenna_diode_supply",
+      "gap_class": "vpb_well_tie_no_routeable_geometry",
       "cause": "no_routing_geometry"
     },
     {
@@ -69862,54 +69892,6 @@
     },
     {
       "instance": "i1532",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1532",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1532",
-      "pin": "VPB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "vpb_well_tie_no_routeable_geometry",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1532",
-      "pin": "VPWR",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1533",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1533",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1533",
       "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
@@ -69918,10 +69900,10 @@
     },
     {
       "instance": "i1533",
-      "pin": "VPWR",
+      "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
-      "gap_class": "antenna_diode_supply",
+      "gap_class": "vpb_well_tie_no_routeable_geometry",
       "cause": "no_routing_geometry"
     },
     {
@@ -70022,54 +70004,6 @@
     },
     {
       "instance": "i1559",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1559",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1559",
-      "pin": "VPB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "vpb_well_tie_no_routeable_geometry",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1559",
-      "pin": "VPWR",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1560",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1560",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1560",
       "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
@@ -70078,10 +70012,10 @@
     },
     {
       "instance": "i1560",
-      "pin": "VPWR",
+      "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
-      "gap_class": "antenna_diode_supply",
+      "gap_class": "vpb_well_tie_no_routeable_geometry",
       "cause": "no_routing_geometry"
     },
     {
@@ -70310,34 +70244,10 @@
     },
     {
       "instance": "i1615",
-      "pin": "VGND",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1615",
-      "pin": "VNB",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1615",
       "pin": "VPB",
       "master": "sky130_fd_sc_hd__diode_2",
       "class": "supply",
       "gap_class": "vpb_well_tie_no_routeable_geometry",
-      "cause": "no_routing_geometry"
-    },
-    {
-      "instance": "i1615",
-      "pin": "VPWR",
-      "master": "sky130_fd_sc_hd__diode_2",
-      "class": "supply",
-      "gap_class": "antenna_diode_supply",
       "cause": "no_routing_geometry"
     },
     {

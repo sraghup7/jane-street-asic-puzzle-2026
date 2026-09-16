@@ -15,7 +15,7 @@
 // 726 of them plain signal nets. Net names are our own: n<cluster> for
 // signal nets, the port label for a port net, the supply name for a supply net.
 //
-// 972 of the 7897 pins are emitted as explicit empty
+// 942 of the 7897 pins are emitted as explicit empty
 // connections. They are exactly the pins B4 could not assign, and only ever
 // two things: VPB/VNB well ties, which have no routeable geometry in this
 // layout (A5), and the supply pins of the antenna diodes (A5). No functional
@@ -1834,7 +1834,7 @@ module puzzle (clk, rst_n, enable, I, O, success, VGND, VPWR);
   sky130_fd_sc_hd__or4b_2 i0357 (.A(n497), .B(n584), .C(n559), .D_N(n643), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR), .X(n638));
 
   // i0358  sky130_fd_sc_hd__diode_2  rot180_mirror  @ (122.820, 59.840) um, row 11
-  sky130_fd_sc_hd__diode_2 i0358 (.DIODE(n643), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i0358 (.DIODE(n643), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i0359  sky130_fd_sc_hd__tapvpwrvgnd_1  rot000  @ (126.040, 59.840) um, row 11
   sky130_fd_sc_hd__tapvpwrvgnd_1 i0359 (.VGND(VGND), .VPWR(VPWR));
@@ -4078,7 +4078,7 @@ module puzzle (clk, rst_n, enable, I, O, success, VGND, VPWR);
   sky130_fd_sc_hd__tapvpwrvgnd_1 i1105 (.VGND(VGND), .VPWR(VPWR));
 
   // i1106  sky130_fd_sc_hd__diode_2  rot000  @ (29.900, 195.840) um, row 36
-  sky130_fd_sc_hd__diode_2 i1106 (.DIODE(enable), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1106 (.DIODE(enable), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1107  sky130_fd_sc_hd__tapvpwrvgnd_1  rot000_mirror  @ (35.880, 195.840) um, row 36
   sky130_fd_sc_hd__tapvpwrvgnd_1 i1107 (.VGND(VGND), .VPWR(VPWR));
@@ -4807,7 +4807,7 @@ module puzzle (clk, rst_n, enable, I, O, success, VGND, VPWR);
   sky130_fd_sc_hd__a22o_2 i1348 (.A1(n1523), .A2(n2167), .B1(n2187), .B2(n1201), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR), .X(n2218));
 
   // i1349  sky130_fd_sc_hd__diode_2  rot000  @ (170.200, 233.920) um, row 43
-  sky130_fd_sc_hd__diode_2 i1349 (.DIODE(n1332), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1349 (.DIODE(n1332), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1350  sky130_fd_sc_hd__tapvpwrvgnd_1  rot000  @ (177.560, 233.920) um, row 43
   sky130_fd_sc_hd__tapvpwrvgnd_1 i1350 (.VGND(VGND), .VPWR(VPWR));
@@ -5284,10 +5284,10 @@ module puzzle (clk, rst_n, enable, I, O, success, VGND, VPWR);
   sky130_fd_sc_hd__tapvpwrvgnd_1 i1507 (.VGND(VGND), .VPWR(VPWR));
 
   // i1508  sky130_fd_sc_hd__diode_2  rot000_mirror  @ (171.120, 266.560) um, row 49
-  sky130_fd_sc_hd__diode_2 i1508 (.DIODE(n367), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1508 (.DIODE(n367), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1509  sky130_fd_sc_hd__diode_2  rot000  @ (171.120, 266.560) um, row 49
-  sky130_fd_sc_hd__diode_2 i1509 (.DIODE(n367), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1509 (.DIODE(n367), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1510  sky130_fd_sc_hd__tapvpwrvgnd_1  rot000  @ (177.560, 266.560) um, row 49
   sky130_fd_sc_hd__tapvpwrvgnd_1 i1510 (.VGND(VGND), .VPWR(VPWR));
@@ -5356,10 +5356,10 @@ module puzzle (clk, rst_n, enable, I, O, success, VGND, VPWR);
   sky130_fd_sc_hd__dfrtp_2 i1531 (.CLK(n2212), .D(n2501), .Q(n2403), .RESET_B(rst_n), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1532  sky130_fd_sc_hd__diode_2  rot000_mirror  @ (168.820, 272.000) um, row 50
-  sky130_fd_sc_hd__diode_2 i1532 (.DIODE(n164), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1532 (.DIODE(n164), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1533  sky130_fd_sc_hd__diode_2  rot000_mirror  @ (170.200, 272.000) um, row 50
-  sky130_fd_sc_hd__diode_2 i1533 (.DIODE(n367), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1533 (.DIODE(n367), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1534  sky130_fd_sc_hd__and2_2  rot000_mirror  @ (171.120, 272.000) um, row 50
   sky130_fd_sc_hd__and2_2 i1534 (.A(n855), .B(n367), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR), .X(n2487));
@@ -5437,10 +5437,10 @@ module puzzle (clk, rst_n, enable, I, O, success, VGND, VPWR);
   sky130_fd_sc_hd__tapvpwrvgnd_1 i1558 (.VGND(VGND), .VPWR(VPWR));
 
   // i1559  sky130_fd_sc_hd__diode_2  rot000  @ (167.900, 277.440) um, row 51
-  sky130_fd_sc_hd__diode_2 i1559 (.DIODE(n164), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1559 (.DIODE(n164), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1560  sky130_fd_sc_hd__diode_2  rot000_mirror  @ (168.820, 277.440) um, row 51
-  sky130_fd_sc_hd__diode_2 i1560 (.DIODE(n164), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1560 (.DIODE(n164), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1561  sky130_fd_sc_hd__and4b_2  rot000  @ (168.820, 277.440) um, row 51
   sky130_fd_sc_hd__and4b_2 i1561 (.A_N(n2329), .B(n1968), .C(n164), .D(n1573), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR), .X(n2542));
@@ -5605,7 +5605,7 @@ module puzzle (clk, rst_n, enable, I, O, success, VGND, VPWR);
   sky130_fd_sc_hd__tapvpwrvgnd_1 i1614 (.VGND(VGND), .VPWR(VPWR));
 
   // i1615  sky130_fd_sc_hd__diode_2  rot000_mirror  @ (168.820, 288.320) um, row 53
-  sky130_fd_sc_hd__diode_2 i1615 (.DIODE(n164), .VGND(), .VNB(), .VPB(), .VPWR());
+  sky130_fd_sc_hd__diode_2 i1615 (.DIODE(n164), .VGND(VGND), .VNB(VGND), .VPB(), .VPWR(VPWR));
 
   // i1616  sky130_fd_sc_hd__tapvpwrvgnd_1  rot000_mirror  @ (177.560, 288.320) um, row 53
   sky130_fd_sc_hd__tapvpwrvgnd_1 i1616 (.VGND(VGND), .VPWR(VPWR));

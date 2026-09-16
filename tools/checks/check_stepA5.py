@@ -8,8 +8,8 @@ A1 and A3 *independently*, and that every gap has a stated cause rather than a s
   - every label in the standard-cell masters is classified, and the pin-label share equals
     A3's independently counted total;
   - A3's named pins, A4's modelled pins, and the geometry-bearing set are the same 560;
-  - the 71 pins without routing-layer geometry are each attributed to one of exactly two
-    causes, with no residual "unexplained" bucket;
+  - the 68 pins without routing-layer geometry are each attributed to the one stated cause,
+    with no residual "unexplained" bucket;
   - the routing-layer reach is pinned: this is the fact Phase B is built on.
 
     .venv/Scripts/python tools/checks/check_stepA5.py
@@ -33,7 +33,9 @@ A4 = ROOT / 'recon' / 'derived' / 'pinmodel.json'
 A5 = ROOT / 'recon' / 'derived' / 'pin_coverage.json'
 
 EXPECTED_CENSUS = {'total': 876, 'pin_label': 803, 'cell_name': 73}
-EXPECTED_REACH = {'67/20': 489, '68/20': 20}
+# 67/20 is li1, 68/20 is met1. Reading paths as well as polygons (review R2) recovers the
+# antenna diode's supply rails, so 30 more pins reach the routing stack than before.
+EXPECTED_REACH = {'67/20': 492, '68/20': 209}
 
 results: list[tuple[str, str, object, object]] = []
 
@@ -87,14 +89,18 @@ def main() -> int:
     check('every modelled pin carries geometry', pc['with_geometry'], pc['modelled'])
 
     # ---- 4. every gap has a cause ----------------------------------------------
+    # The antenna diode's supplies used to need a second cause here -- they carried no
+    # routing-layer geometry only because reading `cell.polygons` alone dropped the met1 path
+    # that draws their rail (review R2). With paths included they are routed pins, not a gap,
+    # and the well-tie contact (VPB, drawn only on 64/16) is the sole remaining cause.
     causes = pc['exceptions_by_cause']
-    check('exactly two causes for the 71 unrouted pins', len(causes), 2)
-    check('the two causes cover all 71 pins', sum(causes.values()),
+    check('exactly one cause for the 68 unrouted pins', len(causes), 1)
+    check('the one cause covers all 68 pins', sum(causes.values()),
           pc['without_routing_geometry'])
     check('the well-tie cause accounts for 68', causes.get(
         'well-tie contact only (64/16); no routing-layer geometry'), 68)
-    check('the antenna-diode cause accounts for 3',
-          causes.get('antenna diode: supply exists only as a 68/16 pin square'), 3)
+    check('no antenna-diode cause remains (its supplies are routed via a met1 path)',
+          'antenna diode: supply exists only as a 68/16 pin square' in causes, False)
     check('no residual unexplained bucket', 'unexplained' in causes, False)
     # and the arithmetic of the coverage split
     check('routed + unrouted == modelled',
@@ -111,8 +117,8 @@ def main() -> int:
     # ---- 6. instance-level reach ---------------------------------------------
     ir = d['instance_reach']
     check('placed pins counted', ir['placed_pins'], 7897)
-    check('placed pins with routing geometry', ir['placed_pins_with_routing_geometry'], 6925)
-    check('instance coverage percent', ir['coverage_pct'], 87.69)
+    check('placed pins with routing geometry', ir['placed_pins_with_routing_geometry'], 6955)
+    check('instance coverage percent', ir['coverage_pct'], 88.07)
     check('instance reach is routeable in principle',
           ir['placed_pins_with_routing_geometry'] < ir['placed_pins'], True)
 

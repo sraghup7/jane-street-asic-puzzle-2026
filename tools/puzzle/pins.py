@@ -278,10 +278,21 @@ def local_rule_table(via_doc) -> list[dict]:
     return rules
 
 
+def master_shapes(cell):
+    """Every drawn shape of a master, paths included (flattened to polygons).
+
+    The masters carry 135 paths -- 128 met1 supply rails and 7 li1 segments. Reading `cell.polygons`
+    alone dropped them, which left every rail-connected supply pin looking unrouted (review R2).
+    """
+    yield from cell.polygons
+    for path in cell.paths:
+        yield from path.to_polygons()
+
+
 def cell_graph(cell, roles) -> tuple[list[dict], list[set]]:
     """Nodes = shapes on electrical pairs; edges = exact same-layer touch."""
     nodes: list[dict] = []
-    for p in cell.polygons:
+    for p in master_shapes(cell):
         k = (p.layer, p.datatype)
         role = roles.get(k)
         if role not in PLANE_ROLES + CUT_ROLES:

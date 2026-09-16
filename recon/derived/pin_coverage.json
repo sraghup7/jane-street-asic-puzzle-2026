@@ -30,22 +30,21 @@
     "named": 560,
     "modelled": 560,
     "with_geometry": 560,
-    "with_routing_geometry": 489,
-    "without_routing_geometry": 71,
+    "with_routing_geometry": 492,
+    "without_routing_geometry": 68,
     "exceptions_by_cause": {
-      "antenna diode: supply exists only as a 68/16 pin square": 3,
       "well-tie contact only (64/16); no routing-layer geometry": 68
     },
-    "routing_coverage_pct": 87.32
+    "routing_coverage_pct": 87.86
   },
   "routing_layer_reach_pins": {
-    "67/20": 489,
-    "68/20": 20
+    "67/20": 492,
+    "68/20": 209
   },
   "instance_reach": {
     "placed_pins": 7897,
-    "placed_pins_with_routing_geometry": 6925,
-    "coverage_pct": 87.69
+    "placed_pins_with_routing_geometry": 6955,
+    "coverage_pct": 88.07
   },
   "checks": [
     {

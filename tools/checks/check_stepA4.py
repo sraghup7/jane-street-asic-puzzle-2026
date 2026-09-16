@@ -39,7 +39,8 @@ BBOX_TOL = 0.002
 SUPPLIES = {'VGND', 'VNB', 'VPB', 'VPWR'}      # supply + body-tie pins
 
 EXPECTED_TOTALS = {'masters': 69, 'pins': 560, 'pins_with_geometry': 560,
-                   'pin_shapes': 1790,
+                   # paths flattened to polygons as well (review R2) add 1629 shapes
+                   'pin_shapes': 3419,
                    'seed_methods': {'same_layer_number': 492, 'other_layer': 68},
                    'warmup_cell_types': 18, 'warmup_cell_types_all_match': True}
 # the cell types whose exact agreement with the vendor netlist is most load-bearing
@@ -115,9 +116,11 @@ def main() -> int:
     two_way = sorted(mn for mn, gs in groups_by_master.items() if gs == [('VGND', 'VNB')])
     four_way = sorted(mn for mn, gs in groups_by_master.items()
                       if gs == [('VGND', 'VNB', 'VPB', 'VPWR')])
-    check('the co-located VGND+VNB pair occurs in 67 masters', len(two_way), 67)
-    check('the antenna diode is the one master where all four coincide',
-          four_way, ['sky130_fd_sc_hd__diode_2'])
+    # Reading paths as well as polygons (review R2) gives the antenna diode's VPB and VPWR
+    # pins their own routed geometry, so it joins the ordinary VGND+VNB body-tie pattern
+    # instead of standing alone with all four supply/body pins on one shape.
+    check('the co-located VGND+VNB pair occurs in 68 masters', len(two_way), 68)
+    check('no master has all four supply/body pins on one shape', four_way, [])
     check('the tap cell has no coincident group',
           [mn for mn in groups_by_master if mn.endswith('tapvpwrvgnd_1')], [])
     # and the specific pins the bug had merged must now be distinct
@@ -168,21 +171,21 @@ def main() -> int:
     check('seed methods are from the known set',
           sorted({s for m in d['masters'].values() for p in m['pins'].values()
                   for s in p['seed_methods']}), ['other_layer', 'same_layer_number'])
-    # Pins whose geometry never reaches the routing stack. Two distinct reasons, both
-    # recorded rather than waved at: VPB is a well-tie contact that exists only on 64/16,
-    # and the antenna-diode cell's supplies exist only as 68/16 pin squares with no met1
-    # drawing layer at all.
+    # Pins whose geometry never reaches the routing stack. VPB is a well-tie contact that
+    # exists only on 64/16. The antenna diode's VGND/VNB/VPWR used to look unrouted too --
+    # their only routing-layer geometry is a drawn *path* (a met1 rail segment), and reading
+    # `cell.polygons` alone silently dropped paths (review R2). With paths included, every
+    # supply pin reaches the routing stack; only the well-tie pins do not.
     unrouted = {(mn, pn) for mn, m in d['masters'].items() for pn, p in m['pins'].items()
                 if not p['routing_rects']}
     check('pins with no routing-layer geometry, by name',
           dict(Counter(pn for _, pn in unrouted)),
-          {'VPB': 68, 'VGND': 1, 'VNB': 1, 'VPWR': 1})
+          {'VPB': 68})
     check('VPB lacks routing geometry in every master that has a VPB',
           sorted(mn for mn, pn in unrouted if pn == 'VPB'),
           sorted(mn for mn, m in d['masters'].items() if 'VPB' in m['pins']))
-    check('the only master whose supplies lack routing geometry is the antenna diode',
-          sorted({mn for mn, pn in unrouted if pn in ('VGND', 'VNB', 'VPWR')}),
-          ['sky130_fd_sc_hd__diode_2'])
+    check('no master has an unrouted supply (VGND/VNB/VPWR) -- the diode\'s ride a met1 path',
+          sorted({mn for mn, pn in unrouted if pn in ('VGND', 'VNB', 'VPWR')}), [])
 
     # ---- report ----------------------------------------------------------------
     w = max(len(r[1]) for r in results)

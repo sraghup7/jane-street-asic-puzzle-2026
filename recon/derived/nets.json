@@ -30,14 +30,11 @@
     "shapes_without_interior_point": 0,
     "every_shape_in_exactly_one_net": true,
     "supply_pins_probed": 5120,
-    "supply_pins_unassigned": 972,
+    "supply_pins_unassigned": 942,
     "supply_unassigned_by_pin": {
-      "VPB": 942,
-      "VGND": 10,
-      "VNB": 10,
-      "VPWR": 10
+      "VPB": 942
     },
-    "supply_unassigned_in_known_gap_classes": 972,
+    "supply_unassigned_in_known_gap_classes": 942,
     "supply_unassigned_unexplained": 0
   },
   "per_layer_shapes": {
@@ -73,7 +70,7 @@
       "cluster": 27,
       "polygons": 7015,
       "supply_pins": {
-        "VPWR": 1608
+        "VPWR": 1618
       },
       "only_supply_pins": true
     },
@@ -81,8 +78,8 @@
       "cluster": 3,
       "polygons": 6974,
       "supply_pins": {
-        "VGND": 1608,
-        "VNB": 932
+        "VGND": 1618,
+        "VNB": 942
       },
       "only_supply_pins": true
     },
