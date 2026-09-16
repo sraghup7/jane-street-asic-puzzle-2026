@@ -56,6 +56,7 @@ technically defensible artifact (target: a public writeup, then PhD outreach).
 | Q3 | Step-4 pacing | **(b) Stop for explicit go-ahead after every verified step** |
 | Q4 | Repo layout | **(a)** Own git repo; `asic-puzzle-2026/` is read-only upstream input (gitignored, never modified); **private** |
 | Q5 | Toolchain | **(a)** Install what genuinely reduces risk, including the SkyWater PDK if needed — **quote sizes before any large pull** |
+| Q6 | AC6 statement (2026-09-15, after the solution review) | **PASS with method disclosure** — the partition is recovered from the design's own latches, spells "JS" and is corroborated by the chip; the map was measured by single-star probing (prohibited method 5), stated plainly wherever AC6 is reported |
 
 The Jane Street "don't use AI" request is **not** treated as binding (user decision, 2026-09-12);
 it is recorded in `docs/01_problem.md` as historical context only.

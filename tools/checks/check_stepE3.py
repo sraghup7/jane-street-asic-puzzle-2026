@@ -7,13 +7,15 @@ victory lap, so this gate does two jobs:
 
 * **re-derives every criterion's comparison** from the committed artifacts and the contract in
   `tools/target.py` -- the matrix is not allowed to be an opinion about the artifacts;
-* **polices the honesty rules**, with checks that fail if the matrix is improved: AC6 must be
-  `PARTIAL` and must carry its unmet reasons, AC4 must carry the note explaining the one contract row
-  that E1 alone does not satisfy, the report must list what is not claimed, and a criterion marked
-  `PASS` must carry evidence with no unmet items.
+* **polices the honesty rules**, with checks that fail if the matrix is worded rather than computed:
+  AC6's letters and status must come from `accept.letter_classes()`/`accept.ac6_ok()` re-applied to the
+  same artifacts, its notes must carry the method disclosure (single-star probing, prohibited method
+  5), AC4 must carry the note explaining the one contract row that E1 alone does not satisfy, the
+  report must list what is not claimed, and a criterion marked `PASS` must carry evidence with no
+  unmet items.
 
-It follows that the state this gate guards is "5 PASS, 1 declared PARTIAL, 0 FAIL" -- if AC6 is ever
-upgraded to PASS without the evidence changing, this gate fails rather than congratulating anyone.
+It follows that the state this gate guards is "6 PASS, 0 PARTIAL, 0 FAIL" -- if AC6's status stops
+matching what `ac6_ok()` computes from its own evidence, this gate fails rather than trusting the row.
 """
 from __future__ import annotations
 
@@ -25,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from tools import target as T
+from tools.puzzle import accept as A
 
 ART = ROOT / 'recon' / 'derived' / 'acceptance.json'
 D = ROOT / 'recon' / 'derived'
@@ -132,6 +135,18 @@ def main() -> int:
           and rows['AC6']['evidence']['solutions_under_this_partition'] == 1,
           f"{ragged[0]['class_sizes']}, one solution under it")
 
+    sel = next(x for x in c4['candidates'] if x['name'] == c4['selected'])
+    classes = {f: sel['classes'][f] for f in sel['flops']}
+    letters = A.letter_classes(classes)
+    check('AC6: the letters are computed from the partition, not asserted',
+          rows['AC6']['evidence']['letters_found'] == sorted(letters)
+          and set(letters) == {'J', 'S'}, f'{letters}')
+    check('AC6 status follows its evidence',
+          rows['AC6']['status'] == ('PASS' if A.ac6_ok(rows['AC6']['evidence']) else 'PARTIAL'),
+          rows['AC6']['status'])
+    check('AC6 carries the method disclosure (single-star probing, prohibited method 5)',
+          any('single-star' in n and 'prohibited' in n for n in rows['AC6']['notes']), 'disclosed')
+
     # ---- every number the matrix displays must be the artifact's number ---------------
     # Found by fault injection: zeroing AC5's quoted bit count escaped, because the check above
     # re-derives from vcd_replay.json and never compared the matrix's own copy. A matrix that can
@@ -163,24 +178,21 @@ def main() -> int:
           == e2['control_group']['boards_not_spelling_it'],
           "the 126, the message, and the E2 board counts are the artifacts' own")
     check('the matrix quotes the partition artifact faithfully',
-          rows['AC6']['evidence']['capacity2_covers_found'] == c4['eleven_class_cover_count']
-          and rows['AC6']['evidence']['non_column_candidate'] == ragged[0]['name']
-          and rows['AC6']['evidence']['boards_supporting_it'] == e2['boards_spelling_the_message']
-          and rows['AC6']['evidence']['control_boards_against_it']
-          == e2['control_group']['boards_not_spelling_it'],
-          f"{ragged[0]['name']}, supported by {rows['AC6']['evidence']['boards_supporting_it']} boards")
+          rows['AC6']['evidence']['solutions_under_this_partition']
+          == sel['unique_solution']['solutions']
+          and rows['AC6']['evidence']['letters_found'] == sorted(letters)
+          and rows['AC6']['evidence']['chip_matches_prediction']
+          == e2['agreement']['chip_matches_prediction']
+          and rows['AC6']['evidence']['swap_boards'] == e2['agreement']['boards']
+          and rows['AC6']['evidence']['lookalikes_reproducing_the_chip']
+          == e2['lookalike_power']['reproduce_all_boards'],
+          f"{sel['name']}, letters {sorted(letters)}, "
+          f"{rows['AC6']['evidence']['chip_matches_prediction']}/{rows['AC6']['evidence']['swap_boards']} "
+          f"boards agree")
 
     # ---- the honesty rules -----------------------------------------------------------
-    check('AC6 is PARTIAL, not PASS: the matrix is not allowed to upgrade it',
-          rows['AC6']['status'] == 'PARTIAL',
-          f"{rows['AC6']['status']}")
-    check('AC6 carries its unmet reasons, including the "JS" reading and the verdict channel',
-          len(rows['AC6']['unmet']) >= 3
-          and any('JS' in u for u in rows['AC6']['unmet'])
-          and any('look-alike' in u for u in rows['AC6']['unmet']),
-          f"{len(rows['AC6']['unmet'])} unmet items")
     check('the report lists what is not claimed, and it is not empty',
-          len(art['claims_not_made']) >= 3 and art['partial'] == ['AC6'],
+          len(art['claims_not_made']) >= 3 and art['partial'] == [],
           f"partial={art['partial']}, {len(art['claims_not_made'])} unclaimed items")
     check('a criterion marked PASS carries evidence and no unmet items',
           all(r['evidence'] and not r['unmet'] for r in art['criteria'] if r['status'] == 'PASS'),

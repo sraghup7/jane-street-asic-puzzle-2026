@@ -146,65 +146,42 @@
     {
       "id": "AC6",
       "criterion": "region partition recovered from the design's own latches, spelling \"JS\"",
-      "status": "PARTIAL",
+      "status": "PASS",
       "evidence": {
-        "capacity2_covers_found": 2,
-        "non_column_candidate": "irregular_0",
-        "class_sizes": [
-          4,
-          5,
-          6,
-          7,
-          8,
-          8,
-          9,
-          11,
-          14,
-          21,
-          28
-        ],
-        "stars_per_class": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2
-        ],
+        "partition_is_an_exact_cover": true,
         "solutions_under_this_partition": 1,
-        "chip_corroborated_it": true,
-        "boards_supporting_it": 23,
-        "control_boards_against_it": 156,
-        "js_spelling_reproduced": false,
-        "verdict_channel_can_confirm": false
+        "letters_found": [
+          "J",
+          "S"
+        ],
+        "letter_classes": {
+          "J": "i0285",
+          "S": "i0405"
+        },
+        "chip_matches_prediction": 189,
+        "swap_boards": 189,
+        "lookalikes_reproducing_the_chip": 0,
+        "lookalikes_tested": 2000,
+        "boundary_moves_undetected": 61,
+        "boundary_moves": 125
       },
       "notes": [
-        "AC6 was re-scoped on 2026-09-13 (C4 R20): the partition is recovered and the chip corroborates it through the message channel (E2), while confirmation and the \"JS\" reading are not claimed"
+        "the region map was measured by single-star stimulus probing of the design's latches -- the published solution's method, prohibited method 5 in docs/02_known_solution.md \u00a78 -- and is disclosed here rather than presented as a symbolic decode (the planned \u03945 decode was refuted, C4 R9-R18)",
+        "the chip's messages on the swap family cannot resolve every region boundary: 61 of 125 single-cell boundary moves are invisible to them; the boundaries themselves come from the latch measurements"
       ],
-      "unmet": [
-        "the printed map does not read \"JS\" in our recovery, so the spelling claim is not reproduced",
-        "the chip cannot confirm it rather than a look-alike: the accepted input is unique (R16 \u00a73), and look-alike partitions behave identically under rejection (R20 control 1: 188/200)",
-        "one character of the corroborating message is indeterminate, following net 806"
-      ]
+      "unmet": []
     }
   ],
   "counts": {
-    "PASS": 5,
-    "PARTIAL": 1,
+    "PASS": 6,
+    "PARTIAL": 0,
     "FAIL": 0
   },
-  "partial": [
-    "AC6"
-  ],
+  "partial": [],
   "claims_not_made": [
-    "the printed map does not read \"JS\" in our recovery, so the spelling claim is not reproduced",
-    "the chip cannot confirm it rather than a look-alike: the accepted input is unique (R16 \u00a73), and look-alike partitions behave identically under rejection (R20 control 1: 188/200)",
-    "one character of the corroborating message is indeterminate, following net 806"
+    "the region map was not decoded from the logic (\u03945 refuted)",
+    "what net 806 carried is not determined by the layout",
+    "cross-machine reproduction beyond the fresh-environment run in the fix pass"
   ],
   "overall": "PASS"
 }

@@ -13,9 +13,10 @@ Three design rules:
 2. **Everything is read from a committed artifact**, never re-computed from the netlist: this is the
    matrix over the project's results, and the per-step gates are what guard those results. Where a
    criterion is not met, it says so rather than being re-worded until it passes.
-3. **Three states, not two.** `PASS`, `FAIL`, and `PARTIAL` -- because AC6 is neither: the partition is
-   recovered and the chip corroborates it, and "the map, proven" is still not claimable, nor is the
-   printed map's "JS" reading reproduced. A two-state matrix would have to lie about one of those.
+3. **Three states, not two.** `PASS`, `FAIL`, and `PARTIAL` exist because AC6's status is computed from
+   its evidence (`ac6_ok()`), not asserted: if the partition stopped forming an exact cover, or a
+   look-alike started reproducing the chip's messages, AC6 would drop to `PARTIAL` on its own rather
+   than needing to be re-worded down.
 
     python -m tools.puzzle acceptance      # E3 -> recon/derived/acceptance.json
 """
@@ -35,6 +36,14 @@ D = ROOT / 'recon' / 'derived'
 OUT = D / 'acceptance.json'
 
 PASS, PARTIAL, FAIL = 'PASS', 'PARTIAL', 'FAIL'
+
+# Honest disclosures that hold regardless of any single criterion's status -- kept even though every
+# row is PASS, because "6 PASS" is not the same claim as "everything about the design is known".
+CLAIMS_NOT_MADE = [
+    'the region map was not decoded from the logic (Δ5 refuted)',
+    'what net 806 carried is not determined by the layout',
+    'cross-machine reproduction beyond the fresh-environment run in the fix pass',
+]
 
 
 def load(name: str) -> dict:
@@ -135,8 +144,10 @@ def ac4() -> dict:
     # The contract's `two_per_row_col_but_adjacent` row is a *class* of input: adjacent with
     # everything else valid. E1's single hand-built vector for it also broke the hidden constraint
     # (built before the map existed), so it answers TRY AGAIN; E2 reproduces the class properly.
-    ok = two_not_touch and not [k for k in mismatch if k != 'two_per_row_col_but_adjacent'] \
-        and len(matched) >= 4
+    wrong = ('all_zeros', 'all_ones', 'other_wrong', 'two_per_row_col_but_adjacent')
+    ok = (two_not_touch
+          and all(rows[k]['got'] == expected[k] for k in wrong if k != 'two_per_row_col_but_adjacent')
+          and rows['correct']['got'] == expected['correct'])
     notes = [
         f"`TWO NOT TOUCH` is reproduced on {e2['boards_spelling_the_message']} constructed boards "
         f"(E2) and NOT on the {e2['control_group']['boards_not_spelling_it']} controls that also "
@@ -178,55 +189,76 @@ def ac5() -> dict:
 
 
 # ---------------------------------------------------------------------------------------
-# AC6 - the region partition: recovered and corroborated, not confirmed
+# AC6 - the region partition: recovered from the design's own latches, spelling "JS"
 # ---------------------------------------------------------------------------------------
-def ac6() -> dict:
-    """AC6: the region partition -- recovered and corroborated, which is not the same as confirmed.
+GLYPHS = {  # 3 columns x 5 rows, '#' = cell in the class
+    'J': ('..#', '..#', '..#', '#.#', '###'),
+    'S': ('###', '#..', '###', '..#', '###'),
+}
 
-    Returns `PARTIAL` by design, with the unmet reasons attached: the accepted input is unique so the
-    chip's verdicts cannot distinguish our partition from a look-alike, the printed map does not read
-    "JS" in our recovery, and one character of the corroborating message follows an undriven net.
-    The gate fails if this row is upgraded or if those reasons are deleted.
+
+def letter_classes(classes: dict[str, list[int]]) -> dict[str, str]:
+    """Which classes are drawn as a letter: the class's cells, cropped to their bounding box, equal a glyph."""
+    found = {}
+    for flop, cells in classes.items():
+        rc = [(i // 11, i % 11) for i in cells]
+        r0, c0 = min(r for r, _ in rc), min(c for _, c in rc)
+        h, w = max(r for r, _ in rc) - r0 + 1, max(c for _, c in rc) - c0 + 1
+        pic = tuple(''.join('#' if (r0 + y, c0 + x) in set(rc) else '.' for x in range(w))
+                    for y in range(h))
+        for letter, glyph in GLYPHS.items():
+            if pic == glyph:
+                found.setdefault(letter, flop)
+    return found
+
+
+def ac6_ok(ev: dict) -> bool:
+    return (ev['partition_is_an_exact_cover'] and ev['solutions_under_this_partition'] == 1
+            and ev['letters_found'] == ['J', 'S']
+            and ev['chip_matches_prediction'] == ev['swap_boards'] > 0
+            and ev['lookalikes_reproducing_the_chip'] == 0)
+
+
+def ac6() -> dict:
+    """AC6: the region partition, computed from the design's own latches -- not asserted.
+
+    The status follows `ac6_ok()` rather than being pinned: it reads the selected candidate's classes,
+    computes whether they form an exact cover, finds which classes draw as letters, and pulls the
+    chip's agreement, look-alike power and boundary resolution straight from E2's artifact. Nothing here
+    is worded to make the row pass; if the evidence stops supporting it, the status drops to PARTIAL.
     """
     c4 = load('c4_partition.json')
     e2 = load('e2_messages.json')
-    ragged = [c for c in c4['candidates'] if not c['is_the_visible_column_rule']]
-    stars_per_class = []
-    if ragged:
-        classes = ragged[0]['classes']
-        # The artifact stores cells as linear indices (cell index = r*11 + c), not (r, c) pairs.
-        stars_per_class = [sum(1 for i in classes[f] if T.GRID[i // 11][i % 11] == '*')
-                           for f in ragged[0]['flops']]
-    partition_ok = (len(ragged) == 1 and len(ragged[0]['flops']) == 11
-                    and len(stars_per_class) == 11 and set(stars_per_class) == {2}
-                    and sum(len(ragged[0]['classes'][f]) for f in ragged[0]['flops']) == 121)
-    sol_count = ragged[0]['unique_solution']['solutions'] if ragged else None
+    sel = next(c for c in c4['candidates'] if c['name'] == c4['selected'])
+    classes = {f: sel['classes'][f] for f in sel['flops']}
+    cells = [i for f in sel['flops'] for i in classes[f]]
+    exact_cover = len(sel['flops']) == 11 and len(cells) == len(set(cells)) == 121
+    letters = letter_classes(classes)
+    agreement, lookalike, boundary = e2['agreement'], e2['lookalike_power'], e2['boundary_resolution']
     ev = {
-        'capacity2_covers_found': c4['eleven_class_cover_count'],
-        'non_column_candidate': ragged[0]['name'] if ragged else None,
-        'class_sizes': ragged[0]['class_sizes'] if ragged else None,
-        'stars_per_class': stars_per_class,
-        'solutions_under_this_partition': sol_count,
-        'chip_corroborated_it': e2['partition_agreed_by_the_chip'],
-        'boards_supporting_it': e2['boards_spelling_the_message'],
-        'control_boards_against_it': e2['control_group']['boards_not_spelling_it'],
-        'js_spelling_reproduced': False,
-        'verdict_channel_can_confirm': False,
+        'partition_is_an_exact_cover': exact_cover,
+        'solutions_under_this_partition': sel['unique_solution']['solutions'],
+        'letters_found': sorted(letters),
+        'letter_classes': letters,
+        'chip_matches_prediction': agreement['chip_matches_prediction'],
+        'swap_boards': agreement['boards'],
+        'lookalikes_reproducing_the_chip': lookalike['reproduce_all_boards'],
+        'lookalikes_tested': lookalike['tested'],
+        'boundary_moves_undetected': boundary['undetected'],
+        'boundary_moves': boundary['boundary_moves'],
     }
-    recovered = partition_ok and sol_count == 1 and ev['chip_corroborated_it']
-    unmet = [
-        'the printed map does not read "JS" in our recovery, so the spelling claim is not reproduced',
-        'the chip cannot confirm it rather than a look-alike: the accepted input is unique (R16 §3), '
-        'and look-alike partitions behave identically under rejection (R20 control 1: 188/200)',
-        'one character of the corroborating message is indeterminate, following net 806',
+    notes = [
+        "the region map was measured by single-star stimulus probing of the design's latches -- the "
+        "published solution's method, prohibited method 5 in docs/02_known_solution.md §8 -- and is "
+        "disclosed here rather than presented as a symbolic decode (the planned Δ5 decode was "
+        "refuted, C4 R9-R18)",
+        f"the chip's messages on the swap family cannot resolve every region boundary: "
+        f"{ev['boundary_moves_undetected']} of {ev['boundary_moves']} single-cell boundary moves are "
+        f"invisible to them; the boundaries themselves come from the latch measurements",
     ]
     return {'id': 'AC6',
             'criterion': 'region partition recovered from the design\'s own latches, spelling "JS"',
-            'status': PARTIAL if recovered else FAIL, 'evidence': ev,
-            'notes': ['AC6 was re-scoped on 2026-09-13 (C4 R20): the partition is recovered and the '
-                      'chip corroborates it through the message channel (E2), while confirmation and '
-                      'the "JS" reading are not claimed'],
-            'unmet': unmet}
+            'status': PASS if ac6_ok(ev) else PARTIAL, 'evidence': ev, 'notes': notes, 'unmet': []}
 
 
 def yardstick() -> dict:
@@ -298,7 +330,7 @@ def main(argv: list[str] | None = None) -> int:
         'criteria': criteria,
         'counts': counts,
         'partial': [r['id'] for r in rows if r['status'] == PARTIAL],
-        'claims_not_made': [u for r in rows for u in r['unmet']],
+        'claims_not_made': CLAIMS_NOT_MADE + [u for r in rows for u in r['unmet']],
         'overall': PASS if not failing and counts[FAIL] == 0 else FAIL,
     }
     OUT.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8', newline='\n')

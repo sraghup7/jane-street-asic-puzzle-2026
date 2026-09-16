@@ -772,13 +772,13 @@ def _row(d, cid):
     return next(r for r in d['criteria'] if r['id'] == cid)
 
 
-def m_e3_ac6_upgraded(d):
-    """Upgrade AC6 from PARTIAL to PASS: the overclaim this gate exists to catch."""
+def m_e3_ac6_downgraded(d):
+    """Downgrade AC6 from PASS to PARTIAL while its evidence still says PASS: the matrix's status must
+    track what `ac6_ok()` computes, not a worded-down opinion of it."""
     r = _row(d, 'AC6')
-    r['status'] = 'PASS'
-    r['unmet'] = []
-    d['partial'] = []
-    d['counts'] = {'PASS': 6, 'PARTIAL': 0, 'FAIL': 0}
+    r['status'] = 'PARTIAL'
+    d['partial'] = ['AC6']
+    d['counts'] = {'PASS': 5, 'PARTIAL': 1, 'FAIL': 0}
 
 
 def m_e3_ac1_friendly(d):
@@ -792,13 +792,15 @@ def m_e3_ac5_vacuous(d):
 
 
 def m_e3_counts_faked(d):
-    """Claim a clean sweep of the criteria without the statuses agreeing."""
-    d['counts'] = {'PASS': 6, 'PARTIAL': 0, 'FAIL': 0}
+    """Claim a different PASS/PARTIAL split than the rows actually show, whatever that split is."""
+    c = d['counts']
+    d['counts'] = {'PASS': c['PASS'] - 1, 'PARTIAL': c['PARTIAL'] + 1, 'FAIL': c['FAIL']}
 
 
 def m_e3_unmet_removed(d):
-    """Delete what the matrix says is NOT met."""
-    _row(d, 'AC6')['unmet'] = []
+    """Delete AC6's method-disclosure note and the report's list of what is not claimed."""
+    r = _row(d, 'AC6')
+    r['notes'] = [n for n in r['notes'] if 'single-star' not in n]
     d['claims_not_made'] = []
 
 
@@ -1049,7 +1051,7 @@ MUTATIONS = [
     ('e2_messages: another message class corrupted', E2ART, m_e2_class_wrong),
     ('e2_messages: the look-alike power hidden', E2ART, m_e2_lookalike_power_hidden),
     ('e2_messages: the boundary resolution limit hidden', E2ART, m_e2_boundary_resolution_hidden),
-    ('acceptance: AC6 upgraded from PARTIAL to PASS', ACCEPTART, m_e3_ac6_upgraded),
+    ('acceptance: AC6 downgraded from PASS to PARTIAL', ACCEPTART, m_e3_ac6_downgraded),
     ('acceptance: AC1 s bit-order result made unfavourable', ACCEPTART, m_e3_ac1_friendly),
     ('acceptance: the replay comparison made vacuous', ACCEPTART, m_e3_ac5_vacuous),
     ('acceptance: the counts faked without the statuses', ACCEPTART, m_e3_counts_faked),
